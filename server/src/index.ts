@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth";
+import cookieParser from "cookie-parser";
 dotenv.config({ path: ".env" });
 
 const server = express();
@@ -9,6 +10,8 @@ const server = express();
 server.use(express.json());
 
 server.use(cors());
+
+server.use(cookieParser());
 
 server.use("/auth", authRoutes);
 
