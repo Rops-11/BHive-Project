@@ -18,7 +18,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-transparent absolute top-0 left-0 w-full h-15 z-10 backdrop-blur-md">
+    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-[rgba(235,104,52,0.4)]">
       {/* Navigation */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
         {/* Logo */}
@@ -39,7 +39,7 @@ export default function Header() {
               <a
                 key={item}
                 href="#"
-                className="text-l font-semibold text-white hover:text-red-500"
+                className="text-l font-semibold text-white hover:text-red-400"
               >
                 {item}
               </a>
@@ -49,7 +49,7 @@ export default function Header() {
 
         {/* Guest Dropdown */}
         <Popover className="relative hidden lg:flex">
-          <PopoverButton className="flex items-center text-l font-semibold text-white hover:text-gray-200">
+          <PopoverButton className="flex items-center text-l font-semibold text-white hover:text-red-400">
             <span className="mr-1">GUEST</span>
             <ChevronDownIcon className="h-4 w-4 text-white" />
           </PopoverButton>
@@ -104,8 +104,8 @@ export default function Header() {
                   href="#"
                   className={`block text-xs font-semibold ${
                     item === "Home"
-                      ? "text-red-700"
-                      : "text-black hover:text-red-700"
+                      ? "text-red-500"
+                      : "text-black hover:text-red-500"
                   }`}
                 >
                   {item}
@@ -119,7 +119,7 @@ export default function Header() {
                 className="flex items-center text-xs font-semibold text-gray-600 hover:text-red-700"
                 onClick={() => alert("Logging out...")}
               >
-                < HiOutlineLogin className="h-5 w-5 mr-2" />
+                <HiOutlineLogin className="h-5 w-5 mr-2" />
                 Logout
               </button>
             </div>

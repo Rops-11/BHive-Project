@@ -22,6 +22,7 @@ export default function Carousel() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      
       {/* Images */}
       <div
         className="flex transition-transform ease-in-out duration-500"
@@ -42,7 +43,7 @@ export default function Carousel() {
         ))}
       </div>
 
-      {/* Static Text */}
+      {/* Tagline */}
       <div className="absolute inset-0 flex items-center justify-start px-5 md:px-10">
         <div className="text-left text-white">
           <h1 className="text-4xl md:text-4xl font-bold drop-shadow-lg leading-tight">
@@ -53,10 +54,10 @@ export default function Carousel() {
         </div>
       </div>
 
-      {/* Bottom Red Linear Gradient */}
-      <div className="absolute bottom-0 left-0 w-full h-60 bg-gradient-to-t  from-red-500 to-transparent z-10"></div>
+      {/* Bottom Linear Gradient effect */}
+      <div className="absolute bottom-0 left-0 w-full h-50 bg-gradient-to-t  from-orange-600 to-transparent z-10"></div>
 
-      {/* Dots */}
+      {/* Dots of three pics*/}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
         {images.map((_, index) => (
           <button
