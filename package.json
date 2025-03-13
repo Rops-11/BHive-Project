@@ -1,0 +1,15 @@
+{
+  "name": "bhive-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "app": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "install-all": "cd server && npm install && cd .. && cd client && npm install",
+    "update-all": "cd server && npm update && cd .. && cd client && npm update"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
