@@ -1,6 +1,6 @@
 "use client";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Bars3Icon } from '@heroicons/react/24/outline';
+import { Bars3Icon } from "@heroicons/react/24/outline";
 
 import React, { useState } from "react";
 import {
@@ -11,23 +11,23 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/solid";
+import { HiOutlineLogin } from "react-icons/hi";
 import logo from "@/assets/bhivelogo.png";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-transparent absolute top-0 left-0 w-full z-10 backdrop-blur-md">
+    <header className="bg-transparent absolute top-0 left-0 w-full h-15 z-10 backdrop-blur-md">
       {/* Navigation */}
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-4">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
         {/* Logo */}
         <div className="flex items-center">
           <a href="#" className="flex items-center">
             <img
               src={logo.src}
               alt="Bhive Hotel Logo"
-              className="h-15 w-auto drop-shadow-lg"
+              className="h-13 w-auto drop-shadow-lg"
             />
           </a>
         </div>
@@ -39,7 +39,7 @@ export default function Header() {
               <a
                 key={item}
                 href="#"
-                className="text-sm font-semibold text-white hover:text-red-700"
+                className="text-l font-semibold text-white hover:text-red-500"
               >
                 {item}
               </a>
@@ -49,14 +49,14 @@ export default function Header() {
 
         {/* Guest Dropdown */}
         <Popover className="relative hidden lg:flex">
-          <PopoverButton className="flex items-center text-sm font-semibold text-white hover:text-gray-200">
+          <PopoverButton className="flex items-center text-l font-semibold text-white hover:text-gray-200">
             <span className="mr-1">GUEST</span>
-            <ChevronDownIcon className="h-5 w-5 text-white" />
+            <ChevronDownIcon className="h-4 w-4 text-white" />
           </PopoverButton>
-          <PopoverPanel className="absolute right-0 z-10 mt-2 w-32 bg-white shadow-md rounded-md">
+          <PopoverPanel className="absolute right-0 z-10 mt-2 w-28 bg-white shadow-md rounded-md">
             <a
               href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="block px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
             >
               Profile
             </a>
@@ -70,7 +70,7 @@ export default function Header() {
             onClick={() => setMobileMenuOpen(true)}
             className="text-white"
           >
-            <Bars3Icon className="h-6 w-6" />
+            <Bars3Icon className="h-5 w-5" />
           </button>
         </div>
       </nav>
@@ -90,28 +90,36 @@ export default function Header() {
 
             {/* Menu Items */}
             <div className="mt-4 space-y-8">
-              {["Home", "About", "Facilities", "Rooms", "Book", "Virtual tour", "Profile"].map(
-                (item) => (
-                  <a
-                    key={item}
-                    href="#"
-                    className={`block text-sm font-semibold ${
-                      item === "Home" ? "text-red-700" : "text-black hover:text-red-700"
-                    }`}
-                  >
-                    {item}
-                  </a>
-                )
-              )}
+              {[
+                "Home",
+                "About",
+                "Facilities",
+                "Rooms",
+                "Book",
+                "Virtual tour",
+                "Profile",
+              ].map((item) => (
+                <a
+                  key={item}
+                  href="#"
+                  className={`block text-xs font-semibold ${
+                    item === "Home"
+                      ? "text-red-700"
+                      : "text-black hover:text-red-700"
+                  }`}
+                >
+                  {item}
+                </a>
+              ))}
             </div>
 
             {/* Logout Icon */}
             <div className="mt-auto">
               <button
-                className="flex items-center text-sm font-semibold text-gray-600 hover:text-red-700"
+                className="flex items-center text-xs font-semibold text-gray-600 hover:text-red-700"
                 onClick={() => alert("Logging out...")}
               >
-                <ArrowRightOnRectangleIcon className="h-6 w-6 mr-2" />
+                < HiOutlineLogin className="h-5 w-5 mr-2" />
                 Logout
               </button>
             </div>
