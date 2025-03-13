@@ -10,11 +10,9 @@
     "app": "npx concurrently \"npm run dev\" \"cd ../server && npm run dev\""
   },
   "dependencies": {
-<<<<<<< Updated upstream
-=======
+
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
->>>>>>> Stashed changes
     "next": "15.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -23,11 +21,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-<<<<<<< Updated upstream
-    "@types/react": "^19",
-=======
     "@types/react": "^19.0.10",
->>>>>>> Stashed changes
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",

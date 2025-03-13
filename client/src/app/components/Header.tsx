@@ -13,7 +13,7 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import logo from "@/assets/bhive cropped logo.png";
+import logo from "@/assets/bhivelogo.png";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,16 +29,16 @@ export default function Header() {
             <img
               src={logo.src}
               alt="Bhive Hotel Logo"
-              className="h-10 w-auto"
+              className="h-15 w-auto"
             />
           </a>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex space-x-8">
+        <div className="hidden lg:flex space-x-10">
           <a
             href="#"
-            className="text-sm font-semibold text-red-700 border-b-2 border-red-700"
+            className="text-sm font-semibold text-black hover:text-red-700"
           >
             Home
           </a>
