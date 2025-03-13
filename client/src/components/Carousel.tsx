@@ -1,0 +1,64 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import LPmaincover from '@/assets/LPmaincover.jpg';
+import LPsecondpic from '@/assets/LPsecondpic.jpg';
+import LPthirdpic from '@/assets/LPthirdpic.jpg';
+
+const images = [
+  LPmaincover,
+  LPsecondpic,
+  LPthirdpic,
+];
+
+export default function Carousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative w-full h-screen overflow-hidden">
+      
+      {/* Images */}
+      <div
+        className="flex transition-transform ease-in-out duration-500"
+        style={{
+          transform: `translateX(-${currentIndex * 100}%)`,
+        }}
+      >
+        {images.map((src, index) => (
+          <div key={index} className="w-full h-screen flex-shrink-0 relative">
+            <Image
+              src={src}
+              alt={`Slide ${index + 1}`}
+              layout="fill"
+              objectFit="cover"
+              priority
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`h-3 w-3 rounded-full ${
+              currentIndex === index ? 'bg-white' : 'bg-gray-400'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
