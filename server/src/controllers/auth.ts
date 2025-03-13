@@ -1,9 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 
-const router = express.Router();
 const prisma = new PrismaClient();
 
 class AuthController {
@@ -11,8 +10,15 @@ class AuthController {
     try {
       const { email, password } = req.body;
 
+      if (!email || !password) {
+        res.status(400).json({ message: "Email and password are required" });
+        return;
+      }
+
       const user = await prisma.user.findUnique({
-        where: { email },
+        where: {
+          email: email || undefined,
+        },
       });
 
       if (!user) {
@@ -45,6 +51,37 @@ class AuthController {
       res.status(200).json({ accessToken, isAdmin: user.isAdmin, id: user.id });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
+      console.log(error);
+    }
+  };
+
+  public authLogout = async (req: Request, res: Response) => {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        res.status(400).json({ message: "Refresh token is required" });
+        return;
+      }
+
+      const user = await prisma.user.findFirst({
+        where: { refreshToken },
+      });
+
+      if (!user) {
+        res.status(401).json({ message: "Invalid refresh token" });
+        return;
+      }
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: null },
+      });
+
+      res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+      console.log(error);
     }
   };
 }

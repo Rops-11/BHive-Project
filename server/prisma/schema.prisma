@@ -1,68 +1,59 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_DEV") // TODO: Change to PROD when ready
+  url      = env("DATABASE_URL_DEV")
 }
 
-// User Model for Admin
 model User {
-  id            String    @id @default(uuid())
-  displayName   String
-  email         String    @unique
-  hashedPassword String
-  isAdmin       Boolean   @default(false)
-  salt          String
-  refreshToken  String?
-  createdAt     DateTime  @default(now())
-  lastLogin     DateTime?
-
-  histories     History[]
-  bookings      Booking[]
-}
-
-// Room Model
-model Room {
-  id            String    @id @default(uuid())
-  roomType      String
-  roomNumber    String    @unique
-  isAvailable   Boolean   @default(true)
-  maxGuests     Int
-
-  bookings      Booking[]
-}
-
-// History Model
-model History {
-  id        String   @id @default(uuid())
-  userId    String
-  bookingId String @unique
-
-  user      User     @relation(fields: [userId], references: [id])
-  booking   Booking  @relation(fields: [bookingId], references: [id])
-}
-
-// Booking Model
-model Booking {
   id             String    @id @default(uuid())
-  roomId         String
-  userId         String
-  dateBooked     DateTime  @default(now())
-  checkIn        DateTime
-  checkOut       DateTime
-  numberOfGuests Int
-  mobileNumber   String
-  status         String // Assuming status is a string, adjust if needed
+  displayName    String
+  email          String    @unique
+  hashedPassword String
+  isAdmin        Boolean   @default(false)
+  salt           String
+  refreshToken   String?
+  createdAt      DateTime  @default(now())
+  lastLogin      DateTime?
+  bookings       Booking[]
+  histories      History[]
+}
 
-  user           User      @relation(fields: [userId], references: [id])
-  room           Room      @relation(fields: [roomId], references: [id])
-  history        History?
+model Room {
+  id          String    @id @default(uuid())
+  roomType    String
+  roomNumber  String    @unique
+  roomRate    Int
+  isAvailable Boolean   @default(true)
+  maxGuests   Int
+  bookings    Booking[]
+}
+
+model History {
+  id        String  @id @default(uuid())
+  userId    String
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Booking {
+  id               String   @id @default(uuid())
+  roomId           String
+  userId           String
+  roomNumber       String
+  name             String
+  dateBooked       DateTime @default(now())
+  shift            String // User, will be determined after confirmation from the hotel. Admin, will be determined on book.
+  checkIn          DateTime
+  checkOut         DateTime
+  numberOfAdults   Int
+  numberOfChildren Int
+  mobileNumber     String
+  status           String
+  room             Room     @relation(fields: [roomId], references: [id])
+  user             User     @relation(fields: [userId], references: [id])
+  history          History?
 }
