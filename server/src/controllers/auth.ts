@@ -57,7 +57,10 @@ class AuthController {
 
   public authLogout = async (req: Request, res: Response) => {
     try {
-      const { refreshToken } = req.body;
+      const cookies = req.cookies;
+      const refreshToken = cookies?.jwt;
+
+      console.log(cookies?.jwt);
 
       if (!refreshToken) {
         res.status(400).json({ message: "Refresh token is required" });
@@ -69,6 +72,9 @@ class AuthController {
       });
 
       if (!user) {
+        res.clearCookie("jwt", {
+          httpOnly: true,
+        });
         res.status(401).json({ message: "Invalid refresh token" });
         return;
       }
@@ -79,6 +85,46 @@ class AuthController {
       });
 
       res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+      console.log(error);
+    }
+  };
+
+  public authRegister = async (req: Request, res: Response) => {
+    try {
+      const { displayName, email, password, confirmPassword } = req.body;
+
+      if (!displayName || !email || !password || !confirmPassword) {
+        res.status(400).json({ message: "All fields are required" });
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        res.status(400).json({ message: "Passwords do not match" });
+        return;
+      }
+
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        res.status(400).json({ message: "User already exists" });
+        return;
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await prisma.user.create({
+        data: {
+          displayName,
+          email,
+          hashedPassword,
+        },
+      });
+
+      res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
       console.log(error);
