@@ -26,15 +26,15 @@ const images = [
 
 export default function Gallery() {
   return (
-    <div className="flex gap-12 justify-center mt-12"> {/* Increased gap */}
+    <div className="flex gap-30 justify-center mt-12 "> 
       {images.map((image, index) => (
         <Link href={image.link} key={index}>
-          <div className="w-56 h-80 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform"> {/* Increased size */}
+          <div className="w-100 h-120 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform"> 
             <Image
               src={image.src}
               alt={image.alt}
-              width={224} // Increased width
-              height={320} // Increased height
+              width={300} 
+              height={400} 
               className="object-cover w-full h-full"
             />
           </div>
