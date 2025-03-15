@@ -1,12 +1,17 @@
 import Carousel from "@/components/Carousel";
 import BookRoom from "@/components/BookRoom";
 import LocationDescription from "@/components/LocationDescription";
+import ExploreFacilities from "@/components/ExploreFacilities";
 export default function Home() {
   return (
     <main>
       <Carousel />
+      <div className="container mx-auto px-4 py-8">
       <BookRoom />
+      </div>
       <LocationDescription />
+      <ExploreFacilities />
+  
     </main>
   );
 }
