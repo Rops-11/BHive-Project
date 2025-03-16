@@ -9,7 +9,9 @@ const BookRoom = () => {
   const [children, setChildren] = useState(0);
 
   return (
-    <div className="bg-gray-100 p-6 rounded-2xl shadow-lg max-w-3xl mx-auto mt-8">
+    // Book Room Section
+  
+    <div className="bg-gray-100 rounded-2xl shadow-lg max-w-3xl mx-auto mt-8 p-6">
       <h2 className="text-xl text-gray-800 font-semibold text-center">Book a Room</h2>
       <p className="text-sm text-gray-500 text-center mb-4">
         Discover the perfect space for you!
