@@ -23,7 +23,7 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
         {/* Logo */}
         <div className="flex items-center">
-          <a href="#" className="flex items-center">
+          <a href="/" className="flex items-center">
             <img
               src={logo.src}
               alt="Bhive Hotel Logo"
@@ -77,8 +77,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen}>
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-64 bg-white shadow-lg">
-          <div className="flex flex-col justify-between h-full p-4">
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 bg-white shadow-lg">
+          <div className="flex flex-col justify-between w-full h-full p-4">
             {/* Close Button */}
             <button
               type="button"
