@@ -9,11 +9,11 @@ export default function Home() {
     <main>
       <Carousel />
       <div className="container mx-auto px-4 py-8">
-      <BookRoom />
+        <BookRoom />
       </div>
       <LocationDescription />
       <div className="container mx-auto px-4 py-8">
-      <ExploreFacilities />
+        <ExploreFacilities />
       </div>
       < Footer/>
   
