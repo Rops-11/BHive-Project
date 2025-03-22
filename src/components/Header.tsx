@@ -13,6 +13,7 @@ import {
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { HiOutlineLogin } from "react-icons/hi";
 import logo from "@/assets/bhivelogo.png";
+import Link from "next/link";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -23,26 +24,27 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
         {/* Logo */}
         <div className="flex items-center">
-          <a href="/" className="flex items-center">
+          <Link
+            href="/"
+            className="flex items-center">
             <img
               src={logo.src}
               alt="Bhive Hotel Logo"
               className="h-13 w-auto drop-shadow-lg"
             />
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex space-x-10">
           {["Home", "About", "Facilities", "Rooms", "Book", "Virtual tour"].map(
             (item) => (
-              <a
+              <Link
                 key={item}
                 href="#"
-                className="text-l font-semibold text-white hover:text-red-400"
-              >
+                className="text-l font-semibold text-white hover:text-red-400">
                 {item}
-              </a>
+              </Link>
             )
           )}
         </div>
@@ -54,12 +56,11 @@ export default function Header() {
             <ChevronDownIcon className="h-4 w-4 text-white" />
           </PopoverButton>
           <PopoverPanel className="absolute right-0 z-10 mt-2 w-28 bg-white shadow-md rounded-md">
-            <a
+            <Link
               href="#"
-              className="block px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
-            >
+              className="block px-3 py-1 text-xs text-gray-700 hover:bg-gray-100">
               Profile
-            </a>
+            </Link>
           </PopoverPanel>
         </Popover>
 
@@ -68,23 +69,23 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="text-white"
-          >
+            className="text-white">
             <Bars3Icon className="h-5 w-5" />
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
-      <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen}>
+      <Dialog
+        open={mobileMenuOpen}
+        onClose={setMobileMenuOpen}>
         <DialogPanel className="fixed inset-y-0 right-0 z-50 bg-white shadow-lg">
           <div className="flex flex-col justify-between w-full h-full p-4">
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-gray-700"
-            >
+              className="text-gray-700">
               <XMarkIcon className="h-6 w-6" />
             </button>
 
@@ -99,17 +100,16 @@ export default function Header() {
                 "Virtual tour",
                 "Profile",
               ].map((item) => (
-                <a
+                <Link
                   key={item}
                   href="#"
                   className={`block text-xs font-semibold ${
                     item === "Home"
                       ? "text-red-500"
                       : "text-black hover:text-red-500"
-                  }`}
-                >
+                  }`}>
                   {item}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -117,8 +117,7 @@ export default function Header() {
             <div className="mt-auto">
               <button
                 className="flex items-center text-xs font-semibold text-gray-600 hover:text-red-700"
-                onClick={() => alert("Logging out...")}
-              >
+                onClick={() => alert("Logging out...")}>
                 <HiOutlineLogin className="h-5 w-5 mr-2" />
                 Logout
               </button>
