@@ -10,33 +10,39 @@ const images = [
   { 
     src: SingleTwin,
     alt: 'Room', 
-    link: '/room-details' 
+    link: '/room-details',
+    label: 'Rooms'
   },
   { 
     src: Food, 
     alt: 'Food', 
-    link: '/dining' 
+    link: '/dining',
+    label: 'Restaurant'
   },
   { 
     src: Bar,
     alt: 'Bar', 
-    link: '/bar' 
+    link: '/bar',
+    label: 'Bar'
   },
 ];
 
 export default function Gallery() {
   return (
-    <div className="flex gap-30 justify-center mt-12 "> 
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 mt-12">
       {images.map((image, index) => (
         <Link href={image.link} key={index}>
-          <div className="w-100 h-120 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform"> 
+          <div className="max-w-xs w-full rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform relative">
             <Image
               src={image.src}
               alt={image.alt}
-              width={300} 
-              height={400} 
-              className="object-cover w-full h-full"
+              width={300}
+              height={400}
+              className="object-cover w-full h-auto aspect-[3/4]"
             />
+            <span className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-sm px-2 py-1 rounded-md">
+              {image.label}
+            </span>
           </div>
         </Link>
       ))}
