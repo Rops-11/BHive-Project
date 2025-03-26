@@ -35,8 +35,7 @@ export default function Carousel() {
             <Image
               src={src}
               alt={`Slide ${index + 1}`}
-              layout="fill"
-              objectFit="cover"
+              className='object-cover'
               priority
             />
           </div>

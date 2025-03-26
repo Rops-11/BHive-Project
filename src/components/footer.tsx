@@ -4,14 +4,17 @@ export default function Footer() {
   return (
     <footer className="bg-gray-200 text-gray-700 py-8">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-   
         <div>
           <h2 className="text-xl font-bold">Bhive</h2>
           <p className="mt-2">
             The first industrial concept hotel in Iloilo with charming ambiance.
           </p>
           <div className="mt-4">
-            <img src="/bhive-logo.png" alt="Bhive Hotel Logo" className="h-16" />
+            <img
+              src="src/assets/bhivelogo.png"
+              alt="Bhive Hotel Logo"
+              className="h-16"
+            />
           </div>
         </div>
 
@@ -19,11 +22,8 @@ export default function Footer() {
           <h3 className="text-lg font-semibold">CONTACT INFO</h3>
           <p className="mt-2">Phone: 1234567890</p>
           <p>Email: company@email.com</p>
-          <p>
-            Location: PH92+H86, Mandurriao, Iloilo City, Iloilo
-          </p>
+          <p>Location: PH92+H86, Mandurriao, Iloilo City, Iloilo</p>
         </div>
-
 
         <div>
           <h3 className="text-lg font-semibold">SOCIAL MEDIA</h3>

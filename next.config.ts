@@ -1,10 +1,23 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  // swcMinify: true,
   images: {
-    domains: ['localhost', 'images.unsplash.com'],
+    remotePatterns: [
+      {
+        protocol: "http", // or 'https' if applicable
+        hostname: "localhost",
+        port: "", // or specify a port if needed
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
