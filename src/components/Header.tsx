@@ -3,14 +3,8 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogPanel,
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-} from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Dialog, DialogPanel, Popover } from "@headlessui/react";
+
 import { HiOutlineLogin } from "react-icons/hi";
 import logo from "@/assets/bhivelogo.png";
 import Link from "next/link";
@@ -22,7 +16,7 @@ export default function Header() {
     <header className="absolute top-0 left-0 w-full h-16 z-10 bg-[rgba(235,104,52,0.4)]">
       {/* Navigation */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
-        {/* Logo */}
+        {/* logo */}
         <div className="flex items-center">
           <Link
             href="/"
@@ -36,7 +30,7 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex space-x-10">
+        <div className="hidden lg:flex space-x-10 items-center">
           {["Home", "About", "Facilities", "Rooms", "Book", "Virtual tour"].map(
             (item) => (
               <Link
@@ -47,10 +41,25 @@ export default function Header() {
               </Link>
             )
           )}
+
+          {/* Sign-up and Log-in Buttons */}
+          <a
+            href="/signup"
+            className="bg-yellow-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-yellow-500"
+          >
+            Sign-up
+          </a>
+          <a
+            href="/login"
+            className="bg-yellow-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-yellow-500"
+          >
+            Log-in
+          </a>
         </div>
 
         {/* Guest Dropdown */}
         <Popover className="relative hidden lg:flex">
+<<<<<<< Updated upstream:src/components/Header.tsx
           <PopoverButton className="flex items-center text-l font-semibold text-white hover:text-red-400">
             <span className="mr-1">GUEST</span>
             <ChevronDownIcon className="h-4 w-4 text-white" />
@@ -62,6 +71,9 @@ export default function Header() {
               Profile
             </Link>
           </PopoverPanel>
+=======
+          {/* Can add guest dropdown if needed */}
+>>>>>>> Stashed changes:client/src/components/Header.tsx
         </Popover>
 
         {/* Mobile Navigation Button */}
@@ -111,6 +123,20 @@ export default function Header() {
                   {item}
                 </Link>
               ))}
+
+              {/* Sign-up and Log-in for Mobile */}
+              <a
+                href="/signup"
+                className="block text-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-full hover:bg-yellow-500"
+              >
+                Sign-up
+              </a>
+              <a
+                href="/login"
+                className="block text-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-full hover:bg-yellow-500"
+              >
+                Log-in
+              </a>
             </div>
 
             {/* Logout Icon */}
