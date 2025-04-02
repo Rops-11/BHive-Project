@@ -4,15 +4,16 @@ import BookRoom from "@/components/BookRoom";
 import LocationDescription from "@/components/LocationDescription";
 import ExploreFacilities from "@/components/ExploreFacilities";
 import Footer from "@/components/footer";
+
 export default function Home() {
   return (
     <main>
       <Carousel />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         <BookRoom />
       </div>
       <LocationDescription />
-      <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center items-center py-8">
         <ExploreFacilities />
       </div>
       <Footer />
