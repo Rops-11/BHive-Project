@@ -26,7 +26,9 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-[#d4a017] shadow-md flex items-center">
+    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-yellow-400/40 shadow-md flex items-center">
+
+
       <nav className="mx-auto flex max-w-7xl w-full justify-between items-center px-6">
         {/* Logo */}
         <div className="flex items-center">
@@ -34,7 +36,9 @@ export default function Header() {
             <Image
               src={logo}
               alt="Bhive Hotel Logo"
-              className="h-12 w-auto drop-shadow-lg"
+              width={48}
+              height={48}
+              className="drop-shadow-lg"
               priority
             />
           </Link>
@@ -42,9 +46,8 @@ export default function Header() {
 
         {/* Navigation */}
         <div className="hidden lg:flex flex-1 justify-center space-x-6 items-center text-black font-semibold">
-          <Link href="/" className="hover:underline">
-            Home
-          </Link>
+          <Link href="/" className="hover:underline">Home</Link>
+          
           <DropdownMenuRoot>
             <DropdownMenuTrigger>
               <span className="flex items-center hover:underline cursor-pointer">
@@ -54,13 +57,12 @@ export default function Header() {
             <DropdownMenuContent>
               {hotelData?.facts.map((fact: string, index: number) => (
                 <DropdownMenuItem key={index}>
-                  <div className="text-black hover:bg-gray-200 p-2 block  ">
-                    {fact}
-                  </div>
+                  <div className="text-black hover:bg-gray-200 p-2 block">{fact}</div>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenuRoot>
+
           <DropdownMenuRoot>
             <DropdownMenuTrigger>
               <span className="flex items-center hover:underline cursor-pointer">
@@ -70,38 +72,21 @@ export default function Header() {
             <DropdownMenuContent>
               {hotelData?.facilities.map((facility: any) => (
                 <DropdownMenuItem key={facility.id}>
-                  <div className="text-black hover:bg-gray-200 p-2 block">
-                    {facility.name}
-                  </div>
+                  <div className="text-black hover:bg-gray-200 p-2 block">{facility.name}</div>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenuRoot>
-          <Link href="/rooms" className="hover:underline">
-            Rooms
-          </Link>
-          <Link href="/book" className="hover:underline">
-            Book
-          </Link>
-          <Link href="/virtual-tour" className="hover:underline">
-            Virtual tour
-          </Link>
+
+          <Link href="/rooms" className="hover:underline">Rooms</Link>
+          <Link href="/book" className="hover:underline">Book</Link>
+          <Link href="/virtual-tour" className="hover:underline">Virtual Tour</Link>
         </div>
 
         {/* Sign-up & Log-in buttons */}
         <div className="hidden lg:flex space-x-3">
-          <Link
-            href="/signup"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
-          >
-            Sign-up
-          </Link>
-          <Link
-            href="/login"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
-          >
-            Log-in
-          </Link>
+          <Link href="/signup" className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">Sign-up</Link>
+          <Link href="/login" className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">Log-in</Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -109,7 +94,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-black"
+            className="text-black transition-transform duration-300"
           >
             {mobileMenuOpen ? (
               <XMarkIcon className="h-6 w-6" />
