@@ -38,7 +38,7 @@ const roomData = [
 
 const HotelRoomCards = () => {
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-6 my-40">
       {roomData.map((room, index) => (
         <div
           key={index}

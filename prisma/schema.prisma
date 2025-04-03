@@ -56,3 +56,21 @@ model Booking {
   user             User     @relation(fields: [userId], references: [id])
   history          History?
 }
+
+model Hotel {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  location    String
+  facts       String[]
+  facilities  Facility[]
+  rooms       Room[]
+}
+
+model Facility {
+  id       String @id @default(cuid())
+  name     String
+  details  String
+  hotelId  String
+  hotel    Hotel @relation(fields: [hotelId], references: [id])
+}
