@@ -59,21 +59,7 @@ export default function Header() {
 
         {/* Guest Dropdown */}
         <Popover className="relative hidden lg:flex">
-<<<<<<< Updated upstream:src/components/Header.tsx
-          <PopoverButton className="flex items-center text-l font-semibold text-white hover:text-red-400">
-            <span className="mr-1">GUEST</span>
-            <ChevronDownIcon className="h-4 w-4 text-white" />
-          </PopoverButton>
-          <PopoverPanel className="absolute right-0 z-10 mt-2 w-28 bg-white shadow-md rounded-md">
-            <Link
-              href="#"
-              className="block px-3 py-1 text-xs text-gray-700 hover:bg-gray-100">
-              Profile
-            </Link>
-          </PopoverPanel>
-=======
           {/* Can add guest dropdown if needed */}
->>>>>>> Stashed changes:client/src/components/Header.tsx
         </Popover>
 
         {/* Mobile Navigation Button */}

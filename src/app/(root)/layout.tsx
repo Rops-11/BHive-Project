@@ -4,6 +4,7 @@ import "../globals.css";
 import Header from "../../components/Header";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "@/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
           toastClassName={`text-xs`}
         />
         {children}
+        <Footer />
       </body>
     </html>
   );
