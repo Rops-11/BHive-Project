@@ -1,5 +1,5 @@
 import { FaFacebook } from "react-icons/fa";
-import Image from "@/assets/bhive-logo.png";
+// import Image from "@/assets/bhive-logo.png";
 
 export default function Footer() {
   return (

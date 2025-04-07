@@ -8,40 +8,32 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  displayName    String
-  email          String    @unique
-  hashedPassword String
-  isAdmin        Boolean   @default(false)
-  refreshToken   String?
-  createdAt      DateTime  @default(now())
-  lastLogin      DateTime?
-  bookings       Booking[]
-  histories      History[]
+  id        String    @id @db.Uuid
+  histories History[]
 }
 
 model Room {
-  id          String    @id @default(uuid())
+  id          String    @id @default(uuid()) @db.Uuid
   roomType    String
   roomNumber  String    @unique
   isAvailable Boolean   @default(true)
   maxGuests   Int
   roomRate    Int
   bookings    Booking[]
+  hotelId     String?
 }
 
 model History {
-  id        String  @id @default(uuid())
-  userId    String
-  bookingId String  @unique
+  id        String  @id @default(uuid()) @db.Uuid
+  userId    String  @db.Uuid
+  bookingId String  @unique @db.Uuid
   booking   Booking @relation(fields: [bookingId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
 }
 
 model Booking {
-  id               String   @id @default(uuid())
-  roomId           String
-  userId           String
+  id               String   @id @default(uuid()) @db.Uuid
+  roomId           String   @db.Uuid
   dateBooked       DateTime @default(now())
   checkIn          DateTime
   checkOut         DateTime
@@ -53,24 +45,6 @@ model Booking {
   roomNumber       String
   shift            String
   room             Room     @relation(fields: [roomId], references: [id])
-  user             User     @relation(fields: [userId], references: [id])
   history          History?
 }
 
-model Hotel {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  location    String
-  facts       String[]
-  facilities  Facility[]
-  rooms       Room[]
-}
-
-model Facility {
-  id       String @id @default(cuid())
-  name     String
-  details  String
-  hotelId  String
-  hotel    Hotel @relation(fields: [hotelId], references: [id])
-}

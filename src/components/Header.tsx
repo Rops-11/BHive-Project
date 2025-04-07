@@ -1,29 +1,58 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ChevronDownIcon,
-  Bars3Icon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import logo from "@/assets/bhivelogo.png";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  NavigationMenuList,
+} from "./ui/navigation-menu";
+
+const ListItem = ({
+  title,
+  href,
+  children,
+}: {
+  title: string;
+  href: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href={href}
+          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  );
+};
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hotelData, setHotelData] = useState<any>(null);
 
-  useEffect(() => {
-    fetch("/api/hotel")
-      .then((res) => res.json())
-      .then((data) => setHotelData(data));
-  }, []);
+  const about: { title: string; description: string; href: string }[] = [
+    {
+      title: "Hotel Details",
+      description: "Know more about the hotel.",
+      href: "/about/hotelDetails",
+    },
+    {
+      title: "Terms and Conditions",
+      description: "Know about what you need to know before booking.",
+      href: "/about/termsAndConditions",
+    },
+  ];
 
   return (
     <header className="absolute top-0 left-0 w-full h-16 z-10 bg-yellow-400/40 shadow-md flex items-center">
@@ -32,7 +61,9 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl w-full justify-between items-center px-6">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center">
+          <Link
+            href="/"
+            className="flex items-center">
             <Image
               src={logo}
               alt="Bhive Hotel Logo"
