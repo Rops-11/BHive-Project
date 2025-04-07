@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signup, signInWithGoogle } from "utils/actions/auth/action";
+import { signup, signInWithGoogle } from "utils/actions/auth";
 
 const formSchema = z
   .object({

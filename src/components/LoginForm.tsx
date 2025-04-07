@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { login, signInWithGoogle } from "utils/actions/auth/action";
+import { login, signInWithGoogle } from "utils/actions/auth";
 import { toast } from "react-toastify";
 
 const formSchema = z.object({
