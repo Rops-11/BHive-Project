@@ -3,8 +3,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import logo from "@/assets/bhivelogo.png";
+// import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import logo from "@/assets/bhivelogo.jpg";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -52,8 +52,8 @@ export default function Header() {
 
   const about: { title: string; description: string; href: string }[] = [
     {
-      title: "Hotel Details",
-      description: "Know more about the hotel.",
+      title: "About Bhive",
+      description: "With the amount reviews on Facebook, There's no better place to stay in Iloilo than Bhive Hotel that offers you an outstanding service and a comforting stay like home.",
       href: "/about/hotelDetails",
     },
     {
@@ -90,40 +90,58 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex flex-1 justify-center space-x-6 items-center text-black font-semibold">
-          <Link href="/" className="hover:underline">
-            Home
-          </Link>
-
-          <DropdownMenuRoot>
-            <DropdownMenuTrigger>
-              <span className="flex items-center hover:underline cursor-pointer">
-                About <ChevronDownIcon className="h-4 w-4 ml-1" />
-              </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {hotelData?.facts.map((fact: string, index: number) => (
-                <DropdownMenuItem key={index}>
-                  <div className="text-black hover:bg-gray-200 p-2 block">
-                    {fact}
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenuRoot>
-
-          {/* 👇 Replaced this section with your custom component */}
-          <FacilitiesDropdown />
-
-          <Link href="/rooms" className="hover:underline">
-            Rooms
-          </Link>
-          <Link href="/book" className="hover:underline">
-            Book
-          </Link>
-          <Link href="/virtual-tour" className="hover:underline">
-            Virtual Tour
-          </Link>
+        <div className="hidden lg:flex flex-1 w-full text-black font-semibold justify-center items-center">
+          <NavigationMenu className="flex w-full justify-between">
+            <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
+              <NavigationMenuItem className="flex w-full justify-center items-center">
+                <NavigationMenuLink
+                  className="flex w-full justify-center items-center"
+                  asChild>
+                  <Link
+                    className="flex w-full justify-center items-center"
+                    href="/">
+                    <p>Home</p>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="flex w-full justify-center items-center">
+                <NavigationMenuTrigger>About</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                    {about.map((item) => (
+                      <ListItem
+                        key={item.title}
+                        title={item.title}
+                        href={item.href}>
+                        {item.description}
+                      </ListItem>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="flex w-full justify-center items-center">
+                <NavigationMenuLink asChild>
+                  <Link href="/facilities">
+                    <p>Facilities</p>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="flex w-full justify-center items-center">
+                <NavigationMenuLink asChild>
+                  <Link href="/rooms">
+                    <p>Rooms</p>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="flex w-full justify-center items-center">
+                <NavigationMenuLink asChild>
+                  <Link href="/book">
+                    <p>Book</p>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
 
         {/* Desktop Sign-up / Log-in */}
