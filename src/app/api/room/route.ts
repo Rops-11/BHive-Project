@@ -5,11 +5,10 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const rooms = await prisma.room.findMany({
-      include: { bookings: true },
-    });
+    const rooms = await prisma.room.findMany();
     return NextResponse.json(rooms, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Failed to fetch rooms" },
       { status: 500 }

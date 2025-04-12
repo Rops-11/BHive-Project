@@ -9,36 +9,37 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {RoomCard} from "@/types/types"
 
-const roomData = [
+const roomData: RoomCard[] = [
   {
-    name: "Single Bee",
-    capacity: "Sleeps 1 person",
-    price: "₱1,490 / night",
+    roomType: "Single Bee",
+    maxGuests: 1,
+    roomRate: "₱1,490 / night",
     amenities: ["Free Wi-Fi", "Complimentary Breakfast", "Air Conditioning", "Smart TV & Netflix"],
   },
   {
-    name: "Twin Bee",
-    capacity: "Sleeps 2 people",
-    price: "₱1,890 / night",
+    roomType: "Twin Bee",
+    maxGuests: 2,
+    roomRate: "₱1,890 / night",
     amenities: ["Free Wi-Fi", "Complimentary Breakfast", "Air Conditioning", "Smart TV & Netflix"],
   },
   {
-    name: "Queen Bee",
-    capacity: "Sleeps up to 4 people",
-    price: "₱1,890 / night",
+    roomType: "Queen Bee",
+    maxGuests: 2,
+    roomRate: "₱1,890 / night",
     amenities: ["Free Wi-Fi", "Complimentary Breakfast", "Air Conditioning", "Smart TV & Netflix"],
   },
   {
-    name: "BHive Suite",
-    capacity: "Sleeps up to 6 people",
-    price: "₱2,290 / night",
+    roomType: "BHive Suite",
+    maxGuests: 2,
+    roomRate: "₱2,290 / night",
     amenities: ["Luxury Bedding", "Mini Bar", "Private Balcony", "Hot Tub"],
   },
   {
-    name: "BHIVE Family Suite",
-    capacity: "Sleeps up to 8 people",
-    price: "₱2,690 / night",
+    roomType: "BHIVE Family Suite",
+    maxGuests: 3,
+    roomRate: "₱2,690 / night",
     amenities: ["Spacious Living Area", "Full Kitchen", "Private Pool", "Game Console"],
   },
 ];
@@ -58,7 +59,7 @@ const HotelRoomCards = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 my-40">
+    <div className="flex flex-col items-center gap-6 mb-10">
       {roomData.map((room, index) => (
         <motion.div
           key={index}
@@ -70,9 +71,9 @@ const HotelRoomCards = () => {
           {/* Left - Room Info */}
           <div className="w-2/3 p-6 flex flex-col justify-between">
             <div>
-              <h2 className="text-2xl font-semibold">{room.name}</h2>
-              <p className="text-gray-500">{room.capacity}</p>
-              <p className="text-lg font-bold mt-2">{room.price}</p>
+              <h2 className="text-2xl font-semibold">{room.roomType}</h2>
+              <p className="text-gray-500">Sleeps up to {room.maxGuests} people.</p>
+              <p className="text-lg font-bold mt-2">{room.roomRate}</p>
             </div>
 
             <ul className="text-sm text-gray-600 space-y-1 mt-2">
@@ -113,8 +114,8 @@ const HotelRoomCards = () => {
                   {/* Room Info */}
                   <div>
                     <h2 className="text-2xl font-bold">{selectedRoom?.name}</h2>
-                    <p className="text-gray-500 mb-1">{selectedRoom?.capacity}</p>
-                    <p className="text-lg font-semibold mb-4">{selectedRoom?.price}</p>
+                    <p className="text-gray-500 mb-1">{selectedRoom?.maxGuests} PAX</p>
+                    <p className="text-lg font-semibold mb-4">{selectedRoom?.roomRate}</p>
                     <h3 className="font-medium text-lg">Amenities:</h3>
                     <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1 mt-1 mb-4">
                       {selectedRoom?.amenities.map((item: string, i: number) => (
@@ -146,7 +147,7 @@ const HotelRoomCards = () => {
           <div className="w-1/3 h-full relative">
             <Image
               src={LPthirdpic}
-              alt={room.name}
+              alt={room.roomType}
               layout="fill"
               objectFit="cover"
               className="rounded-r-xl"
