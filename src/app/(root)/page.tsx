@@ -2,8 +2,6 @@ import Carousel from "../../components/Carousel";
 import BookRoom from "@/components/BookRoom";
 import LocationDescription from "@/components/LocationDescription";
 import ExploreFacilities from "@/components/ExploreFacilities";
-import Footer from "@/components/footer";
-
 export default function Home() {
   return (
     <main>
@@ -15,7 +13,6 @@ export default function Home() {
       <div className="flex justify-center items-center py-8">
         <ExploreFacilities />
       </div>
-      <Footer />
     </main>
   );
 }

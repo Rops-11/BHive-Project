@@ -20,7 +20,6 @@ model Room {
   maxGuests   Int
   roomRate    Int
   bookings    Booking[]
-  hotelId     String?
 }
 
 model History {
