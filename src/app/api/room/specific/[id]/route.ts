@@ -3,14 +3,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// This is the correct format for Next.js 14 route handlers
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const room = await prisma.room.findUnique({
-      where: { id: params.id },
-      include: { bookings: true },
+      where: { id },
     });
 
     if (!room)
@@ -41,12 +43,14 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     const data = await req.json();
     const updatedRoom = await prisma.room.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -75,11 +79,13 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     await prisma.room.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Room deleted" }, { status: 200 });
