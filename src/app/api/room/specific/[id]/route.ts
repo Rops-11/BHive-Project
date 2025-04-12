@@ -17,9 +17,23 @@ export async function GET(
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
     return NextResponse.json(room, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error fetching room:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+
+    const errorStack =
+      error instanceof Error && process.env.NODE_ENV === "development"
+        ? error.stack
+        : undefined;
+
     return NextResponse.json(
-      { error: "Failed to fetch room" },
+      {
+        error: "Failed to fetch room",
+        message: errorMessage,
+        stack: errorStack,
+      },
       { status: 500 }
     );
   }
@@ -37,9 +51,23 @@ export async function PUT(
     });
 
     return NextResponse.json(updatedRoom, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error fetching room:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+
+    const errorStack =
+      error instanceof Error && process.env.NODE_ENV === "development"
+        ? error.stack
+        : undefined;
+
     return NextResponse.json(
-      { error: "Failed to update room" },
+      {
+        error: "Failed to fetch room",
+        message: errorMessage,
+        stack: errorStack,
+      },
       { status: 500 }
     );
   }
@@ -55,9 +83,23 @@ export async function DELETE(
     });
 
     return NextResponse.json({ message: "Room deleted" }, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error fetching room:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+
+    const errorStack =
+      error instanceof Error && process.env.NODE_ENV === "development"
+        ? error.stack
+        : undefined;
+
     return NextResponse.json(
-      { error: "Failed to delete room" },
+      {
+        error: "Failed to fetch room",
+        message: errorMessage,
+        stack: errorStack,
+      },
       { status: 500 }
     );
   }
