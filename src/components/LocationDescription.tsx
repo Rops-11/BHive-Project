@@ -1,75 +1,68 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import location from "@/assets/Location.png";
-import sign from "@/assets/Outdoorsigns.jpg";
+
 import view from "@/assets/Outdoorview.jpg";
+import sign from "@/assets/bhiveNightSign.jpg";
+import location from "@/assets/Location.png";
 
-const images = [location, sign, view];
+const images = [view, sign, location];
 
-export default function HotelLocation() {
+export default function LocationDescription() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === images.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      (prevIndex - 1 + images.length) % images.length
+    );
+  };
 
   return (
-    <section className="flex flex-col md:flex-row items-center bg-gray-400 px-4 py-6 md:py-12">
-      <div className="md:w-1/2 text-left">
-        <h2 className="text-xl font-bold mb-3 text-gray-700">
-          DESCRIPTION TITLE
-        </h2>
-        <p className="text-gray-600 text-sm leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempus
-          dolor enim, vitae pulvinar metus mattis ac. Morbi quis erat sit amet
-          est commodo rhoncus. Sed eget est quis magna condimentum rutrum. Nam
-          et ultrices est. Etiam eu ex arcu. Quisque vitae massa sapien. Nullam
-          vel lorem nec tellus vehicula pellentesque vitae nec eros.
-        </p>
-      </div>
-
-      {/* Carousel Section */}
-      <div className="md:w-1/2 mt-6 md:mt-0 md:pl-4 overflow-hidden relative h-[300px]">
-        <div
-          className="flex transition-transform ease-in-out duration-500"
-          style={{
-            transform: `translateX(-${currentIndex * 100}%)`,
-          }}
-        >
-          {images.map((src, index) => (
-            <div
-              key={index}
-              className="w-full h-[300px] flex-shrink-0 relative"
-            >
-              <Image
-                src={src}
-                alt={`Slide ${index + 1}`}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          ))}
+    <section className="w-full bg-gray-200 py-12 px-4 sm:px-6 lg:px-16">
+      <div className="flex flex-col md:flex-row items-center gap-10">
+        {/* Text */}
+        <div className="w-full md:w-1/2 text-left">
+          <h2 className="text-4xl font-bold mb-6">Bhive Hotel</h2>
+          <p className="text-gray-700 text-justify text-lg leading-relaxed">
+            Whenever the word Beehive is mentioned, one word would usually
+            associate it with the all-time favorite honey being produced. 100%
+            sweet and enjoyable. Such definition is not far from Bhive Hotel, a
+            unique and industrial concept pitched by one of its owners, Engr.
+            Benito B. Sucgang Jr. Both Engr. Benito and Richel G. Sucgang of
+            Bhive Hotel look to it that Bhive is centered on the heartwarming
+            Ilonggo hospitality.
+          </p>
         </div>
 
-        {/* Dots for Navigation */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-1.5 w-1.5 rounded-full ${
-                currentIndex === index ? "bg-white" : "bg-gray-400"
-              }`}
+        {/* Carousel */}
+        <div className="w-full md:w-1/2 relative">
+          <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[520px]">
+            <Image
+              src={images[currentIndex]}
+              alt={`Hotel View ${currentIndex + 1}`}
+              fill
+              className="rounded-xl object-cover transition duration-500"
+              placeholder="blur"
             />
-          ))}
+          </div>
+
+          {/* Controls */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white text-2xl px-3 py-1 rounded-full hover:bg-black/70"
+          >
+            ‹
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white text-2xl px-3 py-1 rounded-full hover:bg-black/70"
+          >
+            ›
+          </button>
         </div>
       </div>
     </section>
