@@ -1,20 +1,28 @@
+'use client';
+
 import { FaFacebook } from "react-icons/fa";
-// import Image from "@/assets/bhive-logo.png";
+import React from "react";
+import Image from "next/image";
+import logo from '@/assets/bhivelogo.jpg';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-200 text-gray-700 py-8">
+    <footer className=" bg-gray-200 text-gray-700 py-8">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h2 className="text-xl font-bold">Bhive</h2>
-          <p className="mt-2">
-            The first industrial concept hotel in Iloilo with charming ambiance.
+            <h2 className="text-5xl font-bold">Bhive</h2>
+          <p className="mt-2 text-xl">
+            The first industrial concept hotel <br/>
+            in Iloilo with charming ambiance.
           </p>
           <div className="mt-4">
-            <img
-              src="src/assets/bhivelogo.png"
+            <Image
+              src={logo}
               alt="Bhive Hotel Logo"
-              className="h-16"
+              width={80}
+              height={80}
+              className="h-25 w-auto"
+              priority
             />
           </div>
         </div>

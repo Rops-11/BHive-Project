@@ -3,7 +3,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import logo from "@/assets/bhivelogo.png";
+// import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import logo from "@/assets/bhivelogo.jpg";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,6 +13,13 @@ import {
   NavigationMenuTrigger,
   NavigationMenuList,
 } from "./ui/navigation-menu";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuRoot } from "./ui/dropdown";
+import FacilitiesDropdown from "./FacilitiesDropdown"; // 👈 custom component
 
 const ListItem = ({
   title,
@@ -27,7 +35,8 @@ const ListItem = ({
       <NavigationMenuLink asChild>
         <Link
           href={href}
-          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+        >
           <div className="text-sm font-medium leading-none">{title}</div>
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
@@ -43,8 +52,8 @@ export default function Header() {
 
   const about: { title: string; description: string; href: string }[] = [
     {
-      title: "Hotel Details",
-      description: "Know more about the hotel.",
+      title: "About Bhive",
+      description: "With the amount reviews on Facebook, There's no better place to stay in Iloilo than Bhive Hotel that offers you an outstanding service and a comforting stay like home.",
       href: "/about/hotelDetails",
     },
     {
@@ -54,24 +63,33 @@ export default function Header() {
     },
   ];
 
+  const hotelData = {
+    facilities: [
+      { id: "1", name: "Swimming Pool" },
+      { id: "2", name: "Gym" },
+      { id: "3", name: "Spa" },
+    ],
+    facts: ["Located in the city center", "5-star rating", "Free Wi-Fi"],
+  };
+
   return (
-    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center backdrop-filter backdrop-blur-md">
+    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-yellow-400/40 shadow-md flex items-center">
       <nav className="mx-auto flex max-w-7xl w-full justify-between items-center px-6">
         {/* Logo */}
         <div className="flex items-center">
-          <Link
-            href="/"
-            className="flex items-center">
+          <Link href="/" className="flex items-center">
             <Image
               src={logo}
               alt="Bhive Hotel Logo"
-              className="h-12 w-auto drop-shadow-lg"
+              width={48}
+              height={48}
+              className="drop-shadow-lg"
               priority
             />
           </Link>
         </div>
 
-        {/* Navigation */}
+        {/* Desktop Navigation */}
         <div className="hidden lg:flex flex-1 w-full text-black font-semibold justify-center items-center">
           <NavigationMenu className="flex w-full justify-between">
             <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
@@ -126,17 +144,19 @@ export default function Header() {
           </NavigationMenu>
         </div>
 
-        {/* Sign-up & Log-in buttons */}
+        {/* Desktop Sign-up / Log-in */}
         <div className="hidden lg:flex space-x-3">
           <Link
-            href="/login"
-            className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
-            Log-in
+            href="/signup"
+            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
+          >
+            Sign-up
           </Link>
           <Link
-            href="/signup"
-            className="bg-white/30 hover:bg-white/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
-            Sign-up
+            href="/login"
+            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
+          >
+            Log-in
           </Link>
         </div>
 
@@ -145,7 +165,8 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-black">
+            className="text-black transition-transform duration-300"
+          >
             {mobileMenuOpen ? (
               <XMarkIcon className="h-6 w-6" />
             ) : (
@@ -154,6 +175,68 @@ export default function Header() {
           </button>
         </div>
       </nav>
+
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 w-full bg-white shadow-md z-20">
+          <div className="flex flex-col space-y-4 p-6 text-black font-semibold">
+            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+              Home
+            </Link>
+
+            <div>
+              <span className="font-semibold">About</span>
+              <ul className="ml-4 mt-1 space-y-1">
+                {about.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <span className="font-semibold">Facilities</span>
+              <ul className="ml-4 mt-1 space-y-1">
+                {hotelData.facilities.map((facility) => (
+                  <li key={facility.id}>
+                    <span>{facility.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <Link href="/rooms" onClick={() => setMobileMenuOpen(false)}>
+              Rooms
+            </Link>
+            <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
+              Book
+            </Link>
+            <Link href="/virtual-tour" onClick={() => setMobileMenuOpen(false)}>
+              Virtual Tour
+            </Link>
+
+            <div className="flex flex-col space-y-2 mt-4">
+              <Link
+                href="/signup"
+                onClick={() => setMobileMenuOpen(false)}
+                className="bg-yellow-500 px-4 py-2 rounded-lg text-center"
+              >
+                Sign-up
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="bg-yellow-500 px-4 py-2 rounded-lg text-center"
+              >
+                Log-in
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
