@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/../utils/supabase/server";
+import { createClient, getSession } from "@/../utils/supabase/server";
+import { prisma } from "utils/db";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -17,10 +18,27 @@ export async function login(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  const { session } = await getSession();
+  const userDB = await prisma.user.findFirst({
+    where: { id: session?.user.id },
+  }); // CAN BE CONTEXT
+
+  return { isAdmin: userDB?.isAdmin };
 }
 
 export async function signup(formData: FormData) {
   const supabase = await createClient();
+
+  if (
+    ![
+      formData.get("email"),
+      formData.get("password"),
+      formData.get("confirmPassword"),
+    ].every(Boolean)
+  ) {
+    return { error: "Details Provided is Incomplete" };
+  }
 
   if (formData.get("password") !== formData.get("confirmPassword")) {
     return { error: "Passwords do not match" };
@@ -36,6 +54,9 @@ export async function signup(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+
+  const { session } = await getSession();
+  await prisma.user.create({ data: { id: session!.user.id } });
 }
 
 export async function logout() {

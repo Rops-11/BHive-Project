@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id        String    @id @db.Uuid
+  isAdmin   Boolean   @default(false)
   histories History[]
 }
 
@@ -46,4 +47,3 @@ model Booking {
   room             Room     @relation(fields: [roomId], references: [id])
   history          History?
 }
-

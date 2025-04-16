@@ -18,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { login, signInWithGoogle } from "utils/actions/auth";
 import { toast } from "react-toastify";
+import { getSession } from "utils/supabase/server";
+import { prisma } from "utils/db";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -56,9 +58,13 @@ export function LoginForm() {
           return;
         }
 
+        const route = result.isAdmin ? "/dashboard" : "/";
+
+        console.log(result.isAdmin);
+
         toast.success("Login successful!");
 
-        router.push("/");
+        router.push(route);
       } catch (error) {
         toast.error("An error occurred during login");
         console.error(error);
