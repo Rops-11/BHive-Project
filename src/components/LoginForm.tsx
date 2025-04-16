@@ -18,8 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { login, signInWithGoogle } from "utils/actions/auth";
 import { toast } from "react-toastify";
-import { getSession } from "utils/supabase/server";
-import { prisma } from "utils/db";
 
 const formSchema = z.object({
   email: z.string().email({
