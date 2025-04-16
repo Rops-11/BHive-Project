@@ -21,9 +21,6 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-gray-200 w-full px-4 py-6 sm:px-10 sm:py-8">
-        <Footer />
-      </div>
     </main>
   );
 }
