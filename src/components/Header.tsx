@@ -13,13 +13,14 @@ import {
   NavigationMenuTrigger,
   NavigationMenuList,
 } from "./ui/navigation-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuRoot } from "./ui/dropdown";
-import FacilitiesDropdown from "./FacilitiesDropdown"; // 👈 custom component
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import { Button, buttonVariants } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 const ListItem = ({
   title,
@@ -35,8 +36,7 @@ const ListItem = ({
       <NavigationMenuLink asChild>
         <Link
           href={href}
-          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-        >
+          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
           <div className="text-sm font-medium leading-none">{title}</div>
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
@@ -49,11 +49,15 @@ const ListItem = ({
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sideBar, setSideBar] = useState(false);
+
+  const isMobile = useIsMobile();
 
   const about: { title: string; description: string; href: string }[] = [
     {
       title: "About Bhive",
-      description: "With the amount reviews on Facebook, There's no better place to stay in Iloilo than Bhive Hotel that offers you an outstanding service and a comforting stay like home.",
+      description:
+        "With the amount reviews on Facebook, There's no better place to stay in Iloilo than Bhive Hotel that offers you an outstanding service and a comforting stay like home.",
       href: "/about/hotelDetails",
     },
     {
@@ -63,21 +67,24 @@ export default function Header() {
     },
   ];
 
-  const hotelData = {
-    facilities: [
-      { id: "1", name: "Swimming Pool" },
-      { id: "2", name: "Gym" },
-      { id: "3", name: "Spa" },
-    ],
-    facts: ["Located in the city center", "5-star rating", "Free Wi-Fi"],
-  };
+  const navStyle = isMobile
+    ? `mx-auto flex max-w-7xl w-full items-center justify-between`
+    : `mx-auto flex max-w-7xl w-full items-center`;
+
+  const sideBarStyle = sideBar
+    ? "absolute flex flex-col p-5 w-6/8 h-screen top-0 bg-amber-400/90 backdrop-filter backdrop-blur-md right-0 animate-slide-in-right transition rounded-l-lg place-items-end"
+    : "absolute flex flex-col p-5 w-6/8 h-screen top-0 bg-amber-400/90 backdrop-filter backdrop-blur-md right-0 animate-slide-out-right transition rounded-l-lg place-items-end";
+
+  const sideBarButtonStyle =
+    "w-5/6 bg-amber-50 flex text-amber-600 place-self-center";
 
   return (
-    <header className="absolute top-0 left-0 w-full h-16 z-10 bg-yellow-400/40 shadow-md flex items-center">
-      <nav className="mx-auto flex max-w-7xl w-full justify-between items-center px-6">
-        {/* Logo */}
+    <header className="fixed top-0 left-0 w-full h-16 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">
+      <nav className={navStyle}>
         <div className="flex items-center">
-          <Link href="/" className="flex items-center">
+          <Link
+            href="/"
+            className="flex items-center">
             <Image
               src={logo}
               alt="Bhive Hotel Logo"
@@ -89,8 +96,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex flex-1 w-full text-black font-semibold justify-center items-center">
+        <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center">
           <NavigationMenu className="flex w-full justify-between">
             <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
               <NavigationMenuItem className="flex w-full justify-center items-center">
@@ -144,99 +150,95 @@ export default function Header() {
           </NavigationMenu>
         </div>
 
-        {/* Desktop Sign-up / Log-in */}
-        <div className="hidden lg:flex space-x-3">
-          <Link
-            href="/signup"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
-          >
-            Sign-up
-          </Link>
+        <div className="hidden md:flex space-x-3">
           <Link
             href="/login"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
-          >
+            className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
             Log-in
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
+            Sign-up
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="flex lg:hidden">
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-black transition-transform duration-300"
-          >
-            {mobileMenuOpen ? (
-              <XMarkIcon className="h-6 w-6" />
-            ) : (
+        <div className="flex md:hidden right-0">
+          {!mobileMenuOpen && (
+            <button
+              type="button"
+              onClick={() => {
+                setSideBar(!sideBar);
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
+              className="text-black">
               <Bars3Icon className="h-6 w-6" />
-            )}
-          </button>
+            </button>
+          )}
         </div>
-      </nav>
+        {mobileMenuOpen && (
+          <div className={sideBarStyle}>
+            <button
+              type="button"
+              onClick={() => {
+                setSideBar(!sideBar);
+                setTimeout(() => {
+                  setMobileMenuOpen(!mobileMenuOpen);
+                }, 500);
+              }}
+              className="text-black">
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+            <div className="flex flex-col w-full h-full justify-between">
+              <div className="flex flex-col w-full h-auto space-y-2">
+                <Button className={sideBarButtonStyle}>
+                  <Link href="/">Home</Link>
+                </Button>
+                <Collapsible className="flex-col w-full">
+                  <CollapsibleTrigger
+                    className={cn(
+                      buttonVariants({
+                        className:
+                          "w-5/6 bg-amber-50 flex text-amber-600 place-self-center",
+                      })
+                    )}>
+                    About
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <ul className="flex-col w-full space-y-1 pt-2 px-2">
+                      {about.map((item) => (
+                        <Button
+                          key={item.title}
+                          className="w-5/6 bg-amber-200 flex text-amber-600 place-self-center">
+                          <Link href={item.href}>{item.title}</Link>
+                        </Button>
+                      ))}
+                    </ul>
+                  </CollapsibleContent>
+                </Collapsible>
+                <Button className={sideBarButtonStyle}>
+                  <Link href="/facilities">Facilities</Link>
+                </Button>
+                <Button className={sideBarButtonStyle}>
+                  <Link href="/room">Rooms</Link>
+                </Button>
+                <Button className={sideBarButtonStyle}>
+                  <Link href="/">Book</Link>
+                </Button>
+              </div>
 
-      {/* Mobile Navigation Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 w-full bg-white shadow-md z-20">
-          <div className="flex flex-col space-y-4 p-6 text-black font-semibold">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-              Home
-            </Link>
-
-            <div>
-              <span className="font-semibold">About</span>
-              <ul className="ml-4 mt-1 space-y-1">
-                {about.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} onClick={() => setMobileMenuOpen(false)}>
-                      {item.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <span className="font-semibold">Facilities</span>
-              <ul className="ml-4 mt-1 space-y-1">
-                {hotelData.facilities.map((facility) => (
-                  <li key={facility.id}>
-                    <span>{facility.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Link href="/rooms" onClick={() => setMobileMenuOpen(false)}>
-              Rooms
-            </Link>
-            <Link href="/book" onClick={() => setMobileMenuOpen(false)}>
-              Book
-            </Link>
-            <Link href="/virtual-tour" onClick={() => setMobileMenuOpen(false)}>
-              Virtual Tour
-            </Link>
-
-            <div className="flex flex-col space-y-2 mt-4">
-              <Link
-                href="/signup"
-                onClick={() => setMobileMenuOpen(false)}
-                className="bg-yellow-500 px-4 py-2 rounded-lg text-center"
-              >
-                Sign-up
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="bg-yellow-500 px-4 py-2 rounded-lg text-center"
-              >
-                Log-in
-              </Link>
+              <div className="flex h-auto w-full">
+                <Button className="flex w-1/2 bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
+                  <Link href="/login">Log-in</Link>
+                </Button>
+                <Button className="flex w-1/2 bg-orange-400 hover:bg-orange-400/50 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
+                  <Link href="/signup">Sign-up</Link>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
     </header>
   );
 }

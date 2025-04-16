@@ -56,9 +56,13 @@ export function LoginForm() {
           return;
         }
 
+        const route = result.isAdmin ? "/dashboard" : "/";
+
+        console.log(result.isAdmin);
+
         toast.success("Login successful!");
 
-        router.push("/");
+        router.push(route);
       } catch (error) {
         toast.error("An error occurred during login");
         console.error(error);
