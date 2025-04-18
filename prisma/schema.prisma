@@ -38,12 +38,17 @@ model Booking {
   checkIn          DateTime
   checkOut         DateTime
   mobileNumber     String
-  status           String
+  status           Status   @default(Unconfirmed)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   name             String
   numberOfAdults   Int
   numberOfChildren Int
-  roomNumber       String
-  shift            String
+  shift            String?   // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   room             Room     @relation(fields: [roomId], references: [id])
   history          History?
+}
+
+
+enum Status {
+  Reserved
+  Unconfirmed
 }
