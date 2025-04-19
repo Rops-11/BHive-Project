@@ -1,5 +1,5 @@
 import { Booking } from "@/types/types";
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
 

@@ -38,17 +38,18 @@ model Booking {
   checkIn          DateTime
   checkOut         DateTime
   mobileNumber     String
-  status           Status   @default(Unconfirmed)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  downPayment      Boolean  @default(false)
   name             String
   numberOfAdults   Int
   numberOfChildren Int
-  shift            String?   // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  shift            String?   @default("Online")// This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   room             Room     @relation(fields: [roomId], references: [id])
   history          History?
 }
 
-
 enum Status {
   Reserved
-  Unconfirmed
+  Ongoing
+  Complete
 }
