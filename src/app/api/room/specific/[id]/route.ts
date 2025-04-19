@@ -56,7 +56,7 @@ export async function PUT(
 
     return NextResponse.json(updatedRoom, { status: 200 });
   } catch (error: unknown) {
-    console.error("Error fetching room:", error);
+    console.error("Error to edit room:", error);
 
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
@@ -68,7 +68,7 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        error: "Failed to fetch room",
+        error: "Failed to edit room",
         message: errorMessage,
         stack: errorStack,
       },
@@ -90,7 +90,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Room deleted" }, { status: 200 });
   } catch (error: unknown) {
-    console.error("Error fetching room:", error);
+    console.error("Error deleting room:", error);
 
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
@@ -102,7 +102,7 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        error: "Failed to fetch room",
+        error: "Failed to delete room",
         message: errorMessage,
         stack: errorStack,
       },

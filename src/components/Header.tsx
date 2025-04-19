@@ -57,7 +57,7 @@ export default function Header() {
     {
       title: "About Bhive",
       description:
-        "With the amount reviews on Facebook, There's no better place to stay in Iloilo than Bhive Hotel that offers you an outstanding service and a comforting stay like home.",
+        "Know more about the hotel.",
       href: "/about/hotelDetails",
     },
     {
@@ -79,7 +79,7 @@ export default function Header() {
     "w-5/6 bg-amber-50 flex text-amber-600 place-self-center";
 
   return (
-    <header className="fixed top-0 left-0 w-full h-16 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">
+    <header className="fixed top-0 left-0 w-full h-20 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">
       <nav className={navStyle}>
         <div className="flex items-center">
           <Link
