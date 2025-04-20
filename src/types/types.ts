@@ -29,6 +29,7 @@ export interface Booking {
   numberOfAdults?: number;
   numberOfChildren?: number;
   shift?: string;
+  totalPrice?: number;
 }
 
 export interface RoomWithAmenities extends Room {

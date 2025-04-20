@@ -7,13 +7,6 @@ export async function GET() {
   try {
     const bookings = await prisma.booking.findMany();
 
-    if (!bookings || bookings.length === 0) {
-      return NextResponse.json(
-        { message: "There are no bookings." },
-        { status: 200 }
-      );
-    }
-
     return NextResponse.json(bookings, { status: 200 });
   } catch (error: unknown) {
     console.error("Error to fetch bookings:", error);
@@ -48,6 +41,7 @@ export async function POST(req: NextRequest) {
       name,
       numberOfAdults,
       numberOfChildren,
+      totalPrice,
     } = await req.json();
 
     if (
@@ -59,6 +53,7 @@ export async function POST(req: NextRequest) {
         name,
         numberOfAdults,
         numberOfChildren,
+        totalPrice,
       ].every(boolean)
     ) {
       return NextResponse.json(
@@ -76,6 +71,7 @@ export async function POST(req: NextRequest) {
         name,
         numberOfAdults,
         numberOfChildren,
+        totalPrice,
       },
     });
 
