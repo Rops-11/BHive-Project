@@ -1,10 +1,36 @@
-import BookingPayment from "@/components/BookingPayment"
+import BookingPayment from "@/components/Payment/BookingPayment";
+import Invoice from "@/components/Payment/Invoice";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">
-      <h1 className="text-3xl font-bold mb-8">Payment</h1>
-      <BookingPayment />
-    </main>
-  )
+export default function PaymentPage() {
+    return (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "20px", width: "80%" }}>
+                <div style={{ flex: 1 }}>
+                    <Invoice 
+                        invoiceNumber="INV-2025-001"
+                        issueDate="2025-04-17"
+                        dueDate="2025-04-24"
+                        status="Unpaid"
+                        customer={{
+                            name: "Juan Dela Cruz",
+                            email: "juan@example.com",
+                            address: "Iloilo City, Philippines",
+                        }}
+                        items={[
+                            { description: "Family Suite", quantity: 1, unitPrice: 3290 },
+                            { description: "Suite", quantity: 1, unitPrice: 2890 },
+                        ]}
+                        notes="Thank you for staying with us !"
+                    />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <BookingPayment 
+                        paymentIntentId="pi_123456789" 
+                        clientKey="sk_test_123456789" 
+                        amount={1000} 
+                    />
+                </div>
+            </div>
+        </div>
+    );
 }

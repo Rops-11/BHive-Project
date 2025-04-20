@@ -166,6 +166,7 @@ export default function PaymentForm({
 
     if (!response.ok) {
       const errorData = await response.json()
+      console.error("Error creating card payment method:", errorData)
       throw new Error(errorData.errors?.[0]?.detail || "Failed to process card")
     }
 
@@ -211,7 +212,7 @@ export default function PaymentForm({
   }
 
   const attachPaymentMethod = async (paymentMethodId: string) => {
-    const url = `/api/attach-payment-method`
+    const url = `/api/attach-payment`
 
     const response = await fetch(url, {
       method: "POST",
@@ -268,7 +269,7 @@ export default function PaymentForm({
                   onChange={handleCardInputChange}
                   required
                 />
-                <p className="text-xs text-muted-foreground">For testing, use: 4343 4343 4343 4345</p>
+                <p className="text-xs text-muted-foreground"></p>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
