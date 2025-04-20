@@ -1,15 +1,14 @@
 "use client";
+import BookingProvider from "@/components/providers/BookProvider";
 
-import { BookingContextType } from "@/types/context";
-import { ReactNode, useState, createContext } from "react";
-
-export const BookingContext = createContext({});
-
-export default function AuthLayout({ children }: { children: ReactNode }) {
-  const [bookingContext, setBookingContext] = useState<BookingContextType>();
+export default function BookLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <BookingContext.Provider value={{ bookingContext, setBookingContext }}>
-      {children}
-    </BookingContext.Provider>
+    <BookingProvider>
+      <div>{children}</div>
+    </BookingProvider>
   );
 }

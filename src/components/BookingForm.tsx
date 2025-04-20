@@ -42,9 +42,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { BookingContext } from "@/app/(root)/book/layout";
 import { BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
+import { BookingContext } from "./providers/BookProvider";
 
 const formSchema = z.object({
   name: z.string().min(1, {

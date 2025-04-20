@@ -1,27 +1,33 @@
 "use client";
 
 import useGetSpecificRoom from "@/hooks/roomHooks/useGetSpecificRoom";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Loading from "./Loading";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Button } from "./ui/button";
 import { BookingContextType } from "@/types/context";
-import { BookingContext } from "@/app/(root)/book/layout";
 import { checkDaysDifference } from "utils/utils";
+import { BookingContext } from "./providers/BookProvider";
 
 const InvoiceCard = ({ router }: { router: AppRouterInstance }) => {
   const { bookingContext, setBookingContext } =
     useContext<BookingContextType>(BookingContext);
-  const { roomData, loading } = useGetSpecificRoom(bookingContext!.roomId!);
+  const { roomData, loading, getRoom } = useGetSpecificRoom();
+
+  useEffect(() => {
+    if (bookingContext && bookingContext.roomId) {
+      getRoom(bookingContext.roomId);
+    }
+  }, [bookingContext, getRoom]);
+
+  // Loading of the component
+  if (loading || !bookingContext) return <Loading loading={loading} />;
 
   // Gets the difference of the Dates by days
   const daysDiff = checkDaysDifference(
     bookingContext!.checkIn!,
     bookingContext!.checkOut!
   );
-
-  // Loading of the component
-  if (loading) return <Loading loading={loading} />;
 
   // These are after the loading to make sure that the roomdata is not undefined
   let excessGuestCount = 0;

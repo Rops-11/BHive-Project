@@ -1,12 +1,12 @@
 import { Room } from "@/types/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
 
-const useGetSpecificRoom = (roomId: string) => {
+const useGetSpecificRoom = () => {
   const [roomData, setRoomData] = useState<Room>();
   const [loading, setLoading] = useState<boolean>(true);
-  
+
   const getRoom = async (roomId: string) => {
     try {
       const response = await normalFetch(`/api/room/specific/${roomId}`, "get");
@@ -27,11 +27,7 @@ const useGetSpecificRoom = (roomId: string) => {
     }
   };
 
-  useEffect(() => {
-    getRoom(roomId);
-  }, [roomId]);
-
-  return { roomData, loading };
+  return { roomData, loading, getRoom };
 };
 
 export default useGetSpecificRoom;
