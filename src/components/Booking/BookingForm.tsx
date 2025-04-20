@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { startTransition, useState } from "react";
+import React, { startTransition, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
@@ -13,9 +13,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import useGetAvailableRooms from "@/hooks/roomHooks/useGetAvailableRooms";
+} from "./ui/form";
+import { Input } from "./ui/input";
 import {
   Select,
   SelectContent,
@@ -33,18 +32,19 @@ import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 import { Booking } from "@/types/types";
-import { Spinner } from "react-activity";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
+import { Label } from "./ui/label";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "./ui/dialog";
+import { BookingContextType } from "@/types/context";
+import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
+import { BookingContext } from "./providers/BookProvider";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -73,10 +73,13 @@ const formSchema = z.object({
 });
 
 const BookingForm = ({ router }: { router: AppRouterInstance }) => {
-  const { roomsAvailable } = useGetAvailableRooms(); // set Loading for this one
+  const {
+    getAvailableRoomsWithDate,
+    loading: roomsLoading,
+    availableRoomsWithDate,
+  } = useOnlyAvailableRoomsOnSpecificDate();
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-
-  const { createBooking, loading: bookingLoading } = useCreateBooking();
+  const { setBookingContext } = useContext<BookingContextType>(BookingContext);
 
   const {
     queenBeeRooms,
@@ -85,7 +88,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     singleStandardRooms,
     singleDeluxeRooms,
     twinBeeRooms,
-  } = useSeparateRoomsByType(roomsAvailable!);
+  } = useSeparateRoomsByType(availableRoomsWithDate!);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -102,6 +105,13 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     },
   });
 
+  useEffect(() => {
+    const dateToday = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(dateToday.getDate() + 1);
+    getAvailableRoomsWithDate(dateToday, tomorrow);
+  }, [getAvailableRoomsWithDate]);
+
   const onSubmit: (
     values: z.infer<typeof formSchema>
   ) => Promise<void> = async (values: z.infer<typeof formSchema>) => {
@@ -116,22 +126,21 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
           numberOfAdults: values.numberOfAdults,
           numberOfChildren: values.numberOfChildren,
         };
-        if (termsAccepted) createBooking(bookingData);
-        else {
+        if (termsAccepted) {
+          setBookingContext!(bookingData);
+          router.push("/book/invoice");
+        } else
           toast.error(
             "Please read and accept the terms and conditions before continuing."
           );
-        }
       } catch {
         toast.error("An error occurred during booking");
       }
     });
   };
 
-  // if (error) return <div>ERROR</div>;
-
   return (
-    <Card className="flex md:w-7/16 w-full h-full p-6 bg-amber-400/30 backdrop-filter backdrop-blur-md">
+    <Card className="flex md:w-7/16 w-full h-full p-6">
       <CardHeader className="flex w-full justify-center items-center">
         <CardTitle className="text-2xl font-bold">Book Your Hotel</CardTitle>
       </CardHeader>
@@ -139,8 +148,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full pt-10 justify-between py-2"
-          >
+            className="flex flex-col w-full h-full pt-10 justify-between py-2">
             <div className="flex flex-col h-auto space-y-8">
               <FormField
                 control={form.control}
@@ -178,13 +186,75 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="dateRange"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Time of Stay</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal border-black bg-transparent",
+                              !field.value && "text-muted-foreground"
+                            )}>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value?.from ? (
+                              field.value.to ? (
+                                <>
+                                  {format(field.value.from, "LLL dd, y")} -{" "}
+                                  {format(field.value.to, "LLL dd, y")}
+                                </>
+                              ) : (
+                                format(field.value.from, "LLL dd, y")
+                              )
+                            ) : (
+                              <span>Pick a date range</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto p-0"
+                        align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={field.value?.from}
+                          selected={field.value}
+                          onSelect={(selectedDateRange) => {
+                            field.onChange(selectedDateRange);
+                            if (
+                              selectedDateRange?.from &&
+                              selectedDateRange?.to
+                            ) {
+                              getAvailableRoomsWithDate(
+                                selectedDateRange.from,
+                                selectedDateRange.to
+                              );
+                            }
+                          }}
+                          numberOfMonths={2}
+                          disabled={(date) =>
+                            date < new Date(Date.now() - 864e5)
+                          }
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="flex w-full justify-between">
                 <FormField
                   control={form.control}
                   name="roomId"
                   render={({ field }) => (
                     <FormItem className="w-5/12">
-                      <FormLabel>Available Rooms</FormLabel>
+                      <FormLabel>Available Rooms on Date Provided</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -194,55 +264,79 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                             <SelectValue placeholder="Choose Your Room" />
                           </SelectTrigger>
                         </FormControl>
+
                         <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Queen Bee Rooms</SelectLabel>
-                            {queenBeeRooms?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Suites</SelectLabel>
-                            {suites?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Family Suites</SelectLabel>
-                            {familySuites?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Single Standard Rooms</SelectLabel>
-                            {singleStandardRooms?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Single Deluxe Rooms</SelectLabel>
-                            {singleDeluxeRooms?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                          <SelectGroup>
-                            <SelectLabel>Twin Bee Rooms</SelectLabel>
-                            {twinBeeRooms?.map((room) => (
-                              <SelectItem key={room.id} value={room.id!}>
-                                {room.roomType} - {room.roomNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
+                          {!roomsLoading ? (
+                            <>
+                              <SelectGroup>
+                                <SelectLabel>Queen Bee Rooms</SelectLabel>
+                                {queenBeeRooms?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel>Suites</SelectLabel>
+                                {suites?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel>Family Suites</SelectLabel>
+                                {familySuites?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel>Single Standard Rooms</SelectLabel>
+                                {singleStandardRooms?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel>Single Deluxe Rooms</SelectLabel>
+                                {singleDeluxeRooms?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel>Twin Bee Rooms</SelectLabel>
+                                {twinBeeRooms?.map((room) => (
+                                  <SelectItem
+                                    key={room.id}
+                                    value={room.id!}>
+                                    {room.roomType} - {room.roomNumber}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </>
+                          ) : (
+                            <>
+                              <Label className="p-2">
+                                Please wait a moment for the rooms to load. If
+                                it takes too long, please refresh.
+                              </Label>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -261,9 +355,13 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                           className="border-black"
                           placeholder="#"
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
-                          }
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? 0
+                                : parseInt(e.target.value)
+                            );
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -282,9 +380,13 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                           className="border-black"
                           placeholder="#"
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
-                          }
+                          onChange={(e) => {
+                            field.onChange(
+                              e.target.value === ""
+                                ? 0
+                                : parseInt(e.target.value)
+                            );
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -292,56 +394,6 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="dateRange"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Time of Stay</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal border-black bg-transparent",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value?.from ? (
-                              field.value.to ? (
-                                <>
-                                  {format(field.value.from, "LLL dd, y")} -{" "}
-                                  {format(field.value.to, "LLL dd, y")}
-                                </>
-                              ) : (
-                                format(field.value.from, "LLL dd, y")
-                              )
-                            ) : (
-                              <span>Pick a date range</span>
-                            )}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          initialFocus
-                          mode="range"
-                          defaultMonth={field.value?.from}
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          numberOfMonths={2}
-                          disabled={(date) =>
-                            date < new Date(Date.now() - 864e5)
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
             <div className="flex flex-col w-full space-y-5 justify-end">
               <div className="flex items-center space-x-2">
@@ -508,7 +560,6 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
               </div>
               <div className="flex w-full justify-evenly">
                 <Button
-                  disabled={bookingLoading}
                   className="w-7/16 bg-red-700 hover:bg-red-600"
                   onClick={() => {
                     router.back();
@@ -517,19 +568,9 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   Cancel
                 </Button>
                 <Button
-                  disabled={bookingLoading}
                   type="submit"
-                  className="w-7/16"
-                >
-                  {bookingLoading ? (
-                    <Spinner
-                      size={10}
-                      animating={bookingLoading}
-                      color="#FFFFFF"
-                    />
-                  ) : (
-                    "Book Now"
-                  )}
+                  className="w-7/16">
+                  Proceed
                 </Button>
               </div>
             </div>
