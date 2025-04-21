@@ -13,8 +13,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "../ui/form";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -33,18 +33,18 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Booking } from "@/types/types";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
+import { Label } from "../ui/label";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import { BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
-import { BookingContext } from "./providers/BookProvider";
+import { BookingContext } from "../providers/BookProvider";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -81,7 +81,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { setBookingContext } = useContext<BookingContextType>(BookingContext);
 
-  const {
+  const { 
     queenBeeRooms,
     suites,
     familySuites,

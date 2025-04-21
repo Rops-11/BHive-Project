@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 import { findOverlappingBookings } from "utils/utils";
 
 const prisma = new PrismaClient();
