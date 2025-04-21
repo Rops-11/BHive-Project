@@ -110,7 +110,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     const tomorrow = new Date();
     tomorrow.setDate(dateToday.getDate() + 1);
     getAvailableRoomsWithDate(dateToday, tomorrow);
-  }, [getAvailableRoomsWithDate]);
+  }, []);
 
   const onSubmit: (
     values: z.infer<typeof formSchema>
