@@ -1,7 +1,7 @@
 import React from 'react'
-import CheckRoomAvailability from '@/components/CheckRoomAvailability'
-import RoomBanner from '@/components/RoomBanner'
-import HotelCards from '@/components/HotelRoomCard'
+import CheckRoomAvailability from '@/components/Booking/CheckRoomAvailability'
+import RoomBanner from '@/components/RoomTour/RoomBanner'
+import HotelCards from '@/components/RoomTour/HotelRoomCard'
 
 const RoomsPage = () => {
   return (

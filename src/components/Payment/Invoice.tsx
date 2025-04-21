@@ -2,14 +2,20 @@
 
 import useGetSpecificRoom from "@/hooks/roomHooks/useGetSpecificRoom";
 import React, { useContext, useEffect } from "react";
-import Loading from "./Loading";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { Button } from "./ui/button";
 import { BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
-import { BookingContext } from "./providers/BookProvider";
+import { BookingContext } from "../providers/BookProvider";
+import Loading from "../ui/Loading";
+import { Button } from "../ui/button";
 
-const InvoiceCard = ({ router }: { router: AppRouterInstance }) => {
+const InvoiceCard = ({
+  router,
+  notInPaymentPage,
+}: {
+  router: AppRouterInstance;
+  notInPaymentPage: boolean;
+}) => {
   const { bookingContext, setBookingContext } =
     useContext<BookingContextType>(BookingContext);
   const { roomData, loading, getRoom } = useGetSpecificRoom();
@@ -18,7 +24,8 @@ const InvoiceCard = ({ router }: { router: AppRouterInstance }) => {
     if (bookingContext && bookingContext.roomId) {
       getRoom(bookingContext.roomId);
     }
-  }, [bookingContext, getRoom]);
+    console.log("Booking Context:", bookingContext);
+  }, [bookingContext]);
 
   // Loading of the component
   if (loading || !bookingContext) return <Loading loading={loading} />;
@@ -51,7 +58,7 @@ const InvoiceCard = ({ router }: { router: AppRouterInstance }) => {
 
   const handleClickPay = () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
-    router.push("/"); // should be the payment page
+    router.push("/book/payment"); // should be the payment page
   };
 
   return (
@@ -106,9 +113,11 @@ const InvoiceCard = ({ router }: { router: AppRouterInstance }) => {
       <div className="text-right text-sm mb-4">
         <p className="font-bold text-gray-900">Total: ₱{total.toFixed(2)}</p>
       </div>
-      <div className="flex justify-end w-full">
-        <Button onClick={handleClickPay}>Pay</Button>
-      </div>
+      {notInPaymentPage && (
+        <div className="flex justify-end w-full">
+          <Button onClick={handleClickPay}>Pay</Button>
+        </div>
+      )}
     </div>
   );
 };

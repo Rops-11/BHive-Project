@@ -12,14 +12,14 @@ import {
   NavigationMenuLink,
   NavigationMenuTrigger,
   NavigationMenuList,
-} from "./ui/navigation-menu";
+} from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "./ui/collapsible";
-import { Button, buttonVariants } from "./ui/button";
+} from "@/components/ui/collapsible";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const ListItem = ({

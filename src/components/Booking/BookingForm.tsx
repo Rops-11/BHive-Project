@@ -5,7 +5,7 @@ import React, { startTransition, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -13,8 +13,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
+} from "../ui/form";
+import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -25,26 +25,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useSeparateRoomsByType from "@/hooks/roomHooks/useSeparateRoomsByType";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
 import { CalendarIcon } from "lucide-react";
-import { Calendar } from "./ui/calendar";
+import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Booking } from "@/types/types";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
+import { Label } from "../ui/label";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import { BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
-import { BookingContext } from "./providers/BookProvider";
+import { BookingContext } from "../providers/BookProvider";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -81,7 +81,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { setBookingContext } = useContext<BookingContextType>(BookingContext);
 
-  const {
+  const { 
     queenBeeRooms,
     suites,
     familySuites,
@@ -257,7 +257,8 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                       <FormLabel>Available Rooms on Date Provided</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}>
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="border-black w-full">
                             <SelectValue placeholder="Choose Your Room" />
@@ -562,7 +563,8 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   className="w-7/16 bg-red-700 hover:bg-red-600"
                   onClick={() => {
                     router.back();
-                  }}>
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button
