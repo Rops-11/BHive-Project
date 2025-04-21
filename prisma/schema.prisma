@@ -34,8 +34,8 @@ model History {
 model Booking {
   id               String   @id @default(uuid()) @db.Uuid
   roomId           String   @db.Uuid
-  dateBooked       DateTime @default(now())
-  checkIn          DateTime
+  dateBooked       DateTime @db.Timestamptz() @default(now())
+  checkIn          DateTime 
   checkOut         DateTime
   mobileNumber     String
   status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
