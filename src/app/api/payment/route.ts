@@ -4,6 +4,7 @@ import { createPaymentIntent } from "@/lib/paymongo";
 export async function POST(request: NextRequest) {
   try {
     const { amount, metadata = {} } = await request.json();
+    console.log(metadata); // please remove after metadata is used
 
     // Validate the request
     if (!amount || amount < 100) {
