@@ -24,7 +24,7 @@ interface PaymentFormProps {
 
 export default function PaymentForm({
   paymentIntentId,
-  clientKey,
+  // clientKey, // Uncomment when needed.
   amount,
   onSuccess,
   onCancel,

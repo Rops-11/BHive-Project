@@ -4,7 +4,7 @@ import { createPaymentIntent } from "@/lib/paymongo"
 export async function POST(request: NextRequest) {
   try {
     const { amount, metadata = {} } = await request.json()
-//
+    console.log(metadata) // please remove after metadata is used
     // Validate the request
     if (!amount || amount < 100) {
       return NextResponse.json({ error: "Invalid amount. Minimum amount is 100 (₱1.00)" }, { status: 400 })
