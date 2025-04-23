@@ -14,13 +14,14 @@ import { PaymentStatusBadge } from "@/components/Payment/PaymentStatus";
 import { getPaymentIntent } from "@/lib/paymongo";
 
 interface SuccessPageProps {
-  searchParams: {
+  searchParams: Promise<{
     id?: string;
-  };
+  }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
-  const paymentIntentId = searchParams.id;
+  const { id } = await searchParams
+  const paymentIntentId = id;
 
   if (!paymentIntentId) {
     redirect("/");
