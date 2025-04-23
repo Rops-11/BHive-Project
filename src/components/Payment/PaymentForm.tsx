@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import PaymentTabs from "./PaymentTabs";
 import PaymentErrorAlert from "./PaymentErrorAlert";
@@ -13,7 +20,11 @@ interface PaymentFormProps {
   amount: number;
 }
 
-export default function PaymentForm({ paymentIntentId, clientKey, amount }: PaymentFormProps) {
+export default function PaymentForm({
+  paymentIntentId,
+  // clientKey, // Uncomment when needed.
+  amount,
+}: PaymentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +44,9 @@ export default function PaymentForm({ paymentIntentId, clientKey, amount }: Paym
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Payment Details</CardTitle>
-        <CardDescription>Complete your payment of {formattedAmount}</CardDescription>
+        <CardDescription>
+          Complete your payment of {formattedAmount}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <PaymentTabs
@@ -48,7 +61,9 @@ export default function PaymentForm({ paymentIntentId, clientKey, amount }: Paym
         {error && <PaymentErrorAlert error={error} />}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={() => router.back()}>
+        <Button
+          variant="outline"
+          onClick={() => router.back()}>
           Back
         </Button>
         <div className="text-sm text-muted-foreground">Secured by PayMongo</div>

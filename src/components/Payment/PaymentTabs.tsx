@@ -16,11 +16,11 @@ interface PaymentTabsProps {
 }
 
 export default function PaymentTabs({
-  paymentMethod,
+  // paymentMethod, // Uncomment when needed
   setPaymentMethod,
   isLoading,
   setIsLoading,
-  error,
+  // error, // Uncomment when needed
   setError,
   paymentIntentId,
 }: PaymentTabsProps) {
