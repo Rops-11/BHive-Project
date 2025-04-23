@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
     // Create a payment intent with PayMongo
     const paymentIntent = await createPaymentIntent(amount)
 
-    // You can store additional metadata about this payment in your database here
 
     return NextResponse.json({
       paymentIntentId: paymentIntent.id,

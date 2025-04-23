@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a payment intent with PayMongo
+    //create a payment
     const paymentIntent = await createPaymentIntent(amount);
 
     return NextResponse.json({
