@@ -40,7 +40,9 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: (
+    values: z.infer<typeof formSchema>
+  ) => Promise<void> = async (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
       try {
         // Convert form values to FormData

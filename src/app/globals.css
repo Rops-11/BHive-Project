@@ -46,6 +46,8 @@
   --animate-slide-in-right: slide-in-right 0.5s ease-out forwards;
   --animate-slide-out-right: slide-out-right 0.5s ease-in forwards;
 
+  --bg-image-beehive-pattern: url("../../../../public/assets/background-pattern.jpg");
+
   @keyframes slide-in-right {
     0% {
       transform: translateX(100%);
