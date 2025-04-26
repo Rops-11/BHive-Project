@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image";
+
 // export interface Hotel {
 //   id          :string
 //   name        :string
@@ -46,3 +48,19 @@ export interface RoomCard {
 export interface UnknownError {
   message: string;
 }
+
+export interface UnknownError {
+  message: string;
+}
+
+export interface FacilityCard {
+  title: string;
+  description: string;
+  image: StaticImageData;
+}
+
+export interface StickyContent {
+  title: string;
+  description: string;
+  content?: React.ReactNode;
+};
