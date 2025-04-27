@@ -3,7 +3,6 @@ import BookRoom from "@/components/LandingPage/BookRoom";
 import { action } from "@storybook/addon-actions";
 
 const meta: Meta<typeof BookRoom> = {
-    title: "Example/BookRoom",
     component: BookRoom,
     tags: ["autodocs"],
     parameters: {

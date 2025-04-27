@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
+import userEvent from "@testing-library/user-event";
+import { within } from "@testing-library/react";
 
 import Header from "@/components/LandingPage/Header";
 
 const meta = {
-  title: "Example/Header",
   component: Header,
   tags: ["autodocs"],
   parameters: {
@@ -14,6 +15,8 @@ const meta = {
     onLogin: action("onLogin"),
     onLogout: action("onLogout"),
     onCreateAccount: action("onCreateAccount"),
+    onToggleSidebar: action("onToggleSidebar"),
+    onHoverNavigation: action("onHoverNavigation"),
   },
 } satisfies Meta<typeof Header>;
 
@@ -21,32 +24,38 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// LoggedIn story
-export const LoggedIn: Story = {
-  args: {
-    user: {
-      name: "Bhive",
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "This story represents the Header when a user is logged in.",
-      },
-    },
-  },
-};
-
-// LoggedOut story
-export const LoggedOut: Story = {
+// Default Story
+export const Default: Story = {
   args: {
     user: null,
   },
   parameters: {
     docs: {
       description: {
-        story: "This story represents the Header when no user is logged in.",
+        story: "This is the default state of the Header component.",
       },
     },
   },
 };
+
+// Navigation Hover
+export const NavigationHover: Story = {
+  args: {
+    user: null,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const aboutTrigger = await canvas.findByText("About");
+
+    await userEvent.hover(aboutTrigger);
+    action("Hovered over 'About' navigation item")();
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "This story represents hovering over the About navigation trigger to reveal dropdown content.",
+      },
+    },
+  },
+}
+
