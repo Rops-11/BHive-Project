@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createPaymentIntent } from "@/lib/paymongo";
+import { createPaymentIntent, getPaymentIntent } from "@/lib/paymongo";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    //create a payment
+    // Create a payment
     const paymentIntent = await createPaymentIntent(amount);
 
     return NextResponse.json({
@@ -29,3 +29,30 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const paymentIntentId = searchParams.get("id");
+
+    if (!paymentIntentId) {
+      return NextResponse.json(
+        { error: "PaymentIntent ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Retrieve the payment intent
+    const paymentIntent = await getPaymentIntent(paymentIntentId);
+
+    return NextResponse.json(paymentIntent);
+  } catch (error) {
+    console.error("Error retrieving payment:", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve payment" },
+      { status: 500 }
+    );
+  }
+}
+
+

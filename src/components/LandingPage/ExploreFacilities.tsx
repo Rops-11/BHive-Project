@@ -10,7 +10,7 @@ const images = [
   { 
     src: SingleTwin,
     alt: 'Room', 
-    link: '/room-details',
+    link: '/rooms',
     label: 'Rooms'
   },
   { 
