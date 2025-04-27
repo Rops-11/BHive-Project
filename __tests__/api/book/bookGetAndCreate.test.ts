@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GET, POST } from "../../src/app/api/book/route";
+import { GET, POST } from "../../../src/app/api/book/route";
 
 jest.mock("next/server", () => ({
   NextRequest: jest.fn(),
@@ -11,18 +11,7 @@ jest.mock("next/server", () => ({
   },
 }));
 
-jest.mock("@prisma/client", () => {
-  return {
-    PrismaClient: jest.fn().mockImplementation(() => ({
-      booking: {
-        findMany: jest.fn(),
-        create: jest.fn(),
-      },
-    })),
-  };
-});
-
-jest.mock("../../utils/db", () => {
+jest.mock("../../../utils/db", () => {
   return {
     prisma: {
       booking: {
@@ -69,7 +58,7 @@ describe("Booking API", () => {
         },
       ];
 
-      const { prisma } = require("../../utils/db");
+      const { prisma } = require("../../../utils/db");
 
       prisma.booking.findMany.mockResolvedValue(mockBookings);
 
@@ -86,7 +75,7 @@ describe("Booking API", () => {
     });
 
     it("should handle errors and return 500 status", async () => {
-      const { prisma } = require("../../utils/db");
+      const { prisma } = require("../../../utils/db");
 
       const mockError = new Error("Database connection failed");
       prisma.booking.findMany.mockImplementation(() => {
@@ -126,7 +115,8 @@ describe("Booking API", () => {
     };
 
     it("should create a new booking and return 201 status", async () => {
-      const { prisma } = require("../../utils/db");
+      const { prisma } = require("../../../utils/db");
+
       const { boolean } = require("zod");
 
       boolean.mockReturnValue(true);
@@ -176,7 +166,7 @@ describe("Booking API", () => {
     });
 
     it("should handle errors during booking creation and return 500", async () => {
-      const { prisma } = require("../../utils/db");
+      const { prisma } = require("../../../utils/db");
       const { boolean } = require("zod");
 
       boolean.mockReturnValue(true);
