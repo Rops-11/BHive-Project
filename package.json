@@ -12,7 +12,8 @@
     "prisma-dev-migrate": "dotenv -e .env.development prisma migrate dev",
     "prisma-test-migrate": "dotenv -e .env.testing prisma migrate dev",
     "test": "dotenv -e .env.testing jest",
-    "test:watch": "dotenv -e .env.testing jest --watch"
+    "test:watch": "dotenv -e .env.testing jest --watch",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
