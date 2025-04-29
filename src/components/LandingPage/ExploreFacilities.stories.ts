@@ -4,6 +4,7 @@ import { action } from "@storybook/addon-actions";
 import { userEvent, within } from "@storybook/testing-library";
 
 const meta = {
+    title: "LandingPage/ExploreFacilities",
     component: ExploreFacilities,
     tags: ["autodocs"],
     parameters: {

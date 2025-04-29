@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import Carousel from "@/components/LandingPage/Carousel";
 
 const meta: Meta<typeof Carousel> = {
+    title: "LandingPage/Carousel",
     component: Carousel,
     tags: ["autodocs"],
     parameters: {

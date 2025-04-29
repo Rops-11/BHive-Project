@@ -3,6 +3,7 @@ import Footer from "@/components/LandingPage/footer";
 
 
 const meta = {
+  title: "LandingPage/Footer",
   component: Footer,
   tags: ["autodocs"],
   parameters: {

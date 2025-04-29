@@ -6,6 +6,7 @@ import { within } from "@testing-library/react";
 import Header from "@/components/LandingPage/Header";
 
 const meta = {
+  title: "LandingPage/Header",
   component: Header,
   tags: ["autodocs"],
   parameters: {

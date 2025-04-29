@@ -3,6 +3,7 @@ import BookRoom from "@/components/LandingPage/BookRoom";
 import { action } from "@storybook/addon-actions";
 
 const meta: Meta<typeof BookRoom> = {
+    title: "LandingPage/BookRoom",
     component: BookRoom,
     tags: ["autodocs"],
     parameters: {
@@ -30,30 +31,9 @@ export const Default: Story = {
 export const Interactive: Story = {
     args: {
         buttonText: "Reserve Now",
-        buttonColor: "Yellow",
+        buttonColor: "#007bff",
         buttonSize: "medium",
     },
     play: () => action("Button clicked")(),
 };
 
-// Dynamic Controls Story
-export const DynamicControls: Story = {
-    args: {
-        adults: 2,
-        children: 1,
-        buttonColor: "Yellow",
-        buttonText: "Book Now",
-        buttonSize: "large",
-    },
-};
-
-// Fully Customizable Story
-export const FullyCustomizable: Story = {
-    args: {
-        buttonColor: "#008CBA",
-        buttonText: "Proceed to Booking",
-        buttonSize: "medium",
-        adults: 3,
-        children: 2,
-    },
-};
