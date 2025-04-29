@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { updateFile } from "utils/supabase/storage";
 
 const prisma = new PrismaClient();
 
@@ -48,13 +49,31 @@ export async function PUT(
   try {
     const { id } = await params;
 
-    const data = await req.json();
+    const {
+      roomType,
+      roomNumber,
+      isAvailable,
+      maxGuests,
+      roomRate,
+      file,
+      fileId,
+    } = await req.json();
+
     const updatedRoom = await prisma.room.update({
-      where: { id: id },
-      data,
+      where: { id },
+      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
     });
 
-    return NextResponse.json(updatedRoom, { status: 200 });
+    const { data, error } = await updateFile("rooms", id, fileId, file);
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Image failed to update", message: error },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ ...updatedRoom, data }, { status: 200 });
   } catch (error: unknown) {
     console.error("Error to edit room:", error);
 

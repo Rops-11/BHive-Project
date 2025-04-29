@@ -13,6 +13,7 @@
     "test:watch": "dotenv -e .env.testing jest --watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
