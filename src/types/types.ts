@@ -1,15 +1,5 @@
 import { StaticImageData } from "next/image";
 
-// export interface Hotel {
-//   id          :string
-//   name        :string
-//   description :string
-//   location    :string
-//   facts       :string[]
-//   facilities  :Facility[]
-//   rooms       :Room[]
-// }
-
 export interface Room {
   id?: string;
   roomType?: string;
@@ -17,6 +7,7 @@ export interface Room {
   isAvailable?: boolean;
   maxGuests?: number;
   roomRate?: number;
+  file?: File | Blob
 }
 
 export interface Booking {

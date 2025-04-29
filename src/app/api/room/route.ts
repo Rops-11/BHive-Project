@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { uploadImage } from "utils/supabase/storage";
 
 const prisma = new PrismaClient();
 
@@ -31,14 +32,23 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { roomType, roomNumber, isAvailable, maxGuests, roomRate } =
+    const { roomType, roomNumber, isAvailable, maxGuests, roomRate, file } =
       await req.json();
 
     const newRoom = await prisma.room.create({
       data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
     });
 
-    return NextResponse.json(newRoom, { status: 201 });
+    const { data, error } = await uploadImage("rooms", newRoom.id, file);
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Image not uploaded", message: error },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ ...newRoom, data }, { status: 201 });
   } catch (error: unknown) {
     console.error("Error creating room:", error);
 
