@@ -1,11 +1,13 @@
-import { supabase } from "./client";
 import { v4 as uuidv4 } from "uuid";
+import { createClient } from "./server";
 
 export const uploadImage = async (
   from: string,
   roomId: string,
   file: File | Blob
 ) => {
+  const supabase = await createClient();
+
   const { data, error } = await supabase.storage
     .from(from)
     .upload(roomId + uuidv4(), file);
@@ -14,6 +16,8 @@ export const uploadImage = async (
 };
 
 export const getMedia = async (from: string, roomId: string) => {
+  const supabase = await createClient();
+
   const { data, error } = await supabase.storage.from(from).list(roomId + "/");
 
   return { data, error };
@@ -25,6 +29,8 @@ export const updateFile = async (
   fileId: string,
   newFile: File | Blob
 ) => {
+  const supabase = await createClient();
+
   const { data, error } = await supabase.storage
     .from(from)
     .update(roomId + "?" + fileId, newFile, {
