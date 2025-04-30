@@ -1,9 +1,9 @@
 import React from 'react'
-import FacilityStickyScroll from '@/components/FacilityStickyScroll'
-import FacilityBanner from '@/components/FacilityBanner'
-import Amenities from '@/components/AmenitiesCard'
-import { FacilityIntroText } from '@/components/FacilityIntroText'
-import FacilityGallery from '@/components/FacilityGallery'
+import FacilityStickyScroll from '@/components/LandingPage/FacilityStickyScroll'
+import FacilityBanner from '@/components/Facilities/FacilityBanner'
+import Amenities from '@/components/Facilities/AmenitiesCard'
+import { FacilityIntroText } from '@/components/Facilities/FacilityIntroText'
+import FacilityGallery from '@/components/Facilities/FacilityGallery'
 
 
 const RoomsPage = () => {
