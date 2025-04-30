@@ -3,7 +3,7 @@ export const normalFetch = async (
   method: string,
   body?: object
 ) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}${route}`, {
+  const response = await fetch(`${process.env.APP_URL}${route}`, {
     method: method.toUpperCase(),
     headers: {
       "Content-type": "application/json",
