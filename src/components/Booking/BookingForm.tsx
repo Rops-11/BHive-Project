@@ -45,6 +45,7 @@ import {
 import { BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import { BookingContext } from "../providers/BookProvider";
+import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -80,8 +81,9 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   } = useOnlyAvailableRoomsOnSpecificDate();
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { setBookingContext } = useContext<BookingContextType>(BookingContext);
+  const { createBooking } = useCreateBooking();
 
-  const { 
+  const {
     queenBeeRooms,
     suites,
     familySuites,
@@ -128,6 +130,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
         };
         if (termsAccepted) {
           setBookingContext!(bookingData);
+          createBooking(bookingData);
           router.push("/book/invoice");
         } else
           toast.error(
@@ -257,8 +260,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                       <FormLabel>Available Rooms on Date Provided</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                        defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-black w-full">
                             <SelectValue placeholder="Choose Your Room" />
@@ -563,8 +565,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   className="w-7/16 bg-red-700 hover:bg-red-600"
                   onClick={() => {
                     router.back();
-                  }}
-                >
+                  }}>
                   Cancel
                 </Button>
                 <Button
