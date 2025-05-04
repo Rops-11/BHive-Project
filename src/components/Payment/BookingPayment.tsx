@@ -24,7 +24,6 @@ interface PaymentFormProps {
 
 export default function PaymentForm({
   paymentIntentId,
-  // clientKey, // Uncomment when needed.
   amount,
   onSuccess,
   onCancel,
@@ -99,7 +98,7 @@ export default function PaymentForm({
         // Attach the payment method to the payment intent
         await attachPaymentMethod(paymentMethodResponse.id)
       } else {
-        // For e-wallets like GCash or PayMaya
+        // For Gcash Ewallet
         const paymentMethodResponse = await createEWalletPaymentMethod(paymentMethod)
 
         // Attach the payment method to the payment intent
@@ -242,7 +241,7 @@ export default function PaymentForm({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="card" onValueChange={handlePaymentMethodSelect}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="card">
               <CreditCard className="mr-2 h-4 w-4" />
               Card
@@ -250,10 +249,6 @@ export default function PaymentForm({
             <TabsTrigger value="gcash">
               <Wallet className="mr-2 h-4 w-4" />
               GCash
-            </TabsTrigger>
-            <TabsTrigger value="paymaya">
-              <Wallet className="mr-2 h-4 w-4" />
-              PayMaya
             </TabsTrigger>
           </TabsList>
 
@@ -319,15 +314,6 @@ export default function PaymentForm({
               <p>You will be redirected to GCash to complete your payment.</p>
               <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
                 {isLoading ? "Processing..." : "Pay with GCash"}
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="paymaya">
-            <div className="mt-4 space-y-4">
-              <p>You will be redirected to PayMaya to complete your payment.</p>
-              <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
-                {isLoading ? "Processing..." : "Pay with PayMaya"}
               </Button>
             </div>
           </TabsContent>

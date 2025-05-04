@@ -58,7 +58,7 @@ const InvoiceCard = ({
 
   const handleClickPay = () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
-    router.push("/book/payment"); // should be the payment page
+    router.push("/book/payment"); 
   };
 
   return (

@@ -22,7 +22,7 @@ interface PaymentFormProps {
 
 export default function PaymentForm({
   paymentIntentId,
-  // clientKey, // Uncomment when needed.
+  // clientKey
   amount,
 }: PaymentFormProps) {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function PaymentForm({
       <CardFooter className="flex justify-between">
         <Button
           variant="outline"
-          onClick={() => router.back()}>
+          onClick={() => router.back()}> 
           Back
         </Button>
         <div className="text-sm text-muted-foreground">Secured by PayMongo</div>

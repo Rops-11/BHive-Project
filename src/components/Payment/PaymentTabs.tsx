@@ -16,17 +16,15 @@ interface PaymentTabsProps {
 }
 
 export default function PaymentTabs({
-  // paymentMethod, // Uncomment when needed
   setPaymentMethod,
   isLoading,
   setIsLoading,
-  // error, // Uncomment when needed
   setError,
   paymentIntentId,
 }: PaymentTabsProps) {
   return (
     <Tabs defaultValue="card" onValueChange={setPaymentMethod}>
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="card">
           <CreditCard className="mr-2 h-4 w-4" />
           Card
@@ -34,10 +32,6 @@ export default function PaymentTabs({
         <TabsTrigger value="gcash">
           <Wallet className="mr-2 h-4 w-4" />
           GCash
-        </TabsTrigger>
-        <TabsTrigger value="paymaya">
-          <Wallet className="mr-2 h-4 w-4" />
-          PayMaya
         </TabsTrigger>
       </TabsList>
 
@@ -53,16 +47,6 @@ export default function PaymentTabs({
       <TabsContent value="gcash">
         <EWalletPaymentButton
           type="gcash"
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          setError={setError}
-          paymentIntentId={paymentIntentId}
-        />
-      </TabsContent>
-
-      <TabsContent value="paymaya">
-        <EWalletPaymentButton
-          type="paymaya"
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           setError={setError}

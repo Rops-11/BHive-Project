@@ -22,7 +22,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-gray-200 py-4 md:py-4 items-center">
+      <div className="bg-gray-200 py-4 md:py-4 items-center ">
         <Footer />
       </div>
     </main>
