@@ -45,7 +45,6 @@ export function LoginForm() {
   ) => Promise<void> = async (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
       try {
-        // Convert form values to FormData
         const formData = new FormData();
         Object.entries(values).forEach(([key, value]) => {
           formData.append(key, value);
@@ -58,9 +57,7 @@ export function LoginForm() {
           return;
         }
 
-        const route = result.isAdmin ? "/dashboard" : "/";
-
-        console.log(result.isAdmin);
+        const route = result.isAdmin ? "/admin" : "/";
 
         toast.success("Login successful!");
 
