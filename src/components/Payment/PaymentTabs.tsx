@@ -46,6 +46,7 @@ export default function PaymentTabs({
 
       <TabsContent value="gcash">
         <EWalletPaymentButton
+
           type="gcash"
           isLoading={isLoading}
           setIsLoading={setIsLoading}

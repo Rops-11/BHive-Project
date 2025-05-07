@@ -1,11 +1,9 @@
-"use client";
 
 import BookingPayment from "@/components/Payment/BookingPayment";
 import Invoice from "@/components/Payment/Invoice";
 import { useRouter } from "next/navigation";
 
 export default function PaymentPage() {
-  const router = useRouter();
   return (
     <div
       style={{
@@ -24,7 +22,7 @@ export default function PaymentPage() {
         }}
       >
         <div style={{ flex: 1 }}>
-          <Invoice router={router} notInPaymentPage={false}/>
+          <Invoice notInPaymentPage={false}/>
         </div>
         <div style={{ flex: 1 }}>
           <BookingPayment

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,8 @@ import { CreditCard, Wallet } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { BookingContextType } from "@/types/context"
+import { BookingContext } from "../providers/BookProvider"
 
 interface PaymentFormProps {
   paymentIntentId: string
@@ -40,6 +42,9 @@ export default function PaymentForm({
     expYear: "",
     cvc: "",
   })
+  const { bookingContext } = useContext<BookingContextType>(BookingContext);
+
+
 
   // Format the amount from cents to currency
   const formattedAmount = (amount / 100).toLocaleString("en-PH", {
@@ -237,7 +242,7 @@ export default function PaymentForm({
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Payment Details</CardTitle>
-        <CardDescription>Complete your payment of {formattedAmount}</CardDescription>
+        <CardDescription>Complete your payment of {bookingContext?.totalPrice}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="card" onValueChange={handlePaymentMethodSelect}>

@@ -2,20 +2,20 @@
 
 import useGetSpecificRoom from "@/hooks/roomHooks/useGetSpecificRoom";
 import React, { useContext, useEffect } from "react";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+// import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
 import { BookingContext } from "../providers/BookProvider";
 import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const InvoiceCard = ({
-  router,
   notInPaymentPage,
 }: {
-  router: AppRouterInstance;
   notInPaymentPage: boolean;
 }) => {
+  const router = useRouter()
   const { bookingContext, setBookingContext } =
     useContext<BookingContextType>(BookingContext);
   const { roomData, loading, getRoom } = useGetSpecificRoom();
@@ -45,7 +45,7 @@ const InvoiceCard = ({
     roomData?.maxGuests !== undefined &&
     bookingContext.numberOfAdults + bookingContext.numberOfChildren >
       roomData.maxGuests
-  ) {
+  ) { 
     excessGuestCount =
       bookingContext.numberOfAdults +
       bookingContext.numberOfChildren -

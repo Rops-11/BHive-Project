@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -13,27 +13,56 @@ import {
 import { Button } from "@/components/ui/button";
 import PaymentTabs from "./PaymentTabs";
 import PaymentErrorAlert from "./PaymentErrorAlert";
+import { BookingContextType } from "@/types/context";
+import { BookingContext } from "../providers/BookProvider";
 
 interface PaymentFormProps {
   paymentIntentId: string;
-  clientKey: string;
-  amount: number;
+  invoiceId: string;
 }
 
 export default function PaymentForm({
   paymentIntentId,
-  // clientKey
-  amount,
+  invoiceId,
 }: PaymentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("card");
+  const [amount, setAmount] = useState<number | null>(null);
+  const { bookingContext } = useContext<BookingContextType>(BookingContext);
 
-  const formattedAmount = (amount / 100).toLocaleString("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  });
+  useEffect(() => {
+    const fetchInvoiceDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/invoices/${invoiceId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch invoice details");
+        }
+        const data = await response.json();
+        setAmount(data.amount);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInvoiceDetails();
+  }, [invoiceId]);
+
+  useEffect(() => {
+    const formattedAmount = bookingContext?.totalPrice
+      ? (bookingContext.totalPrice / 100).toLocaleString("en-PH", {
+          style: "currency",
+          currency: "PHP",
+        })
+      : "Loading...";
+    if (bookingContext?.totalPrice) {
+      setAmount(bookingContext.totalPrice / 100);
+    }
+  }, [bookingContext]);
 
   const handlePaymentMethodSelect = (value: string) => {
     setPaymentMethod(value);
@@ -45,7 +74,7 @@ export default function PaymentForm({
       <CardHeader>
         <CardTitle>Payment Details</CardTitle>
         <CardDescription>
-          Complete your payment of {formattedAmount}
+          Complete your payment of {amount} for this invoice.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -61,9 +90,7 @@ export default function PaymentForm({
         {error && <PaymentErrorAlert error={error} />}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}> 
+        <Button variant="outline" onClick={() => router.back()}>
           Back
         </Button>
         <div className="text-sm text-muted-foreground">Secured by PayMongo</div>

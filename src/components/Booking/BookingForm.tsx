@@ -71,6 +71,7 @@ const formSchema = z.object({
   numberOfChildren: z
     .number()
     .min(0, { message: "Please enter the number of children checking in." }),
+    totalPrice: z.number().min(0, {message: "WAAY BAYAD"})
 });
 
 const BookingForm = ({ router }: { router: AppRouterInstance }) => {
@@ -104,6 +105,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
       },
       numberOfAdults: 1,
       numberOfChildren: 0,
+      totalPrice: 0
     },
   });
 
@@ -127,6 +129,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
           name: values.name,
           numberOfAdults: values.numberOfAdults,
           numberOfChildren: values.numberOfChildren,
+          totalPrice: values.totalPrice,
         };
         if (termsAccepted) {
           setBookingContext!(bookingData);
