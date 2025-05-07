@@ -231,7 +231,8 @@ export default function PaymentForm({
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(errorData.error || "Failed to attach payment method")
+      const errorMessage = errorData.errors?.[0]?.detail || errorData.error || "Failed to attach payment method"
+      throw new Error(errorMessage)
     }
 
     const data = await response.json()

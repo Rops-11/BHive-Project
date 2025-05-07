@@ -16,7 +16,7 @@ export async function createPaymentIntent(amount: number, currency = "PHP") {
       data: {
         attributes: {
           amount,
-          payment_method_allowed: ["card", "paymaya", "gcash"],
+          payment_method_allowed: ["card", "gcash"],
           payment_method_options: {
             card: { request_three_d_secure: "any" },
           },
@@ -29,7 +29,10 @@ export async function createPaymentIntent(amount: number, currency = "PHP") {
 
   if (!response.ok) {
     const errorData = await response.json()
-    throw new Error(`PayMongo API error: ${JSON.stringify(errorData)}`)
+    if (errorData.errors?.[0]?.code === "resource_not_found") {
+      throw new Error(`Payment intent not found: ${paymentIntentId}`);
+    }
+    throw new Error(`PayMongo API error: ${JSON.stringify(errorData)}`);
   }
 
   const data = await response.json()
