@@ -7,8 +7,8 @@ export async function createClient() {
   // Create a server's supabase client with newly configured cookie,
   // which could be used to maintain user's session
   return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -33,14 +33,11 @@ export async function createClient() {
 export async function getSession() {
   const supabase = await createClient();
   const { data: session } = await supabase.auth.getSession();
-  console.log(session);
   return session;
 }
 
 export async function getUser() {
   const supabase = await createClient();
   const { data: user } = await supabase.auth.getUser();
-  console.log(user);
   return user;
 }
-
