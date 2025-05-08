@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { uploadImage } from "utils/supabase/storage";
+import { getMedia, uploadImage } from "utils/supabase/storage";
 
 const prisma = new PrismaClient();
 
 export async function GET() {
   try {
+    let errorInImage = false;
     const rooms = await prisma.room.findMany();
-    return NextResponse.json(rooms, { status: 200 });
+
+    const roomsWithImages = await Promise.all(
+      rooms.map(async (room) => {
+        const { data, error } = await getMedia("rooms", room.id);
+
+        if (error) {
+          errorInImage = true;
+        }
+
+        return { ...room, images: data };
+      })
+    );
+
+    if (errorInImage) {
+      return NextResponse.json(
+        { error: "Error in fetching images" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(roomsWithImages, { status: 200 });
   } catch (error: unknown) {
     console.error("Error fetching rooms:", error);
 
@@ -29,11 +50,21 @@ export async function GET() {
     );
   }
 }
-
 export async function POST(req: NextRequest) {
   try {
-    const { roomType, roomNumber, isAvailable, maxGuests, roomRate, file } =
-      await req.json();
+    const formData = await req.formData();
+
+    const roomType = formData.get("roomType") as string;
+    const roomNumber = formData.get("roomNumber") as string;
+    const isAvailable = formData.get("isAvailable") === "true";
+    const maxGuests = parseInt(formData.get("maxGuests") as string);
+    const roomRate = parseFloat(formData.get("roomRate") as string);
+
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
 
     const newRoom = await prisma.room.create({
       data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
@@ -42,9 +73,13 @@ export async function POST(req: NextRequest) {
     const { data, error } = await uploadImage("rooms", newRoom.id, file);
 
     if (error) {
+      console.error(error);
+
+      await prisma.room.delete({ where: { id: newRoom.id } });
+
       return NextResponse.json(
         { error: "Image not uploaded", message: error },
-        { status: 400 }
+        { status: 403 }
       );
     }
 

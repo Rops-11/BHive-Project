@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment intent ID and payment method ID are required" }, { status: 400 })
     }
 
-    const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment/success`
+    const returnUrl = `${process.env.APP_URL || "http://localhost:3000"}/payment/success`
 
     // Attach the payment method to the payment intent
     const paymentIntent = await attachPaymentMethod(paymentIntentId, paymentMethodId, returnUrl)

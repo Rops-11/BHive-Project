@@ -1,0 +1,80 @@
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+import logo from "@/assets/bhivelogo.jpg";
+import SideBar from "../LandingPage/SideBar";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const AdminHeader = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sideBar, setSideBar] = useState(false);
+
+  const isMobile = useIsMobile();
+
+  const navStyle = isMobile
+    ? `mx-auto flex max-w-7xl w-full items-center justify-between`
+    : `mx-auto flex max-w-7xl w-full items-center`;
+
+  return (
+    <header className="fixed top-0 left-0 w-full h-20 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">
+      <nav className={navStyle}>
+        <div className="flex items-center">
+          <Link
+            href="/"
+            className="flex items-center">
+            <Image
+              src={logo}
+              alt="Bhive Hotel Logo"
+              width={48}
+              height={48}
+              className="drop-shadow-lg"
+              priority
+            />
+          </Link>
+        </div>
+
+        <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center"></div>
+
+        <div className="hidden md:flex space-x-3">
+          <Link
+            href="/login"
+            className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
+            Log-in
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
+            Sign-up
+          </Link>
+        </div>
+
+        <div className="flex md:hidden right-0">
+          {!mobileMenuOpen && (
+            <button
+              type="button"
+              onClick={() => {
+                setSideBar(!sideBar);
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
+              className="text-black">
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+          )}
+        </div>
+        {mobileMenuOpen && (
+          <SideBar
+            sideBar={sideBar}
+            setSideBar={setSideBar}
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
+            role="Admin"
+          />
+        )}
+      </nav>
+    </header>
+  );
+};
+
+export default AdminHeader;

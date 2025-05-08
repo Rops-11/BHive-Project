@@ -16,12 +16,14 @@ const SideBar = ({
   mobileMenuOpen,
   setMobileMenuOpen,
   about,
+  role = "Guest",
 }: {
   sideBar: boolean;
   setSideBar: Dispatch<SetStateAction<boolean>>;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
-  about: { title: string; description: string; href: string }[];
+  about?: { title: string; description: string; href: string }[];
+  role?: "Admin" | "Guest";
 }) => {
   const sideBarStyle = sideBar
     ? "fixed flex flex-col w-64 h-screen top-0 bg-gradient-to-b from-amber-400 to-amber-300 shadow-xl right-0 animate-slide-in-right transition duration-300 ease-in-out z-50"
@@ -53,49 +55,62 @@ const SideBar = ({
         </button>
       </div>
 
-      <div className="flex flex-col h-full justify-between py-4">
-        <div className="flex flex-col space-y-2 px-4">
-          <NavItem href="/">Home</NavItem>
+      {role === "Guest" && (
+        <div className="flex flex-col h-full justify-between py-4">
+          <div className="flex flex-col space-y-2 px-4">
+            <NavItem href="/">Home</NavItem>
 
-          <Collapsible className="w-full">
-            <CollapsibleTrigger className="flex justify-between items-center w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium px-5 py-3 rounded-lg transition-colors">
-              <span>About</span>
-              <ChevronDownIcon className="h-4 w-4" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="flex flex-col space-y-1 mt-1 ml-4">
-                {about.map((item) => (
-                  <Link
-                    key={item.title}
-                    href={item.href}
-                    className="px-4 py-2 text-sm text-amber-800 hover:bg-amber-200/50 rounded-md transition-colors">
-                    {item.title}
-                  </Link>
-                ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+            <Collapsible className="w-full">
+              <CollapsibleTrigger className="flex justify-between items-center w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium px-5 py-3 rounded-lg transition-colors">
+                <span>About</span>
+                <ChevronDownIcon className="h-4 w-4" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="flex flex-col space-y-1 mt-1 ml-4">
+                  {about!.map((item) => (
+                    <Link
+                      key={item.title}
+                      href={item.href}
+                      className="px-4 py-2 text-sm text-amber-800 hover:bg-amber-200/50 rounded-md transition-colors">
+                      {item.title}
+                    </Link>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-          <NavItem href="/facilities">Facilities</NavItem>
-          <NavItem href="/rooms">Rooms</NavItem>
-          <NavItem href="/book">Book</NavItem>
-        </div>
+            <NavItem href="/facilities">Facilities</NavItem>
+            <NavItem href="/rooms">Rooms</NavItem>
+            <NavItem href="/book">Book</NavItem>
+          </div>
 
-        <div className="px-4 mt-auto pt-4 border-t border-amber-500/20">
-          <div className="flex flex-col space-y-3 mb-6">
-            <Link
-              href="/login"
-              className="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium text-center px-4 py-3 rounded-lg transition-colors">
-              Log In
-            </Link>
-            <Link
-              href="/signup"
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium text-center px-4 py-3 rounded-lg transition-colors">
-              Sign Up
-            </Link>
+          <div className="px-4 mt-auto pt-4 border-t border-amber-500/20">
+            <div className="flex flex-col space-y-3 mb-6">
+              <Link
+                href="/login"
+                className="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium text-center px-4 py-3 rounded-lg transition-colors">
+                Log In
+              </Link>
+              <Link
+                href="/signup"
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium text-center px-4 py-3 rounded-lg transition-colors">
+                Sign Up
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {role === "Admin" && (
+        <div className="flex flex-col h-full justify-between py-4">
+          <div className="flex flex-col space-y-2 px-4">
+            <NavItem href="/admin">Home</NavItem>
+            <NavItem href="/admin/dashboard">Dashboard</NavItem>
+            <NavItem href="/admin/rooms">Rooms</NavItem>
+            <NavItem href="/admin/book">Book</NavItem>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

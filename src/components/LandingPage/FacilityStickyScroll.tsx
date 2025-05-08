@@ -4,7 +4,7 @@ import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 import Cafe from "@/assets/LPsecondpic.jpg";
 import Bar from "@/assets/barpic.jpg";
 import Lounge from "@/assets/LPmaincover.jpg";
-import Image from "next/image"; // ✅ import Next.js Image
+import Image from "next/image"; 
 
 const content = [
   {

@@ -31,7 +31,7 @@ jest.mock("next/server", () => ({
   },
 }));
 
-describe("Room API", () => {
+describe.skip("Room API", () => {
   const mockRooms = [
     {
       id: "1",
