@@ -68,10 +68,15 @@ export async function logout() {
 export async function signInWithGoogle() {
   const supabase = await createClient();
 
+  const gmailScopes = ["https://www.googleapis.com/auth/gmail.readonly"].join(
+    " "
+  );
+
   const { error, data } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: `${process.env.APP_URL}/api/auth/callback`,
+      scopes: gmailScopes,
     },
   });
 
@@ -79,5 +84,9 @@ export async function signInWithGoogle() {
     return { error: error.message };
   }
 
-  redirect(data.url);
+  if (data.url) {
+    redirect(data.url);
+  } else {
+    redirect("/admin");
+  }
 }
