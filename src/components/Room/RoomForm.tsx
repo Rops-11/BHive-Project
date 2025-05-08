@@ -103,8 +103,10 @@ const RoomForm = ({ type }: RoomFormProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>{type} Room</Button>
+      <DialogTrigger
+        className="w-full"
+        asChild>
+        <Button className="w-full">{type} Room</Button>
       </DialogTrigger>
       <DialogContent className="w-1/2 space-y-0">
         <DialogTitle className="h-auto">Room Data</DialogTitle>
