@@ -99,7 +99,6 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
     if (filterBySenderEmail && filterBySenderEmail.trim() !== "") {
       queryString += ` from:${filterBySenderEmail.trim()}`;
     }
-    console.log("Using Gmail query:", queryString);
 
     const messagesRes = await gmail.users.messages.list({
       userId: "me",
