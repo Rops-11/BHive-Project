@@ -103,7 +103,7 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
 
     const messagesRes = await gmail.users.messages.list({
       userId: "me",
-      maxResults: 10,
+      maxResults: 100,
       q: queryString,
     });
 
