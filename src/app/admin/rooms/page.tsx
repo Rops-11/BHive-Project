@@ -11,7 +11,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
-import useGetAllRooms from "@/hooks/roomHooks/useGetAllRooms";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
