@@ -39,7 +39,7 @@ export default function InboxPage() {
 
   return (
     <div className="flex flex-col h-screen w-full items-center space-y-6 pt-10 sm:pt-20 md:pt-30 p-6 sm:p-10">
-      <Card className="flex flex-col w-full max-w-3xl p-6 space-y-4 justify-center items-center">
+      <Card className="flex flex-col w-full p-6 space-y-4 justify-center items-center">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-center">
           My Gmail Inbox
         </h1>
@@ -78,7 +78,7 @@ export default function InboxPage() {
         <div className="text-center py-10">
           <Inbox className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-sm text-gray-500">
-            Enter a sender email (optional) and click "Fetch Emails".
+            Enter a sender email (optional) and click &quot;Fetch Emails&quot;.
           </p>
         </div>
       )}
@@ -98,7 +98,7 @@ export default function InboxPage() {
       {/* Displaying emails */}
       {emails && emails.length > 0 && (
         // Adjusted height for the email list container
-        <div className="w-full max-w-3xl flex-grow space-y-4 overflow-y-auto pb-10">
+        <div className="w-full flex-grow space-y-4 overflow-y-auto pb-10">
           {emails.map((email) => (
             <EmailCard
               key={email.id || Math.random().toString()}
