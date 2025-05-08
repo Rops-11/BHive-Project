@@ -14,10 +14,10 @@ const AdminHomePage = () => {
           <Link href="/admin/book">Book</Link>
         </Button>
         <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/book">Rooms</Link>
+          <Link href="/admin/rooms">Rooms</Link>
         </Button>
         <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/book">Inbox</Link>
+          <Link href="/admin/inbox">Inbox</Link>
         </Button>
       </div>
       {/* <form
