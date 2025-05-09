@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import CheckRoomAvailability from "@/components/Booking/CheckRoomAvailability";
 import RoomBanner from "@/components/Room/RoomBanner";
 import HotelRoomCard from "@/components/Room/HotelRoomCard";
 import useGetAllRooms from "@/hooks/roomHooks/useGetAllRooms";

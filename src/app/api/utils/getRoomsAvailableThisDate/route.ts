@@ -44,6 +44,13 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    if (errorInImage) {
+      return NextResponse.json(
+        { error: "Error in fetching images" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(roomsWithImages, { status: 200 });
   } catch (error: unknown) {
     console.error("Error fetching rooms:", error);
