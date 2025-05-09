@@ -22,7 +22,7 @@ export async function login(formData: FormData) {
   const { session } = await getSession();
   const userDB = await prisma.user.findFirst({
     where: { id: session?.user.id },
-  }); // CAN BE CONTEXT
+  });
 
   return { isAdmin: userDB?.isAdmin };
 }
