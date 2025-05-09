@@ -4,7 +4,7 @@ import LPthirdpic from "@/assets/LPthirdpic.jpg";
 
 const RoomBanner = () => {
   return (
-    <div className="relative overflow-hidden h-[500px]">
+    <div className="relative overflow-hidden h-screen">
       <Image
         src={LPthirdpic}
         alt="Room Banner"

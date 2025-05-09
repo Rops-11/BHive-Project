@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import CheckRoomAvailability from "@/components/Booking/CheckRoomAvailability";
 import RoomBanner from "@/components/Room/RoomBanner";
 import HotelRoomCard from "@/components/Room/HotelRoomCard";
 import useGetAllRooms from "@/hooks/roomHooks/useGetAllRooms";
@@ -14,8 +13,7 @@ const RoomsPage = () => {
   return (
     <div>
       <RoomBanner />
-      <CheckRoomAvailability />
-      <div className="flex flex-col w-full h-auto space-y-3 items-center">
+      <div className="flex flex-col w-full h-auto mt-10 space-y-3 items-center">
         {roomsLoading ? (
           <>
             <Skeleton className="w-4/5 h-70" />
