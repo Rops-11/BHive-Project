@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthContextValue } from "@/types/context";
-import { User, Session, SupabaseClient } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import {
   ReactNode,
   useState,
@@ -9,7 +9,6 @@ import {
   useEffect,
   useContext,
 } from "react";
-import { toast } from "react-toastify";
 import { createClient } from "utils/supabase/client";
 import Loading from "../ui/Loading";
 
@@ -23,7 +22,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    setIsLoading(true); // Keep loading if supabase is not ready
+    setIsLoading(true);
 
     const getInitialSession = async () => {
       setIsLoading(true);
