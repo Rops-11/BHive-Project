@@ -31,12 +31,6 @@ const AdminHomePage = () => {
           <Button className="w-full h-full cursor-pointer">Inbox</Button>
         </Link>
       </div>
-      {/* <form
-        action={() => {
-          logout();
-        }}>
-        <Button type="submit">Logout</Button>
-      </form> */}
     </div>
   );
 };
