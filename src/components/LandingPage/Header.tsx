@@ -46,7 +46,11 @@ export default function Header() {
 
   const isMobile = useIsMobile();
 
-  const about: { title: string; description: string; href: string }[] = [
+  const aboutDropdownItems: {
+    title: string;
+    description: string;
+    href: string;
+  }[] = [
     {
       title: "About Bhive",
       description: "Know more about the hotel.",
@@ -57,6 +61,17 @@ export default function Header() {
       description: "Know about what you need to know before booking.",
       href: "/about/termsAndConditions",
     },
+  ];
+
+  const navItemsForSideBar: { title: string; href: string }[] = [
+    { title: "Home", href: "/" },
+    ...aboutDropdownItems.map((item) => ({
+      title: item.title,
+      href: item.href,
+    })),
+    { title: "Facilities", href: "/facilities" },
+    { title: "Rooms", href: "/rooms" },
+    { title: "Book", href: "/book" },
   ];
 
   const navStyle = isMobile
@@ -95,11 +110,12 @@ export default function Header() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem className="flex w-full justify-center items-center">
                 <NavigationMenuTrigger>About</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                    {about.map((item) => (
+                    {aboutDropdownItems.map((item) => (
                       <ListItem
                         key={item.title}
                         title={item.title}
@@ -110,6 +126,7 @@ export default function Header() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
               <NavigationMenuItem className="flex w-full justify-center items-center">
                 <NavigationMenuLink asChild>
                   <Link href="/facilities">
@@ -117,6 +134,7 @@ export default function Header() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem className="flex w-full justify-center items-center">
                 <NavigationMenuLink asChild>
                   <Link href="/rooms">
@@ -124,6 +142,7 @@ export default function Header() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
               <NavigationMenuItem className="flex w-full justify-center items-center">
                 <NavigationMenuLink asChild>
                   <Link href="/book">
@@ -133,19 +152,6 @@ export default function Header() {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-        </div>
-
-        <div className="hidden md:flex space-x-3">
-          <Link
-            href="/login"
-            className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
-            Log-in
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
-            Sign-up
-          </Link>
         </div>
 
         <div className="flex md:hidden right-0">
@@ -161,13 +167,15 @@ export default function Header() {
             </button>
           )}
         </div>
+
         {mobileMenuOpen && (
           <SideBar
             sideBar={sideBar}
             setSideBar={setSideBar}
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
-            about={about}
+            navItems={navItemsForSideBar}
+            role="Guest"
           />
         )}
       </nav>

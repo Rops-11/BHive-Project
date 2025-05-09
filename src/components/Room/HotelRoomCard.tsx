@@ -11,14 +11,13 @@ import { Button } from "../ui/button";
 import { Room } from "@/types/types";
 import Image from "next/image";
 
-const HotelRoomCard = ({ room, bgColor }: { room: Room; bgColor?: string }) => {
+const HotelRoomCard = ({ room }: { room: Room }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button
           className={
-            "flex flex-row p-0 w-3/5 justify-between h-60 overflow-hidden bg-black text-white relative" +
-            bgColor
+            "flex flex-row p-0 w-4/5 justify-between h-60 overflow-hidden bg-black text-white relative"
           }>
           <div className="flex flex-col w-5/8 h-full p-5 text-left relative z-20">
             <h1 className="font-bold text-2xl md:text-3xl lg:text-4xl">

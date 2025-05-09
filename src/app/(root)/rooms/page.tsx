@@ -14,8 +14,7 @@ const RoomsPage = () => {
   return (
     <div>
       <RoomBanner />
-      <CheckRoomAvailability />
-      <div className="flex flex-col w-full h-auto space-y-3 items-center">
+      <div className="flex flex-col w-full h-auto mt-10 space-y-3 items-center">
         {roomsLoading ? (
           <>
             <Skeleton className="w-4/5 h-70" />
