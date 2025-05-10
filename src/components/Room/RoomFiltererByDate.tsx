@@ -25,7 +25,7 @@ const RoomFiltererByDate = ({
   role?: "Guest" | "Admin";
 }) => {
   return (
-    <Card className="flex flex-row p-4 w-4/5 space-x-2 justify-between items-end">
+    <Card className="flex flex-row p-4 md:w-4/5 lg:w-3/4 xl:w-2/3 space-x-2 justify-between items-end">
       <div className="flex flex-col w-full space-y-1">
         <Label>Date for Rooms:</Label>
         <Popover>

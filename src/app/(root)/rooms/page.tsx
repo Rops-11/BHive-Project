@@ -16,9 +16,9 @@ const RoomsPage = () => {
       <div className="flex flex-col w-full h-auto mt-10 space-y-3 items-center">
         {roomsLoading ? (
           <>
-            <Skeleton className="w-4/5 h-70" />
-            <Skeleton className="w-4/5 h-70" />
-            <Skeleton className="w-4/5 h-70" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
           </>
         ) : (
           rooms?.map((room) => (
