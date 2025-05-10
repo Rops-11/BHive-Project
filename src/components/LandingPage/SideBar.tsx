@@ -1,28 +1,28 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import logo from "@/assets/bhivelogo.jpg";
+
+// Define the type for individual navigation items
+interface NavItemData {
+  title: string;
+  href: string;
+}
 
 const SideBar = ({
   sideBar,
   setSideBar,
   mobileMenuOpen,
   setMobileMenuOpen,
-  about,
+  navItems,
   role = "Guest",
 }: {
   sideBar: boolean;
   setSideBar: Dispatch<SetStateAction<boolean>>;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
-  about?: { title: string; description: string; href: string }[];
+  navItems?: NavItemData[]; // Updated prop to accept the new navigation links
   role?: "Admin" | "Guest";
 }) => {
   const sideBarStyle = sideBar
@@ -55,35 +55,18 @@ const SideBar = ({
         </button>
       </div>
 
-      {role === "Guest" && (
-        <div className="flex flex-col h-full justify-between py-4">
-          <div className="flex flex-col space-y-2 px-4">
-            <NavItem href="/">Home</NavItem>
-
-            <Collapsible className="w-full">
-              <CollapsibleTrigger className="flex justify-between items-center w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium px-5 py-3 rounded-lg transition-colors">
-                <span>About</span>
-                <ChevronDownIcon className="h-4 w-4" />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="flex flex-col space-y-1 mt-1 ml-4">
-                  {about!.map((item) => (
-                    <Link
-                      key={item.title}
-                      href={item.href}
-                      className="px-4 py-2 text-sm text-amber-800 hover:bg-amber-200/50 rounded-md transition-colors">
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-
-            <NavItem href="/facilities">Facilities</NavItem>
-            <NavItem href="/rooms">Rooms</NavItem>
-            <NavItem href="/book">Book</NavItem>
-          </div>
-
+      <div className="flex flex-col h-full justify-between py-4">
+        <div className="flex flex-col space-y-2 px-4">
+          {navItems &&
+            navItems.map((item) => (
+              <NavItem
+                key={item.title}
+                href={item.href}>
+                {item.title}
+              </NavItem>
+            ))}
+        </div>
+        {role === "Admin" && (
           <div className="px-4 mt-auto pt-4 border-t border-amber-500/20">
             <div className="flex flex-col space-y-3 mb-6">
               <Link
@@ -98,19 +81,8 @@ const SideBar = ({
               </Link>
             </div>
           </div>
-        </div>
-      )}
-
-      {role === "Admin" && (
-        <div className="flex flex-col h-full justify-between py-4">
-          <div className="flex flex-col space-y-2 px-4">
-            <NavItem href="/admin">Home</NavItem>
-            <NavItem href="/admin/dashboard">Dashboard</NavItem>
-            <NavItem href="/admin/rooms">Rooms</NavItem>
-            <NavItem href="/admin/book">Book</NavItem>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
