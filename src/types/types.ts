@@ -1,7 +1,8 @@
 import { StaticImageData } from "next/image";
 
-interface ImageFile {
+export interface ImageFile {
   name: string;
+  id?: string;
 }
 
 export interface Room {

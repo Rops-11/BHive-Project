@@ -32,15 +32,16 @@ const Rooms = () => {
       <div className="flex flex-col w-full h-auto space-y-5 items-center">
         {roomsLoading ? (
           <>
-            <Skeleton className="w-4/5 h-60" />
-            <Skeleton className="w-4/5 h-60" />
-            <Skeleton className="w-4/5 h-60" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
+            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
           </>
         ) : (
           availableRoomsWithDate?.map((room) => (
             <HotelRoomCard
               key={room.id}
               room={room}
+              role="Admin"
             />
           ))
         )}

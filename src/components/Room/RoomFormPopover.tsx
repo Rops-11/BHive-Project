@@ -1,11 +1,12 @@
+// UI FORM: RoomForm.tsx
 import React, { startTransition } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
+} from "../ui/dialog"; // Adjust path if needed
+import { Button } from "../ui/button"; // Adjust path if needed
 import {
   Form,
   FormControl,
@@ -13,20 +14,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "../ui/form"; // Adjust path if needed
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-import useCreateRoom from "@/hooks/roomHooks/useCreateRoom";
-import { Input } from "../ui/input";
-import { Spinner } from "react-activity";
+import useCreateRoom from "@/hooks/roomHooks/useCreateRoom"; // Adjust path if needed
+import { Input } from "../ui/input"; // Adjust path if needed
+import { Spinner } from "react-activity"; // Ensure this component is installed and imported
+import { Room } from "@/types/types";
 
 interface RoomFormProps {
   type: "Edit" | "Add";
+  room?: Room;
 }
 
-const MAX_FILE_SIZE = 5000000;
+const MAX_FILE_SIZE = 5000000; // 5MB
+const MAX_FILES_COUNT = 5; // Example: allow up to 5 images
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -34,69 +38,87 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
+// Updated Zod schema
 const formSchema = z.object({
   roomType: z.string().min(1, {
     message: "Please enter the type of the room.",
   }),
   roomNumber: z.string().min(1, { message: "Please enter the room number." }),
-  maxGuests: z
-    .number()
-    .positive({ message: "Please enter a number higher than zero." })
-    .optional()
-    .or(z.literal("")),
-  roomRate: z
-    .number()
-    .positive({ message: "Please enter a number higher than zero." })
-    .optional()
-    .or(z.literal("")),
-  file: z
-    .any()
-    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 5MB.`)
+  maxGuests: z.preprocess((val) => {
+    // Handle empty string or non-string values before Number conversion
+    if (val === "" || val === null || val === undefined) return undefined;
+    const num = Number(val);
+    return isNaN(num) ? val : num; // Pass original 'val' if not a number, for Zod to catch type error
+  }, z.number({ invalid_type_error: "Max guests must be a number." }).positive({ message: "Max guests must be a positive number." }).optional()),
+  roomRate: z.preprocess((val) => {
+    if (val === "" || val === null || val === undefined) return undefined;
+    const num = Number(val);
+    return isNaN(num) ? val : num; // Pass original 'val' if not a number
+  }, z.number({ invalid_type_error: "Room rate must be a number." }).positive({ message: "Room rate must be a positive number." }).optional()),
+  files: z
+    .custom<FileList>(
+      (val) => val instanceof FileList,
+      "Input must be a FileList"
+    )
     .refine(
-      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
+      (files) => files && files.length > 0,
+      "At least one image is required."
+    )
+    .refine(
+      (files) => files && files.length <= MAX_FILES_COUNT,
+      `You can upload a maximum of ${MAX_FILES_COUNT} images.`
+    )
+    .refine(
+      (files) =>
+        files && Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
+      `Max file size is 5MB per image.`
+    )
+    .refine(
+      (files) =>
+        files &&
+        Array.from(files).every((file) =>
+          ACCEPTED_IMAGE_TYPES.includes(file.type)
+        ),
+      "Only .jpg, .jpeg, .png and .webp formats are supported for all images."
     ),
 });
 
-const RoomForm = ({ type }: RoomFormProps) => {
+type RoomFormValues = z.infer<typeof formSchema>;
+
+const RoomFormPopover = ({ type, room }: RoomFormProps) => {
   const { createRoom, loading: roomCreateLoading } = useCreateRoom();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<RoomFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      roomType: "",
-      roomNumber: "",
-      maxGuests: undefined,
-      roomRate: undefined,
-      file: "",
+      roomType: room?.roomType || "",
+      roomNumber: room?.roomNumber || "",
+      maxGuests: room?.maxGuests ?? undefined,
+      roomRate: room?.roomRate ?? undefined,
+      files: undefined,
     },
   });
 
-  const onSubmit: (
-    values: z.infer<typeof formSchema>
-  ) => Promise<void> = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: RoomFormValues) => {
     startTransition(async () => {
       try {
         const formData = new FormData();
         formData.append("roomType", values.roomType);
         formData.append("roomNumber", values.roomNumber);
-        formData.append(
-          "maxGuests",
-          typeof values.maxGuests === "number"
-            ? values.maxGuests.toString()
-            : "0"
-        );
-        formData.append(
-          "roomRate",
-          typeof values.roomRate === "number" ? values.roomRate.toString() : "0"
-        );
-        if (values.file) {
-          formData.append("file", values.file);
+        formData.append("maxGuests", (values.maxGuests ?? 0).toString());
+        formData.append("roomRate", (values.roomRate ?? 0).toString());
+
+        if (values.files && values.files.length > 0) {
+          for (let i = 0; i < values.files.length; i++) {
+            formData.append("files", values.files[i]);
+          }
         }
 
         await createRoom(formData);
-      } catch {
-        toast.error("Unknown error occured while creating room.");
+        form.reset();
+      } catch (e) {
+        console.error("Form submission error:", e);
+        toast.error("An error occurred while submitting the form.");
       }
     });
   };
@@ -108,12 +130,12 @@ const RoomForm = ({ type }: RoomFormProps) => {
         asChild>
         <Button className="w-full">{type} Room</Button>
       </DialogTrigger>
-      <DialogContent className="w-1/2 space-y-0">
+      <DialogContent className="w-1/2 space-y-0 max-h-[90vh] overflow-y-auto">
         <DialogTitle className="h-auto">Room Data</DialogTitle>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col w-full space-y-8">
+            className="flex flex-col w-full space-y-8 p-1">
             <div className="flex flex-col space-y-3 w-full">
               <div className="flex md:flex-row flex-col justify-between w-full md:space-y-0 space-y-3">
                 <FormField
@@ -164,13 +186,11 @@ const RoomForm = ({ type }: RoomFormProps) => {
                         <Input
                           className="border-black"
                           type="number"
+                          min={0}
                           placeholder="Max Guests"
-                          value={field.value === undefined ? "" : field.value}
+                          {...field}
                           onChange={(e) => {
-                            const value = e.target.value;
-                            field.onChange(
-                              value === "" ? "" : parseInt(value, 10)
-                            );
+                            field.onChange(e.target.value);
                           }}
                         />
                       </FormControl>
@@ -188,13 +208,12 @@ const RoomForm = ({ type }: RoomFormProps) => {
                         <Input
                           className="border-black"
                           type="number"
+                          min={0}
                           placeholder="Room Rate"
-                          value={field.value === undefined ? "" : field.value}
+                          step="0.01"
+                          {...field}
                           onChange={(e) => {
-                            const value = e.target.value;
-                            field.onChange(
-                              value === "" ? "" : parseInt(value, 10)
-                            );
+                            field.onChange(e.target.value);
                           }}
                         />
                       </FormControl>
@@ -204,17 +223,22 @@ const RoomForm = ({ type }: RoomFormProps) => {
                 />
                 <FormField
                   control={form.control}
-                  name="file"
-                  render={({ field }) => (
+                  name="files"
+                  render={({ field: { onChange, onBlur, name, ref } }) => (
                     <FormItem className="md:w-[31%] w-full">
-                      <FormLabel>Image</FormLabel>
+                      <FormLabel>Images (up to {MAX_FILES_COUNT})</FormLabel>
                       <FormControl>
                         <Input
                           className="border-black"
                           type="file"
+                          multiple
+                          accept={ACCEPTED_IMAGE_TYPES.join(",")}
                           onChange={(e) => {
-                            field.onChange(e.target.files?.[0] || null);
+                            onChange(e.target.files || null);
                           }}
+                          onBlur={onBlur}
+                          name={name}
+                          ref={ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -225,15 +249,19 @@ const RoomForm = ({ type }: RoomFormProps) => {
             </div>
             <Button
               type="submit"
-              className="w-1/2 self-end">
+              className="w-1/2 self-end"
+              disabled={roomCreateLoading}>
               {roomCreateLoading ? (
                 <Spinner
                   size={10}
                   color="#000000"
+                  className="h-5 w-5 animate-spin"
                   animating={roomCreateLoading}
                 />
+              ) : type === "Add" ? (
+                "Add Room"
               ) : (
-                "Add"
+                "Save Changes"
               )}
             </Button>
           </form>
@@ -243,4 +271,4 @@ const RoomForm = ({ type }: RoomFormProps) => {
   );
 };
 
-export default RoomForm;
+export default RoomFormPopover;
