@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
-import RoomForm from "./RoomForm";
+import RoomForm from "./RoomFormPopover";
 import { DateRange } from "react-day-picker";
 
 const RoomFiltererByDate = ({

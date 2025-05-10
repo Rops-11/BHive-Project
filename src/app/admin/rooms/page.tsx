@@ -41,6 +41,7 @@ const Rooms = () => {
             <HotelRoomCard
               key={room.id}
               room={room}
+              role="Admin"
             />
           ))
         )}
