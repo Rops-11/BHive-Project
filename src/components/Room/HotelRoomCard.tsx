@@ -22,7 +22,7 @@ const HotelRoomCard = ({
   role = "Guest",
 }: {
   room: Room;
-  role: "Guest" | "Admin";
+  role?: "Guest" | "Admin";
 }) => {
   // Log data before rendering the part that uses it for the carousel
   if (room.images && room.images.length > 0) {
