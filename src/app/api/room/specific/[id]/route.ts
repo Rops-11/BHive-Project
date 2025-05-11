@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { deleteFile, getMedia, uploadImage } from "utils/supabase/storage";
-import { ImageFile } from "@/types/types";
 import { createClient } from "utils/supabase/server";
 
 const prisma = new PrismaClient();
@@ -76,7 +75,7 @@ export async function PUT(
     let hasUploadErrors;
     const uploadedFilePathsInBucket: string[] = [];
 
-    files.length > 0 &&
+    if (files.length > 0)
       files?.map(async (image: File) => {
         const { data, error } = await uploadImage("rooms", id, image);
 
@@ -112,7 +111,7 @@ export async function PUT(
       data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
     });
 
-    files.length > 0 &&
+    if (files.length > 0)
       OldImages?.map(async (image) => {
         const { error } = await deleteFile("rooms", id, image.name);
 

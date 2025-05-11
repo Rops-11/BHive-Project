@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
 
@@ -8,7 +8,10 @@ const useDeleteRoom = () => {
   const deleteRoom = async (roomId: string) => {
     setLoading(true);
     try {
-      const response = await normalFetch(`/api/room/specific/${roomId}`, "delete");
+      const response = await normalFetch(
+        `/api/room/specific/${roomId}`,
+        "delete"
+      );
 
       if (!response.ok) {
         const error = await response.json();

@@ -17,7 +17,6 @@ import { RoomImagesCarousel } from "./RoomImagesCarousel"; // Adjust path if nee
 import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
 import DeleteRoomPopover from "./DeleteRoomPopover";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const HotelRoomCard = ({
   room,

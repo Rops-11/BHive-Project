@@ -169,11 +169,8 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         // Using location.reload() as per your current implementation.
         // For a Next.js app router, router.refresh() is often preferred for soft refreshes.
         location.reload();
-      } catch (e: any) {
-        console.error("Form submission error:", e);
-        toast.error(
-          e.message || "An error occurred while submitting the form."
-        );
+      } catch {
+        toast.error("An error occurred while submitting the form.");
       }
     });
   };

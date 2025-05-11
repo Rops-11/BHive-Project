@@ -6,7 +6,6 @@ import useDeleteRoom from "@/hooks/roomHooks/useDeleteRoom";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import React, { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { useRouter } from "next/navigation";
 
 const Rooms = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -16,7 +15,6 @@ const Rooms = () => {
     loading: roomsLoading,
   } = useOnlyAvailableRoomsOnSpecificDate();
   const { loading: deleteLoading } = useDeleteRoom();
-  const router = useRouter();
 
   useEffect(() => {
     const dateToday = new Date();
