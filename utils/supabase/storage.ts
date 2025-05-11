@@ -47,3 +47,17 @@ export const updateFile = async (
 
   return { data, error };
 };
+
+export const deleteFile = async (
+  from: string,
+  roomId: string,
+  fileId: string
+) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.storage
+    .from(from)
+    .remove([roomId + "/" + fileId]);
+
+  return { data, error };
+};

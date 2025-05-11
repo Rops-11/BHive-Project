@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     );
 
     const rooms = await prisma.room.findMany({
+      orderBy: [{ roomRate: "asc" }],
       where: {
         NOT: {
           id: {

@@ -78,7 +78,9 @@ const RoomFiltererByDate = ({
       </div>
       {role === "Admin" && (
         <div className="flex w-[14%]">
-          <RoomForm type="Add" />
+          <RoomForm
+            type="Add"
+          />
         </div>
       )}
     </Card>
