@@ -10,7 +10,6 @@ datasource db {
 model User {
   id        String    @id @db.Uuid
   isAdmin   Boolean   @default(false)
-  histories History[]
 }
 
 model Room {
@@ -21,14 +20,6 @@ model Room {
   maxGuests   Int
   roomRate    Int
   bookings    Booking[]
-}
-
-model History {
-  id        String  @id @default(uuid()) @db.Uuid
-  userId    String  @db.Uuid
-  bookingId String  @unique @db.Uuid
-  booking   Booking @relation(fields: [bookingId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
 }
 
 model Booking {
@@ -45,8 +36,7 @@ model Booking {
   numberOfChildren Int
   shift            String?   @default("Online")// This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   totalPrice       Float
-  room             Room     @relation(fields: [roomId], references: [id])
-  history          History?
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 enum Status {

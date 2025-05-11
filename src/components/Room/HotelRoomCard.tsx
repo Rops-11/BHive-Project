@@ -16,6 +16,8 @@ import NextImage from "next/image"; // Alias to avoid naming conflicts
 import { RoomImagesCarousel } from "./RoomImagesCarousel"; // Adjust path if needed
 import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
+import DeleteRoomPopover from "./DeleteRoomPopover";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const HotelRoomCard = ({
   room,
@@ -145,12 +147,17 @@ const HotelRoomCard = ({
             </Button>
           )}
           {role === "Admin" && (
-            <div className="flex w-[14%]">
-              <RoomFormPopover
-                type="Edit"
-                room={room}
-              />
-            </div>
+            <>
+              <div className="flex w-[14%]">
+                <DeleteRoomPopover room={room} />
+              </div>
+              <div className="flex w-[14%]">
+                <RoomFormPopover
+                  type="Edit"
+                  room={room}
+                />
+              </div>
+            </>
           )}
         </DialogFooter>
       </DialogContent>

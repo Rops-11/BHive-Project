@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import RoomForm from "./RoomFormPopover";
 import { DateRange } from "react-day-picker";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const RoomFiltererByDate = ({
   dateRange,
@@ -78,7 +79,9 @@ const RoomFiltererByDate = ({
       </div>
       {role === "Admin" && (
         <div className="flex w-[14%]">
-          <RoomForm type="Add" />
+          <RoomForm
+            type="Add"
+          />
         </div>
       )}
     </Card>
