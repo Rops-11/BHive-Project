@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"; // Adjust path if needed
-import { Button } from "../ui/button"; // Adjust path if needed
+} from "../ui/dialog";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -14,24 +14,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form"; // Adjust path if needed
+} from "../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-import useCreateRoom from "@/hooks/roomHooks/useCreateRoom"; // Adjust path if needed
-import useEditRoom from "@/hooks/roomHooks/useEditRoom"; // Adjust path if needed
-import { Input } from "../ui/input"; // Adjust path if needed
-import { Spinner } from "react-activity"; // Ensure this component is installed and imported
+import useCreateRoom from "@/hooks/roomHooks/useCreateRoom";
+import useEditRoom from "@/hooks/roomHooks/useEditRoom";
+import { Input } from "../ui/input";
+import { Spinner } from "react-activity";
 import { Room } from "@/types/types";
-// import { useRouter } from "next/navigation"; // Not used, location.reload() is used
 
 interface RoomFormProps {
   type: "Edit" | "Add";
   room?: Room;
 }
 
-const MAX_FILE_SIZE = 5000000; // 5MB
+const MAX_FILE_SIZE = 5000000; 
 const MAX_FILES_COUNT = 5;
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -40,10 +39,7 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-// Schema factory function
 const createRoomFormSchema = (formType: "Add" | "Edit") => {
-  // Base schema for files: validates if files are present, but doesn't require them.
-  // Allows undefined, null, or an empty FileList to pass basic checks.
   const filesBaseSchema = z
     .custom<FileList | undefined | null>(
       (val): val is FileList | undefined | null =>
@@ -95,21 +91,15 @@ const createRoomFormSchema = (formType: "Add" | "Edit") => {
               files instanceof FileList && files.length > 0,
             "At least one image is required."
           )
-        : filesBaseSchema, // For "Edit", files are optional (no new files can be uploaded)
+        : filesBaseSchema,
   });
 };
-
-// Infer type from the schema factory's return type for a specific mode,
-// or use a wider type if needed. For useForm, the specific schema instance's inference will work.
-// type RoomFormValues = z.infer<ReturnType<typeof createRoomFormSchema>>;
 
 const RoomFormPopover = ({ type, room }: RoomFormProps) => {
   const { createRoom, loading: roomCreateLoading } = useCreateRoom();
   const { editRoom, loading: roomEditLoading } = useEditRoom();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  // const router = useRouter(); // You are using location.reload() instead
 
-  // Create the schema dynamically based on the 'type' prop
   const currentFormSchema = useMemo(() => createRoomFormSchema(type), [type]);
   type CurrentRoomFormValues = z.infer<typeof currentFormSchema>;
 
@@ -120,11 +110,10 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
       roomNumber: room?.roomNumber || "",
       maxGuests: room?.maxGuests ?? undefined,
       roomRate: room?.roomRate ?? undefined,
-      files: undefined, // Always initialize file input as empty
+      files: undefined,
     },
   });
 
-  // Reset form when dialog opens or when the 'room' prop changes for an open "Edit" dialog
   React.useEffect(() => {
     if (isDialogOpen) {
       form.reset({
@@ -132,10 +121,10 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         roomNumber: room?.roomNumber || "",
         maxGuests: room?.maxGuests ?? undefined,
         roomRate: room?.roomRate ?? undefined,
-        files: undefined, // File input should always be reset
+        files: undefined,
       });
     }
-  }, [isDialogOpen, room, form.reset]); // form.reset is stable
+  }, [isDialogOpen, room, form.reset]);
 
   const onSubmit = async (values: CurrentRoomFormValues) => {
     startTransition(async () => {
@@ -146,7 +135,6 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         formData.append("maxGuests", (values.maxGuests ?? "").toString());
         formData.append("roomRate", (values.roomRate ?? "").toString());
 
-        // Only append files if they are provided (i.e., user selected new files)
         if (values.files && values.files.length > 0) {
           for (let i = 0; i < values.files.length; i++) {
             formData.append("files", values.files[i]);
@@ -160,14 +148,12 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
           await editRoom(formData);
         } else if (type === "Edit" && !room?.id) {
           toast.error("Cannot update: Room ID is missing.");
-          return; // Prevent further execution
+          return;
         }
 
         form.reset();
-        setIsDialogOpen(false); // Close dialog on success
+        setIsDialogOpen(false);
 
-        // Using location.reload() as per your current implementation.
-        // For a Next.js app router, router.refresh() is often preferred for soft refreshes.
         location.reload();
       } catch {
         toast.error("An error occurred while submitting the form.");
