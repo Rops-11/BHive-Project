@@ -31,7 +31,7 @@ const useGetAllBookings = () => {
     getAllBookings();
   }, []);
 
-  return { bookings, loading };
+  return { bookings, loading, getAllBookings };
 };
 
 export default useGetAllBookings;

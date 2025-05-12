@@ -38,6 +38,7 @@ export interface EmailDetail {
   subject?: string | null | undefined;
   from?: string | null | undefined;
   date?: string | null | undefined;
+  body?: string | null | undefined;
 }
 
 export interface RoomWithAmenities extends Room {

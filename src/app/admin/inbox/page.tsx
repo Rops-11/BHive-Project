@@ -18,15 +18,15 @@ export default function InboxPage() {
         </TabsList>
 
         <Card className="flex-grow h-[90%] flex flex-col">
-          <CardContent className="p-4 sm:p-6 flex-grow flex flex-col">
+          <CardContent className="p-4 h-full sm:p-6 flex-grow flex flex-col">
             <TabsContent
               value="booking"
-              className="mt-0 flex-grow flex flex-col">
+              className="mt-0 flex-grow h-full flex flex-col">
               <BookingInbox />
             </TabsContent>
             <TabsContent
               value="gmail"
-              className="mt-0 flex-grow flex flex-col">
+              className="mt-0 flex-grow flex h-full flex-col">
               <GmailInbox />
             </TabsContent>
           </CardContent>

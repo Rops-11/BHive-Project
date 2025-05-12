@@ -18,14 +18,9 @@ import {
 import { Button } from "@/components/ui/button"; // For close button
 // Optional: Add icons if desired
 import { User, CalendarDays } from "lucide-react";
+import { EmailDetail } from "@/types/types";
 
-interface EmailDetail {
-  id: string | null | undefined;
-  snippet: string | null | undefined;
-  subject?: string | null | undefined;
-  from?: string | null | undefined;
-  date?: string | null | undefined;
-}
+
 
 interface EmailCardProps {
   email: EmailDetail;
@@ -92,7 +87,7 @@ export function EmailCard({ email }: EmailCardProps) {
         </DialogHeader>
         <div className="flex-grow border rounded-md p-3 my-4 overflow-y-auto text-sm bg-muted/30">
           <pre className="whitespace-pre-wrap break-words font-sans">
-            {email.snippet || "No snippet available."}
+            {email.body || "No snippet available."}
           </pre>
         </div>
         <DialogFooter className="mt-auto">

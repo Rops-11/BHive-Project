@@ -10,12 +10,14 @@ import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
+import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 
 const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
   const router = useRouter();
   const { bookingContext, setBookingContext } =
     useContext<BookingContextType>(BookingContext);
   const { roomData, loading, getRoom } = useGetSpecificRoom();
+  const { createBooking } = useCreateBooking(); // Temporary
 
   useEffect(() => {
     if (bookingContext?.roomId) {
@@ -56,6 +58,7 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
 
   const handleClickPay = async () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
+    await createBooking({ ...bookingContext, totalPrice: total }); // Temporary for Testing
     const options = {
       method: "POST",
       headers: {

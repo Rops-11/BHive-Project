@@ -9,6 +9,9 @@ export async function GET() {
       include: {
         room: true,
       },
+      orderBy: {
+        checkIn: "asc",
+      },
     });
 
     return NextResponse.json(bookings, { status: 200 });
