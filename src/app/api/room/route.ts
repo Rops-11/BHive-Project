@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getMedia, uploadImage } from "utils/supabase/storage";
+import { createClient } from "utils/supabase/server";
 
 const prisma = new PrismaClient();
 
@@ -51,6 +52,9 @@ export async function GET() {
   }
 }
 export async function POST(req: NextRequest) {
+  const supabase = await createClient(); // For potential cleanup
+  let tempRoomIdForCleanup: string | null = null; // For cleanup on failure
+
   try {
     const formData = await req.formData();
 
@@ -59,37 +63,117 @@ export async function POST(req: NextRequest) {
     const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
+    const files = formData.getAll("files") as File[];
 
-    const file = formData.get("file") as File;
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: "No files provided" }, { status: 400 });
+    }
+    if (!roomType || !roomNumber || isNaN(maxGuests) || isNaN(roomRate)) {
+      return NextResponse.json(
+        { error: "Missing or invalid required fields" },
+        { status: 400 }
+      );
     }
 
     const newRoom = await prisma.room.create({
       data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
     });
+    tempRoomIdForCleanup = newRoom.id;
 
-    const { data, error } = await uploadImage("rooms", newRoom.id, file);
+    let hasUploadErrors;
+    const uploadedFilePathsInBucket: string[] = [];
+    const bucketName = "rooms";
 
-    if (error) {
-      console.error(error);
+    for (const file of files) {
+      const { data: uploadData, error: imageUploadError } = await uploadImage(
+        bucketName,
+        tempRoomIdForCleanup,
+        file
+      );
 
+      if (imageUploadError) {
+        console.error(
+          `Error uploading file ${file.name} to Supabase:`,
+          imageUploadError
+        );
+        hasUploadErrors = true;
+        break;
+      }
+      if (uploadData?.path) {
+        uploadedFilePathsInBucket.push(uploadData.path);
+      }
+    }
+
+    if (hasUploadErrors) {
       await prisma.room.delete({ where: { id: newRoom.id } });
+      tempRoomIdForCleanup = null;
+
+      if (uploadedFilePathsInBucket.length > 0) {
+        const { error: deleteError } = await supabase.storage
+          .from(bucketName)
+          .remove(uploadedFilePathsInBucket);
+        if (deleteError) {
+          console.error(
+            "Failed to delete orphaned files from Supabase Storage on rollback:",
+            deleteError
+          );
+        }
+      }
 
       return NextResponse.json(
-        { error: "Image not uploaded", message: error },
+        {
+          error:
+            "Failed to upload one or more images. Room creation rolled back.",
+        },
         { status: 403 }
       );
     }
 
-    return NextResponse.json({ ...newRoom, data }, { status: 201 });
+    return NextResponse.json(newRoom, { status: 201 });
   } catch (error: unknown) {
     console.error("Error creating room:", error);
 
+    if (tempRoomIdForCleanup) {
+      try {
+        await prisma.room.delete({ where: { id: tempRoomIdForCleanup } });
+        console.log(
+          `Cleaned up Prisma record for room ID: ${tempRoomIdForCleanup}`
+        );
+
+        const bucketName = "rooms";
+        const { data: listData, error: listError } = await supabase.storage
+          .from(bucketName)
+          .list(tempRoomIdForCleanup + "/");
+        if (listError) {
+          console.error(
+            `Error listing files for cleanup in Supabase for ${tempRoomIdForCleanup}:`,
+            listError
+          );
+        } else if (listData && listData.length > 0) {
+          const pathsToDelete = listData.map(
+            (f) => `${tempRoomIdForCleanup}/${f.name}`
+          );
+          const { error: deleteFilesError } = await supabase.storage
+            .from(bucketName)
+            .remove(pathsToDelete);
+          if (deleteFilesError) {
+            console.error(
+              `Error deleting files from Supabase for ${tempRoomIdForCleanup}:`,
+              deleteFilesError
+            );
+          } else {
+            console.log(
+              `Cleaned up Supabase storage for room ID: ${tempRoomIdForCleanup}`
+            );
+          }
+        }
+      } catch (cleanupError) {
+        console.error("Critical error during cleanup:", cleanupError);
+      }
+    }
+
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
-
     const errorStack =
       error instanceof Error && process.env.NODE_ENV === "development"
         ? error.stack

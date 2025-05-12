@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
-import RoomForm from "./RoomForm";
+import RoomForm from "./RoomFormPopover";
 import { DateRange } from "react-day-picker";
 
 const RoomFiltererByDate = ({
@@ -25,7 +25,7 @@ const RoomFiltererByDate = ({
   role?: "Guest" | "Admin";
 }) => {
   return (
-    <Card className="flex flex-row p-4 w-4/5 space-x-2 justify-between items-end">
+    <Card className="flex flex-row p-4 md:w-4/5 lg:w-3/4 xl:w-2/3 space-x-2 justify-between items-end">
       <div className="flex flex-col w-full space-y-1">
         <Label>Date for Rooms:</Label>
         <Popover>
@@ -78,7 +78,9 @@ const RoomFiltererByDate = ({
       </div>
       {role === "Admin" && (
         <div className="flex w-[14%]">
-          <RoomForm type="Add" />
+          <RoomForm
+            type="Add"
+          />
         </div>
       )}
     </Card>
