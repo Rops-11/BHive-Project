@@ -8,7 +8,7 @@ export default function InvoicePreviewPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4 pt-32">
-      <InvoiceCard router={router} notInPaymentPage={true} />
+      <InvoiceCard notInPaymentPage={true} />
     </main>
   );
 }

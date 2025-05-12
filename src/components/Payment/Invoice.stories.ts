@@ -17,7 +17,6 @@ type Story = StoryObj<typeof Invoice>;
 
 export const Default: Story = {
   args: {
-    router: {} as AppRouterInstance, // you may need to mock or provide a proper instance
     notInPaymentPage: false,
   },
 };
