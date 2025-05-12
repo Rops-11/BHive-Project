@@ -1,15 +1,21 @@
 export const normalFetch = async (
-  route: string,
-  method: string,
-  body?: object
+  url: string,
+  method: "get" | "post" | "put" | "delete",
+  body?: any,
+  headers?: Record<string, string>
 ) => {
-  const response = await fetch(`${route}`, {
-    method: method.toUpperCase(),
-    headers: {
-      "Content-type": "application/json",
-    },
-    credentials: "include",
-    body: body ? JSON.stringify(body) : null,
+  const defaultHeaders: Record<string, string> = {};
+
+  if (body && !(body instanceof FormData)) {
+    defaultHeaders["Content-Type"] = "application/json";
+  }
+
+  const finalHeaders = { ...defaultHeaders, ...headers };
+
+  const response = await fetch(url, {
+    method,
+    headers: finalHeaders,
+    body: body instanceof FormData ? body : JSON.stringify(body),
   });
 
   return response;

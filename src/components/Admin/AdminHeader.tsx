@@ -1,15 +1,31 @@
-"use client";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
-import React, { useState } from "react";
-import logo from "@/assets/bhivelogo.jpg";
-import SideBar from "../LandingPage/SideBar";
+import Image from "next/image";
 import { Bars3Icon } from "@heroicons/react/24/outline";
+import logo from "@/assets/bhivelogo.jpg";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
+import SideBar from "../LandingPage/SideBar";
+import { useAuth } from "../providers/AuthProvider";
+import { Button } from "../ui/button";
+import { logout } from "@/app/actions/auth";
 
-const AdminHeader = () => {
+const navigationLinks = [
+  { title: "Dashboard", href: "/admin/dashboard" },
+  { title: "Inbox", href: "/admin/inbox" },
+  { title: "Rooms", href: "/admin/rooms" },
+  { title: "Book", href: "/admin/book" },
+];
+
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sideBar, setSideBar] = useState(false);
+  const { user } = useAuth();
 
   const isMobile = useIsMobile();
 
@@ -22,7 +38,7 @@ const AdminHeader = () => {
       <nav className={navStyle}>
         <div className="flex items-center">
           <Link
-            href="/"
+            href="/admin"
             className="flex items-center">
             <Image
               src={logo}
@@ -35,20 +51,42 @@ const AdminHeader = () => {
           </Link>
         </div>
 
-        <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center"></div>
-
-        <div className="hidden md:flex space-x-3">
-          <Link
-            href="/login"
-            className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
-            Log-in
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
-            Sign-up
-          </Link>
+        <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center">
+          <NavigationMenu className="flex w-full justify-between">
+            <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
+              {navigationLinks.map((item) => (
+                <NavigationMenuItem
+                  key={item.title}
+                  className="flex w-full justify-center items-center">
+                  <NavigationMenuLink asChild>
+                    <Link href={item.href}>
+                      <p>{item.title}</p>
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
+
+        {!user ? (
+          <div className="hidden md:flex space-x-3">
+            <Link
+              href="/login"
+              className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
+              Log-in
+            </Link>
+            <Link
+              href="/signup"
+              className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
+              Sign-up
+            </Link>
+          </div>
+        ) : (
+          <form action={logout}>
+            <Button type="submit">Logout</Button>
+          </form>
+        )}
 
         <div className="flex md:hidden right-0">
           {!mobileMenuOpen && (
@@ -69,12 +107,11 @@ const AdminHeader = () => {
             setSideBar={setSideBar}
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
+            navItems={navigationLinks}
             role="Admin"
           />
         )}
       </nav>
     </header>
   );
-};
-
-export default AdminHeader;
+}

@@ -21,8 +21,7 @@ export default function Home() {
           <ExploreFacilities />
         </div>
       </div>
-
-      <div className="bg-gray-200 py-4 md:py-4 items-center ">
+      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
         <Footer />
       </div>
     </main>

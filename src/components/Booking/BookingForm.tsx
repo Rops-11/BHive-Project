@@ -45,7 +45,7 @@ import {
 import { BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import { BookingContext } from "../providers/BookProvider";
-import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
+// import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -82,7 +82,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   } = useOnlyAvailableRoomsOnSpecificDate();
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const { setBookingContext } = useContext<BookingContextType>(BookingContext);
-  const { createBooking } = useCreateBooking();
+  // const { createBooking } = useCreateBooking();
 
   const {
     queenBeeRooms,
@@ -133,7 +133,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
         };
         if (termsAccepted) {
           setBookingContext!(bookingData);
-          createBooking(bookingData);
+          // createBooking(bookingData);
           router.push("/book/invoice");
         } else
           toast.error(
@@ -165,7 +165,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                     <FormControl>
                       <Input
                         className="border-black"
-                        type="name"
+                        type="text"
                         placeholder="Name"
                         {...field}
                       />
@@ -275,63 +275,79 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                             <>
                               <SelectGroup>
                                 <SelectLabel>Queen Bee Rooms</SelectLabel>
-                                {queenBeeRooms?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {queenBeeRooms?.length === 0
+                                  ? "None available"
+                                  : queenBeeRooms?.map((room) => (
+                                      <SelectItem
+                                        key={room.id}
+                                        value={room.id!}>
+                                        {room.roomType} - {room.roomNumber}
+                                      </SelectItem>
+                                    ))}
                               </SelectGroup>
                               <SelectGroup>
                                 <SelectLabel>Suites</SelectLabel>
-                                {suites?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {suites?.length === 0
+                                  ? "None available"
+                                  : suites?.map((room) => (
+                                      <SelectItem
+                                        key={room.id}
+                                        value={room.id!}>
+                                        {room.roomType} - {room.roomNumber}
+                                      </SelectItem>
+                                    ))}
                               </SelectGroup>
                               <SelectGroup>
                                 <SelectLabel>Family Suites</SelectLabel>
-                                {familySuites?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {familySuites?.length === 0 ? (
+                                  <Label className="font-normal py-1.5 pr-8 pl-2">
+                                    None available on the date provided.
+                                  </Label>
+                                ) : (
+                                  familySuites?.map((room) => (
+                                    <SelectItem
+                                      key={room.id}
+                                      value={room.id!}>
+                                      {room.roomType} - {room.roomNumber}
+                                    </SelectItem>
+                                  ))
+                                )}
                               </SelectGroup>
                               <SelectGroup>
                                 <SelectLabel>Single Standard Rooms</SelectLabel>
-                                {singleStandardRooms?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {singleStandardRooms?.length === 0
+                                  ? "None available"
+                                  : singleStandardRooms?.map((room) => (
+                                      <SelectItem
+                                        key={room.id}
+                                        value={room.id!}>
+                                        {room.roomType} - {room.roomNumber}
+                                      </SelectItem>
+                                    ))}
                               </SelectGroup>
                               <SelectGroup>
                                 <SelectLabel>Single Deluxe Rooms</SelectLabel>
-                                {singleDeluxeRooms?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {singleDeluxeRooms?.length === 0
+                                  ? "None available"
+                                  : singleDeluxeRooms?.map((room) => (
+                                      <SelectItem
+                                        key={room.id}
+                                        value={room.id!}>
+                                        {room.roomType} - {room.roomNumber}
+                                      </SelectItem>
+                                    ))}
                               </SelectGroup>
                               <SelectGroup>
                                 <SelectLabel>Twin Bee Rooms</SelectLabel>
-                                {twinBeeRooms?.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
-                                    {room.roomType} - {room.roomNumber}
-                                  </SelectItem>
-                                ))}
+                                {twinBeeRooms?.length === 0
+                                  ? "None available"
+                                  : twinBeeRooms?.map((room) => (
+                                      <SelectItem
+                                        key={room.id}
+                                        value={room.id!}>
+                                        {room.roomType} - {room.roomNumber}
+                                      </SelectItem>
+                                    ))}
                               </SelectGroup>
                             </>
                           ) : (

@@ -7,25 +7,30 @@ const AdminHomePage = () => {
   return (
     <div className="flex w-full h-screen justify-center items-center">
       <div className="flex w-5/6 h-1/2 p-10 justify-between items-center ">
-        <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/dashboard">Dashboard</Link>
-        </Button>
-        <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/book">Book</Link>
-        </Button>
-        <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/book">Rooms</Link>
-        </Button>
-        <Button className="w-[24%] h-full cursor-pointer">
-          <Link href="/admin/book">Inbox</Link>
-        </Button>
+        <Link
+          className="w-[24%] h-full"
+          href="/admin/dashboard">
+          <Button className="w-full h-full cursor-pointer">Dashboard</Button>
+        </Link>
+
+        <Link
+          className="w-[24%] h-full"
+          href="/admin/book">
+          <Button className="w-full h-full cursor-pointer">Book</Button>
+        </Link>
+
+        <Link
+          className="w-[24%] h-full"
+          href="/admin/rooms">
+          <Button className="w-full h-full cursor-pointer">Rooms</Button>
+        </Link>
+
+        <Link
+          className="w-[24%] h-full"
+          href="/admin/inbox">
+          <Button className="w-full h-full cursor-pointer">Inbox</Button>
+        </Link>
       </div>
-      {/* <form
-        action={() => {
-          logout();
-        }}>
-        <Button type="submit">Logout</Button>
-      </form> */}
     </div>
   );
 };

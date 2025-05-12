@@ -1,5 +1,10 @@
 import { StaticImageData } from "next/image";
 
+export interface ImageFile {
+  name: string;
+  id?: string;
+}
+
 export interface Room {
   id?: string;
   roomType?: string;
@@ -7,7 +12,7 @@ export interface Room {
   isAvailable?: boolean;
   maxGuests?: number;
   roomRate?: number;
-  file?: File | Blob
+  images?: ImageFile[];
 }
 
 export interface Booking {
@@ -54,4 +59,4 @@ export interface StickyContent {
   title: string;
   description: string;
   content?: React.ReactNode;
-};
+}

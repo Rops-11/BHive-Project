@@ -1,13 +1,13 @@
-import { Room, UnknownError } from "@/types/types";
+import { Room } from "@/types/types";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
 
 const useGetAllRooms = () => {
   const [rooms, setRooms] = useState<Room[]>();
-  const [error, setError] = useState<UnknownError>();
   const [loading, setLoading] = useState<boolean>(true);
   const fetchAvailableRooms = async () => {
+    setLoading(true);
     try {
       const response = await normalFetch("/api/room", "get");
 
@@ -24,10 +24,9 @@ const useGetAllRooms = () => {
         return;
       }
 
-      setRooms(data.rooms);
+      setRooms(data);
     } catch {
       toast.error("An Unknown Error Occurred.");
-      setError({ message: "An unexpected error occurred" });
     } finally {
       setLoading(false);
     }
@@ -37,7 +36,7 @@ const useGetAllRooms = () => {
     fetchAvailableRooms();
   }, []);
 
-  return { rooms, error, loading };
+  return { rooms, loading };
 };
 
 export default useGetAllRooms;
