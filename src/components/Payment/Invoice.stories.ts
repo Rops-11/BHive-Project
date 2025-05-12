@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import Invoice from "@/components/Payment/Invoice";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const meta = {
   title: "Payment/Invoice",

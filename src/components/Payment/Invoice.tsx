@@ -94,7 +94,6 @@ const InvoiceCard = ({
     
     
     if (response.ok) {
-      const sessionId = data.data.id;
       const checkoutUrl = data.data.attributes.checkout_url;
 
       router.push(checkoutUrl);
