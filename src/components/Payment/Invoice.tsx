@@ -81,7 +81,7 @@ const InvoiceCard = ({
                 quantity: 1
               }
             ],
-            payment_method_types: ['gcash', 'brankas_bdo'],
+            payment_method_types: ['gcash'],
             description: 'queen room'
           }
         }
