@@ -117,6 +117,7 @@ function isApiError(error: unknown): error is ApiError {
 // --- Main Function ---
 export async function fetchUserEmails(filterBySenderEmail?: string) {
   const supabase = await createClient();
+  
   const {
     data: { session },
     error: sessionError,
