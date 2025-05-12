@@ -22,12 +22,23 @@ export interface Booking {
   checkIn?: Date;
   checkOut?: Date;
   mobileNumber?: string;
+  email?: string;
   status?: string;
   name?: string;
   numberOfAdults?: number;
   numberOfChildren?: number;
   shift?: string;
   totalPrice?: number;
+  room?: Room;
+}
+
+export interface EmailDetail {
+  id: string | null | undefined;
+  snippet: string | null | undefined;
+  subject?: string | null | undefined;
+  from?: string | null | undefined;
+  date?: string | null | undefined;
+  body?: string | null | undefined;
 }
 
 export interface RoomWithAmenities extends Room {

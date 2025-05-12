@@ -5,7 +5,14 @@ import { boolean } from "zod";
 // This is to get all bookings:
 export async function GET() {
   try {
-    const bookings = await prisma.booking.findMany();
+    const bookings = await prisma.booking.findMany({
+      include: {
+        room: true,
+      },
+      orderBy: {
+        checkIn: "asc",
+      },
+    });
 
     return NextResponse.json(bookings, { status: 200 });
   } catch (error: unknown) {
@@ -39,6 +46,7 @@ export async function POST(req: NextRequest) {
       checkOut,
       mobileNumber,
       name,
+      email,
       numberOfAdults,
       numberOfChildren,
       totalPrice,
@@ -51,6 +59,7 @@ export async function POST(req: NextRequest) {
         checkOut,
         mobileNumber,
         name,
+        email,
         numberOfAdults,
         numberOfChildren,
         totalPrice,
@@ -69,6 +78,7 @@ export async function POST(req: NextRequest) {
         checkOut,
         mobileNumber,
         name,
+        email,
         numberOfAdults,
         numberOfChildren,
         totalPrice,

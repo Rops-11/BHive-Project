@@ -1,4 +1,4 @@
-import { Booking } from "@prisma/client";
+import { Booking } from "@/types/types";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
@@ -31,7 +31,7 @@ const useGetAllBookings = () => {
     getAllBookings();
   }, []);
 
-  return { bookings, loading };
+  return { bookings, loading, getAllBookings };
 };
 
 export default useGetAllBookings;
