@@ -39,7 +39,14 @@ function RecentBookings() {
       service: "Room Booking",
       time: "3:30 PM",
       status: "pending",
-  
+    },
+    {
+      id: 3,
+      name: "Isabella Nguyen",
+      service: "Restaurant",
+      time: "7:00 PM",
+      status: "confirmed",
+    },
   ]
 
   return (
