@@ -17,18 +17,17 @@ const HotelRoomCard = ({ room }: { room: Room }) => {
       <DialogTrigger asChild>
         <Button
           className={
-            "flex flex-row p-0 w-full justify-between h-60 overflow-hidden bg-[#D29D30] text-white relative"
-          }
-        >
-          <div className="flex flex-col w-3/8 h-full p-5 text-left relative z-20">
-            <h1 className="font-bold text-xl">
+            "flex flex-row p-0 w-4/5 justify-between h-60 overflow-hidden bg-black text-white relative"
+          }>
+          <div className="flex flex-col w-5/8 h-full p-5 text-left relative z-20">
+            <h1 className="font-bold text-2xl md:text-3xl lg:text-4xl">
               {room.roomType}: {room.roomNumber}
             </h1>
             <p className="mt-2">
               Room Rate: ₱ {room.roomRate?.toFixed(2)} / night
             </p>
           </div>
-          <div className="relative w-5/8 h-full">
+          <div className="relative w-3/8 h-full">
             {room.images?.length ? (
               <Image
                 key={room.images[0].name || room.id}

@@ -3,7 +3,7 @@ import React from "react";
 export const FacilityIntroText = () => {
   return (
     <div className="rounded-lg max-w-4xl mx-auto mt-64">
-      <h2 className="text-4xl font-bold text-center text-[#D29D30] mb-8">
+      <h2 className="text-4xl font-semibold text-center text-[#D29D30] mb-8">
         Facilities and Amenities
       </h2>
       <p className="text-lg text-gray-600 leading-relax">
