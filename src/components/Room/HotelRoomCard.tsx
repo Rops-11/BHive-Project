@@ -17,6 +17,7 @@ import { RoomImagesCarousel } from "./RoomImagesCarousel"; // Adjust path if nee
 import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
 import DeleteRoomPopover from "./DeleteRoomPopover";
+import Image from "next/image";
 
 const HotelRoomCard = ({
   room,
@@ -61,11 +62,10 @@ const HotelRoomCard = ({
         <Button
           variant="outline"
           className={
-            "flex flex-row p-0 w-full md:w-4/5 lg:w-3/4 xl:w-2/3 mx-auto justify-between h-60 overflow-hidden shadow-lg hover:shadow-xl transition-shadow rounded-lg border group"
+            "flex flex-row p-0 w-4/5 justify-between h-60 overflow-hidden bg-black text-white relative"
           }>
-          {/* Card Preview Content (left side - text) */}
-          <div className="flex flex-col w-3/5 sm:w-5/8 h-full p-4 sm:p-5 text-left relative z-10">
-            <h1 className="font-bold text-xl md:text-2xl lg:text-3xl text-primary group-hover:text-primary-dark transition-colors">
+          <div className="flex flex-col w-5/8 h-full p-5 text-left relative z-20">
+            <h1 className="font-bold text-2xl md:text-3xl lg:text-4xl">
               {room.roomType}: {room.roomNumber}
             </h1>
             <p className="mt-2 text-sm md:text-base text-muted-foreground">
@@ -75,11 +75,9 @@ const HotelRoomCard = ({
               View Details & Photos
             </span>
           </div>
-
-          {/* Card Preview Image (right side) */}
-          <div className="relative w-2/5 sm:w-3/8 h-full">
-            {room.images && room.images.length > 0 && room.images[0]?.name ? ( // Added optional chaining for room.images[0]?.name
-              <NextImage
+          <div className="relative w-3/8 h-full">
+            {room.images?.length ? (
+              <Image
                 key={room.images[0].name || room.id}
                 alt={`Preview of ${room.roomType} ${room.roomNumber}`}
                 src={`https://dwfbvqkcxeajmtqciozz.supabase.co/storage/v1/object/public/rooms/${room.id}/${room.images[0].name}`}
