@@ -1,45 +1,37 @@
-"use client"
-
-import type React from "react"
-import { User, ChevronLeft, ChevronRight } from "lucide-react"
-
+import { User } from "lucide-react"
 import { cn } from "@/lib/utils"
-// import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar } from "@/components/ui/avatar"
-import { DashboardTabs } from "@/components/Admin/Dashboard/dashboardTabs"
-import AdminHeader from "@/components/Admin/AdminHeader"
 
-export default function DashboardPage() {
-  return (
-    <div className="flex min-h-screen flex-col w-full">
-      <AdminHeader />
-      <main className="flex-1 p-6 md:p-10">
-        <DashboardTabs />
-      </main>
-    </div>
-  )
-}
-
-
-//sample nii
-function RecentBookings() {
+export function RecentBookings() {
   const bookings = [
     {
       id: 1,
-      name: "Olivia Martin",
-      service: "Spa Treatment",
-      time: "2:00 PM",
+      name: "Regine Barte",
+      rooms: "Twin Bee -2A",
+      checkin: "01.12.2025",
+      checkout: "01.12.2025",
       status: "confirmed",
+    
     },
     {
       id: 2,
-      name: "Jackson Lee",
-      service: "Room Booking",
-      time: "3:30 PM",
-      status: "pending",
-  
+      name: "John Rofer Casio",
+      rooms: "Twin Bee -2A",
+      checkin: "01.12.2025",
+      checkout: "01.12.2025",
+      status: "confirmed",
+    },
+    {
+      id: 3,
+      name: "Nicholae sara",
+      rooms: "Twin Bee -2A",
+      checkin: "01.12.2025",
+      checkout: "01.12.2025",
+      status: "confirmed",
+    
+    },
   ]
 
   return (
@@ -59,7 +51,7 @@ function RecentBookings() {
                 <div>
                   <p className="font-medium">{booking.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {booking.service} · {booking.time}
+                    {booking.checkin} · {booking.checkout}
                   </p>
                 </div>
               </div>
