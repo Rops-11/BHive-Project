@@ -64,7 +64,7 @@ const bookings: Booking[] = [
         checkIn: "2025-05-16",
         checkOut: "2025-05-20",
         status: "Online",
-        totalAmount: "1200.00",
+        totalAmount: "1,200.00",
     },
 ];
 
@@ -75,9 +75,13 @@ const statusBadgeVariants: Record<Booking["status"], "default" | "secondary"> =
         OTC: "secondary",
     };
 
+
+
+
 export default function BookingsTable() {
     return (
-        <div className="w-full px-4 py-6">
+    
+        <div className="items-center px-20 py-6 w-full h-auto flex flex-col space-y-6">
             <div className="flex flex-col md:flex-row items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold mb-4 md:mb-0">All Bookings</h2>
                 <div className="flex flex-col md:flex-row items-center gap-2">
@@ -107,7 +111,7 @@ export default function BookingsTable() {
             </div>
 
             <Card>
-                <CardContent className="p-0 overflow-x-auto">
+                <CardContent className="p-0 overflow-x-auto max-w-fit flex-col">
                     {bookings.length > 0 ? (
                         <Table className="w-full">
                             <TableHeader>
@@ -176,6 +180,7 @@ export default function BookingsTable() {
                                 ))}
                             </TableBody>
                         </Table>
+                        
                     ) : (
                         <div className="p-4 text-center text-gray-500">
                             No bookings available.
