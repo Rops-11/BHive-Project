@@ -12,7 +12,6 @@ import {
 } from "../ui/dialog"; // Adjust path if needed
 import { Button } from "../ui/button"; // Adjust path if needed
 import { Room, ImageFile } from "@/types/types"; // Adjust path if needed
-import NextImage from "next/image"; // Alias to avoid naming conflicts
 import { RoomImagesCarousel } from "./RoomImagesCarousel"; // Adjust path if needed
 import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
