@@ -1,4 +1,3 @@
-import { Room } from "@/types/types";
 import { Booking } from "@prisma/client";
 
 export const checkDaysDifference = (checkIn: Date, checkOut: Date) => {
