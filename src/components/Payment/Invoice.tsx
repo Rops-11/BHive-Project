@@ -1,12 +1,10 @@
 "use client";
 
-import useGetSpecificRoom from "@/hooks/roomHooks/useGetSpecificRoom";
 import React, { useContext, useEffect } from "react";
-// import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
 import { BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
 import { BookingContext } from "../providers/BookProvider";
-import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
@@ -14,10 +12,9 @@ import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 
 const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
   const router = useRouter();
-  const { bookingContext, setBookingContext } =
+  const { bookingContext, setBookingContext, selectedRoom } =
     useContext<BookingContextType>(BookingContext);
-  const { roomData, loading, getRoom } = useGetSpecificRoom();
-  const { createBooking } = useCreateBooking(); // Temporary
+  const { createBooking } = useCreateBooking(); //! Temporary
 
   useEffect(() => {
     if (!bookingContext) {
@@ -29,21 +26,7 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
     }
   }, [bookingContext]);
 
-  useEffect(() => {
-    if (bookingContext?.roomId) {
-      getRoom(bookingContext.roomId);
-    }
-  }, [bookingContext?.roomId]);
-
   if (!bookingContext) {
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        router.push("/book");
-      }, 5000);
-  
-      return () => clearTimeout(timer);
-    }, []);
-  
     return (
       <div className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center justify-center min-h-[400px] text-center">
         <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
@@ -60,15 +43,6 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
       </div>
     );
   }
-  
-
-  if (loading || !bookingContext) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loading loading={true} />
-      </div>
-    );
-  }
 
   const daysDiff =
     bookingContext.checkIn && bookingContext.checkOut
@@ -79,23 +53,23 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
   if (
     bookingContext.numberOfAdults !== undefined &&
     bookingContext.numberOfChildren !== undefined &&
-    roomData?.maxGuests !== undefined &&
+    selectedRoom?.maxGuests !== undefined &&
     daysDiff > 0
   ) {
     const totalGuests =
       bookingContext.numberOfAdults + bookingContext.numberOfChildren;
-    if (totalGuests > roomData.maxGuests) {
-      excessGuestCount = totalGuests - roomData.maxGuests;
+    if (totalGuests > selectedRoom.maxGuests) {
+      excessGuestCount = totalGuests - selectedRoom.maxGuests;
     }
   }
 
   const excessGuestPrice = excessGuestCount * 100;
-  const totalRoomPrice = (roomData?.roomRate ?? 0) * daysDiff;
+  const totalRoomPrice = (selectedRoom?.roomRate ?? 0) * daysDiff;
   const total = excessGuestPrice + totalRoomPrice;
 
   const handleClickPay = async () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
-    await createBooking({ ...bookingContext, totalPrice: total }); // Temporary for Testing
+    await createBooking({ ...bookingContext, totalPrice: total }); //! Temporary for Testing
     const options = {
       method: "POST",
       headers: {
@@ -211,12 +185,12 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
           <div className="flex justify-between items-start">
             <div className="pr-2">
               <p>
-                {roomData?.roomType ?? "Room"} - #
-                {roomData?.roomNumber ?? "N/A"}
+                {selectedRoom?.roomType ?? "Room"} - #
+                {selectedRoom?.roomNumber ?? "N/A"}
               </p>
               <p className="text-xs text-gray-500">
                 ({daysDiff} {daysDiff === 1 ? "Night" : "Nights"} @ ₱
-                {(roomData?.roomRate ?? 0).toFixed(2)}/night)
+                {(selectedRoom?.roomRate ?? 0).toFixed(2)}/night)
               </p>
             </div>
             <p className="font-medium text-right flex-shrink-0">
