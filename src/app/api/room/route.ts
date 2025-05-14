@@ -8,7 +8,11 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     let errorInImage = false;
-    const rooms = await prisma.room.findMany();
+    const rooms = await prisma.room.findMany({
+      orderBy: {
+        roomRate: "asc",
+      },
+    });
 
     const roomsWithImages = await Promise.all(
       rooms.map(async (room) => {

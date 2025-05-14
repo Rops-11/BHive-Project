@@ -1,6 +1,6 @@
 "use client";
 
-import AdminHeader from "@/components/Admin/AdminHeader";
+import AdminHeader from "@/components/Admin/Header/AdminHeader";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ReactNode } from "react";
 

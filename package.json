@@ -39,6 +39,8 @@
     "@storybook/testing-library": "^0.2.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",

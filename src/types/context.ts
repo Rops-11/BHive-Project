@@ -1,4 +1,3 @@
-import { User } from "@supabase/supabase-js";
 import { Booking } from "./types";
 
 export interface BookingContextType {
@@ -7,7 +6,6 @@ export interface BookingContextType {
 }
 
 export interface AuthContextValue {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isLoading: boolean;
+  fullName: string | null;
+  setFullNameState: React.Dispatch<React.SetStateAction<string | null>>;
 }

@@ -1,68 +1,48 @@
+// @/components/providers/AuthProvider.tsx
 "use client";
 
 import { AuthContextValue } from "@/types/context";
-import { User, Session } from "@supabase/supabase-js";
 import {
   ReactNode,
   useState,
   createContext,
-  useEffect,
   useContext,
 } from "react";
-import { createClient } from "utils/supabase/client";
-import Loading from "../ui/Loading";
+
+const FULLNAME_COOKIE_NAME = "staff_fullName";
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(";").shift();
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+  }
+  return null;
+}
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
   undefined
 );
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    setIsLoading(true);
-
-    const getInitialSession = async () => {
-      setIsLoading(true);
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-      } catch (error) {
-        console.error("Error fetching initial session:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getInitialSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: string, session: Session | null) => {
-        console.log("Auth event:", event, session); // For debugging
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, [supabase]);
+  const [fullName, setFullNameState] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return getCookie(FULLNAME_COOKIE_NAME);
+    }
+    return null;
+  });
 
   const contextValue: AuthContextValue = {
-    user,
-    setUser,
-    isLoading,
+    fullName,
+    setFullNameState,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {isLoading ? <Loading loading={isLoading} /> : children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 
