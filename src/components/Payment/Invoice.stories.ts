@@ -16,6 +16,6 @@ type Story = StoryObj<typeof Invoice>;
 
 export const Default: Story = {
   args: {
-    notInPaymentPage: false,
+    admin: false,
   },
 };

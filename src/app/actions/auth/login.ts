@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "utils/supabase/server";
 
 const STAFF_SESSION_COOKIE_NAME = "_Secure-bhivehotelwebsite_staff_session";
-const FULLNAME_COOKIE_NAME = "staff_fullName"
+const FULLNAME_COOKIE_NAME = "staff_fullName";
 
 const LoginFormSchema = z.object({
   username: z
@@ -74,6 +74,7 @@ export async function loginUser(
 
     const cookieStore = await cookies();
     const oneDay = 24 * 60 * 60 * 1000;
+
     cookieStore.set(STAFF_SESSION_COOKIE_NAME, staff.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -82,25 +83,23 @@ export async function loginUser(
       expires: new Date(Date.now() + oneDay),
     });
 
+    if (staff.fullName) {
+      cookieStore.set(FULLNAME_COOKIE_NAME, staff.fullName, {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(Date.now() + oneDay),
+        httpOnly: false,
+      });
+    } else {
+      cookieStore.delete(FULLNAME_COOKIE_NAME);
+    }
+
     console.log(
       `Staff ${
         staff.fullName || staff.username
       } logged in successfully. Redirecting to ${redirectTo}`
     );
-
-    // Set the fullName cookie - explicitly NOT httpOnly
-    if (staff.fullName) {
-      cookieStore.set(FULLNAME_COOKIE_NAME, staff.fullName, {
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax" as "lax" | "strict" | "none" | undefined, // type assertion
-        path: "/",
-        expires: new Date(Date.now() + oneDay),
-        httpOnly: false, // Make sure client-side JS can read this
-      });
-    } else {
-      // If fullName is null/empty, maybe clear the cookie or set an empty string
-      cookieStore.delete(FULLNAME_COOKIE_NAME);
-    }
 
     if (redirectTo) redirect(redirectTo);
     else redirect("/admin");
@@ -112,9 +111,7 @@ export async function loginUser(
     console.error("Login processing error:", error);
     let errorMessage = "An unexpected error occurred during login processing.";
     if (error instanceof Error) {
-      if (error.message !== "NEXT_REDIRECT") {
-        errorMessage = error.message;
-      }
+      errorMessage = error.message;
     }
     return {
       message: errorMessage,
@@ -130,6 +127,7 @@ export async function logoutUser() {
 
   const cookieStore = await cookies();
   cookieStore.delete(STAFF_SESSION_COOKIE_NAME);
+  cookieStore.delete(FULLNAME_COOKIE_NAME);
 
   redirect("/auth");
 }

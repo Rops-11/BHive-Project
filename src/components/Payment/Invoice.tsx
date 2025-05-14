@@ -2,19 +2,23 @@
 
 import React, { useContext, useEffect } from "react";
 
-import { BookingContextType } from "@/types/context";
+import { AuthContextValue, BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
 import { BookingContext } from "../providers/BookProvider";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
 import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
+import { AuthContext } from "../providers/AuthProvider";
+import { Spinner } from "react-activity";
 
-const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
+const InvoiceCard = ({ admin }: { admin: boolean }) => {
   const router = useRouter();
-  const { bookingContext, setBookingContext, selectedRoom } =
+  const { bookingContext, setBookingContext, selectedRoom, setSelectedRoom } =
     useContext<BookingContextType>(BookingContext);
-  const { createBooking } = useCreateBooking(); //! Temporary
+  const authContextHook = useContext<AuthContextValue | undefined>(AuthContext);
+  const staffFullName = authContextHook?.fullName;
+  const { createBooking, loading: bookingLoading } = useCreateBooking(); //! Temporary
 
   useEffect(() => {
     if (!bookingContext) {
@@ -69,50 +73,61 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
 
   const handleClickPay = async () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
-    await createBooking({ ...bookingContext, totalPrice: total }); //! Temporary for Testing
-    const options = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        authorization:
-          "Basic c2tfdGVzdF9qV25KV2NhM0U1ZjIycUVGam0yRnZ5WGc6cmVnaW5lTmJhcnRlMDEwNTA1",
-      },
-      body: JSON.stringify({
-        data: {
-          attributes: {
-            send_email_receipt: false,
-            show_description: true,
-            show_line_items: true,
-            line_items: [
-              {
-                currency: "PHP",
-                amount: 1890000,
-                description: "QUEEN BEE 2A",
-                name: "QUEEN BEE 2A",
-                quantity: 1,
-              },
-            ],
-            payment_method_types: ["gcash"],
-            description: "queen room",
-          },
+    if (staffFullName) {
+      await createBooking({ ...bookingContext, totalPrice: total });
+      router.push("/admin/book");
+    }
+    //! Temporary for Testing
+    else await createBooking({ ...bookingContext, totalPrice: total });
+
+    setBookingContext!({});
+    setSelectedRoom!(undefined);
+
+    if (!admin) {
+      const options = {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          authorization:
+            "Basic c2tfdGVzdF9qV25KV2NhM0U1ZjIycUVGam0yRnZ5WGc6cmVnaW5lTmJhcnRlMDEwNTA1",
         },
-      }),
-    };
+        body: JSON.stringify({
+          data: {
+            attributes: {
+              send_email_receipt: false,
+              show_description: true,
+              show_line_items: true,
+              line_items: [
+                {
+                  currency: "PHP",
+                  amount: 1890000,
+                  description: "QUEEN BEE 2A",
+                  name: "QUEEN BEE 2A",
+                  quantity: 1,
+                },
+              ],
+              payment_method_types: ["gcash"],
+              description: "queen room",
+            },
+          },
+        }),
+      };
 
-    const response = await fetch(
-      "https://api.paymongo.com/v1/checkout_sessions",
-      options
-    );
-    const data = await response.json();
-    console.log(data);
+      const response = await fetch(
+        "https://api.paymongo.com/v1/checkout_sessions",
+        options
+      );
+      const data = await response.json();
+      console.log(data);
 
-    if (response.ok) {
-      const checkoutUrl = data.data.attributes.checkout_url;
+      if (response.ok) {
+        const checkoutUrl = data.data.attributes.checkout_url;
 
-      router.push(checkoutUrl);
-    } else {
-      console.error("Payment error:", data);
+        router.push(checkoutUrl);
+      } else {
+        console.error("Payment error:", data);
+      }
     }
   };
 
@@ -222,16 +237,24 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
         </p>
       </div>
 
-      {notInPaymentPage && (
-        <div className="flex justify-end w-full mt-3 sm:mt-4">
-          <Button
-            className="sm:size-auto"
-            onClick={handleClickPay}
-            disabled={!bookingContext || total <= 0}>
-            Proceed to Payment
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end w-full mt-3 sm:mt-4">
+        <Button
+          className="sm:size-auto"
+          onClick={handleClickPay}
+          disabled={!bookingContext || total <= 0 || bookingLoading}>
+          {bookingLoading ? (
+            <Spinner
+              size={10}
+              color="#FFFFFF"
+              animating={bookingLoading}
+            />
+          ) : admin ? (
+            "Save Booking Details"
+          ) : (
+            "Proceed to Payment"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

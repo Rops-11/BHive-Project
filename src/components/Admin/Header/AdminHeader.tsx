@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bars3Icon } from "@heroicons/react/24/outline";
@@ -12,6 +11,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import SideBar from "../../LandingPage/SideBar";
 import { UserAvatar } from "./UserAvatar";
+import { useState, useEffect } from "react";
 
 const navigationLinks = [
   { title: "Dashboard", href: "/admin" },
@@ -23,8 +23,15 @@ const navigationLinks = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sideBar, setSideBar] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  const isMobile = useIsMobile();
+  const actualIsMobile = useIsMobile();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const isMobile = isClient ? actualIsMobile : false;
 
   const navStyle = isMobile
     ? `mx-auto flex max-w-7xl w-full items-center justify-between`
@@ -48,40 +55,49 @@ export default function Header() {
           </Link>
         </div>
 
-        <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center">
-          <NavigationMenu className="flex w-full justify-between">
-            <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
-              {navigationLinks.map((item) => (
-                <NavigationMenuItem
-                  key={item.title}
-                  className="flex w-full justify-center items-center">
-                  <NavigationMenuLink asChild>
-                    <Link href={item.href}>
-                      <p>{item.title}</p>
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
+        {}
+        {(!isMobile || !isClient) && (
+          <div className="hidden md:flex flex-1 w-full text-black font-semibold justify-center items-center">
+            <NavigationMenu className="flex w-full justify-between">
+              <NavigationMenuList className="flex w-full justify-center items-center space-x-5">
+                {navigationLinks.map((item) => (
+                  <NavigationMenuItem
+                    key={item.title}
+                    className="flex w-full justify-center items-center">
+                    <NavigationMenuLink asChild>
+                      <Link href={item.href}>
+                        <p>{item.title}</p>
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+        )}
 
-        <UserAvatar />
+        {}
+        {(!isMobile || !isClient) && <UserAvatar />}
 
-        <div className="flex md:hidden right-0">
-          {!mobileMenuOpen && (
-            <button
-              type="button"
-              onClick={() => {
-                setSideBar(!sideBar);
-                setMobileMenuOpen(!mobileMenuOpen);
-              }}
-              className="text-black">
-              <Bars3Icon className="h-6 w-6" />
-            </button>
-          )}
-        </div>
-        {mobileMenuOpen && (
+        {}
+        {isClient && isMobile && (
+          <div className="flex md:hidden right-0">
+            {!mobileMenuOpen && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSideBar(!sideBar);
+                  setMobileMenuOpen(!mobileMenuOpen);
+                }}
+                className="text-black">
+                <Bars3Icon className="h-6 w-6" />
+              </button>
+            )}
+          </div>
+        )}
+
+        {}
+        {isClient && isMobile && mobileMenuOpen && (
           <SideBar
             sideBar={sideBar}
             setSideBar={setSideBar}
