@@ -42,9 +42,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { BookingContextType } from "@/types/context";
+import { AuthContextValue, BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import { BookingContext } from "../providers/BookProvider";
+import { AuthContext } from "../providers/AuthProvider";
+import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 
 const zodFormRoomSchema = z
   .object({
@@ -99,9 +101,12 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     availableRoomsWithDate,
   } = useOnlyAvailableRoomsOnSpecificDate();
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const contextHook = useContext<BookingContextType>(BookingContext);
-  const setBookingContext = contextHook?.setBookingContext;
-  const setSelectedRoomContext = contextHook?.setSelectedRoom;
+  const bookingContextHook = useContext<BookingContextType>(BookingContext);
+  const setBookingContext = bookingContextHook?.setBookingContext;
+  const setSelectedRoomContext = bookingContextHook?.setSelectedRoom;
+  const authContextHook = useContext<AuthContextValue | undefined>(AuthContext);
+  const staffFullName = authContextHook?.fullName;
+  const { loading: bookingLoading } = useCreateBooking();
 
   const {
     queenBeeRooms,
@@ -196,10 +201,16 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
           numberOfAdults: values.numberOfAdults,
           numberOfChildren: values.numberOfChildren,
         };
+
         if (termsAccepted) {
           if (setBookingContext) {
-            setBookingContext(bookingData);
-            router.push("/book/invoice");
+            if (staffFullName) {
+              setBookingContext({ ...bookingData, shift: staffFullName });
+              router.push("/admin/book/invoice");
+            } else {
+              setBookingContext(bookingData);
+              router.push("/book/invoice");
+            }
           } else {
             toast.error("Booking context is not available.");
           }
@@ -604,6 +615,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                   disabled={
                     form.formState.isSubmitting ||
                     !termsAccepted ||
+                    bookingLoading ||
                     (!form.formState.isValid && form.formState.isSubmitted)
                   }>
                   {form.formState.isSubmitting ? "Processing..." : "Proceed"}

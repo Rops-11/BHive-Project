@@ -1,9 +1,8 @@
-// components/custom/UserAvatar.tsx
-"use client"; // This component will use client-side interactions (Popover)
+"use client";
 
-import React from "react";
-import { useRouter } from "next/navigation"; // For logout redirect
-import { useTransition } from "react"; // For logout pending state
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -30,46 +29,73 @@ export function UserAvatar({
 }: UserAvatarProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const { fullName } = useAuth();
+  const { fullName: contextFullName, setFullNameState } = useAuth();
 
-  const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    const names = name.split(" ");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const displayName = isClient ? contextFullName : null;
+
+  const getInitials = (name?: string | null): string => {
+    if (!name || name.trim() === "") return "U";
+    const names = name
+      .trim()
+      .split(" ")
+      .filter((n) => n);
+    if (names.length === 0) return "U";
     if (names.length > 1) {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
-    return name.substring(0, 2).toUpperCase();
+    return names[0].substring(0, Math.min(2, names[0].length)).toUpperCase();
   };
+
+  const initials = getInitials(displayName);
 
   const handleLogout = async () => {
     startTransition(async () => {
+      if (setFullNameState) {
+        setFullNameState(null);
+      }
+
       await logoutUser();
-      router.push("/auth");
+
       router.refresh();
     });
   };
+
+  const avatarImageSrc = "@/assets/bhivelogo.jpg";
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-10 w-10 rounded-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0 md:h-10 md:w-auto md:px-3 md:py-2 md:space-x-2">
+          className="group relative h-10 w-10 rounded-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0 md:h-10 md:w-auto md:px-3 md:py-2 md:space-x-2">
           <Avatar className="h-8 w-8 md:h-8 md:w-8 border-2 border-transparent group-hover:border-primary transition-colors">
+            {}
             <AvatarImage
-              src="@/assets/bhivelogo.jpg"
-              alt={fullName || "User Avatar"}
+              src={avatarImageSrc}
+              alt={displayName || "User Avatar"}
             />
             <AvatarFallback className="font-semibold">
-              {getInitials(fullName)}
+              {initials}
             </AvatarFallback>
           </Avatar>
-          {showCheveron && (
+          {showCheveron && isClient && displayName && (
             <div className="hidden md:flex md:flex-col md:items-start md:leading-tight">
               <p className="text-xs font-medium truncate max-w-[100px]">
-                {fullName}
+                {displayName}
               </p>
               <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-hover:rotate-180" />
+            </div>
+          )}
+          {}
+          {showCheveron && (!isClient || !displayName) && (
+            <div className="hidden md:flex md:items-center">
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </div>
           )}
         </Button>
@@ -80,17 +106,18 @@ export function UserAvatar({
         <div className="flex items-center space-x-3 p-4">
           <Avatar className="h-10 w-10">
             <AvatarImage
-              src="@/assets/bhivelogo.jpg"
-              alt={fullName || "User Avatar"}
+              src={avatarImageSrc}
+              alt={displayName || "User Avatar"}
             />
             <AvatarFallback className="font-semibold">
-              {getInitials(fullName)}
+              {initials}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col leading-tight">
             <p className="font-semibold text-sm truncate">
-              {fullName || "User"}
+              {displayName || "User"}
             </p>
+            {}
           </div>
         </div>
         <Separator />
