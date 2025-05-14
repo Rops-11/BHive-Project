@@ -4,13 +4,16 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_DEV")
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String    @id @db.Uuid
-  isAdmin   Boolean   @default(false)
-  histories History[]
+model Staff {
+  id           String    @id @default(uuid()) @db.Uuid
+  fullName     String
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Room {
@@ -23,29 +26,22 @@ model Room {
   bookings    Booking[]
 }
 
-model History {
-  id        String  @id @default(uuid()) @db.Uuid
-  userId    String  @db.Uuid
-  bookingId String  @unique @db.Uuid
-  booking   Booking @relation(fields: [bookingId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-}
-
 model Booking {
   id               String   @id @default(uuid()) @db.Uuid
   roomId           String   @db.Uuid
-  dateBooked       DateTime @default(now())
-  checkIn          DateTime
+  dateBooked       DateTime @db.Timestamptz() @default(now())
+  checkIn          DateTime 
   checkOut         DateTime
   mobileNumber     String
+  email            String?   
   status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   downPayment      Boolean  @default(false)
   name             String
   numberOfAdults   Int
   numberOfChildren Int
   shift            String?   @default("Online")// This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
-  room             Room     @relation(fields: [roomId], references: [id])
-  history          History?
+  totalPrice       Float
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 enum Status {

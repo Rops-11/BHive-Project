@@ -1,0 +1,42 @@
+import { Room } from "@/types/types";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { normalFetch } from "utils/fetch";
+
+const useGetAllRooms = () => {
+  const [rooms, setRooms] = useState<Room[]>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const fetchAvailableRooms = async () => {
+    setLoading(true);
+    try {
+      const response = await normalFetch("/api/room", "get");
+
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.message) {
+        toast.info(data.message);
+        return;
+      }
+
+      setRooms(data);
+    } catch {
+      toast.error("An Unknown Error Occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailableRooms();
+  }, []);
+
+  return { rooms, loading };
+};
+
+export default useGetAllRooms;

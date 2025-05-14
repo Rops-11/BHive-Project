@@ -1,7 +1,7 @@
 "use client";
 
-import BookingForm from "@/components/BookingForm";
-import PreviewRoom from "@/components/PreviewRoom";
+import BookingForm from "@/components/Booking/BookingForm";
+import PreviewRoom from "@/components/Booking/PreviewRoom";
 import { useRouter } from "next/navigation";
 import React from "react";
 

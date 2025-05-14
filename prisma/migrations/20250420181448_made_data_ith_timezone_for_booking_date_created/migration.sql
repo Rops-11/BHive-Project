@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Booking" ALTER COLUMN "dateBooked" SET DATA TYPE TIMESTAMPTZ;

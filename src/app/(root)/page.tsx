@@ -1,8 +1,8 @@
-import Carousel from "../../components/Carousel";
-import BookRoom from "@/components/BookRoom";
-import LocationDescription from "@/components/LocationDescription";
-import ExploreFacilities from "@/components/ExploreFacilities";
-import Footer from "@/components/footer";
+import Carousel from "../../components/LandingPage/Carousel";
+import BookRoom from "@/components/LandingPage/BookRoom";
+import LocationDescription from "@/components/LandingPage/LocationDescription";
+import ExploreFacilities from "@/components/LandingPage/ExploreFacilities";
+import Footer from "@/components/LandingPage/footer";
 export default function Home() {
   return (
     <main className="flex flex-col">
@@ -21,8 +21,7 @@ export default function Home() {
           <ExploreFacilities />
         </div>
       </div>
-
-      <div className="bg-gray-200 w-full px-4 py-6 sm:px-10 sm:py-8">
+      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
         <Footer />
       </div>
     </main>
