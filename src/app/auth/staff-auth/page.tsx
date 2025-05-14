@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useActionState, useContext } from "react";
-import { useFormStatus } from "react-dom";
+import { useEffect, useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,8 +19,6 @@ import { loginUser, type LoginFormState } from "@/app/actions/auth/login";
 import { signupUser, type SignupFormState } from "@/app/actions/auth/signup";
 import { toast } from "react-toastify";
 import SubmitButton from "@/components/Auth/SubmitButton";
-import { AuthContext } from "@/components/providers/AuthProvider";
-import { AuthContextValue } from "@/types/context";
 
 const initialLoginState: LoginFormState = {
   message: null,

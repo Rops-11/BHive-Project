@@ -17,7 +17,6 @@ import { Separator } from "@/components/ui/separator";
 import { logoutUser } from "@/app/actions/auth/login";
 
 import { LogOut, ChevronDown } from "lucide-react";
-import { cookies } from "next/headers";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 interface UserAvatarProps {

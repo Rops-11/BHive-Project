@@ -7,7 +7,7 @@ const STAFF_AUTH_PATH = "/auth/staff-auth";
 const STAFF_SESSION_COOKIE_NAME = "_Secure-bhivehotelwebsite_staff_session";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },

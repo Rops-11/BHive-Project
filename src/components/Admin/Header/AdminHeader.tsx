@@ -11,9 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SideBar from "../../LandingPage/SideBar";
-import { useAuth } from "../../providers/AuthProvider";
 import { UserAvatar } from "./UserAvatar";
-import { useSearchParams } from "next/navigation";
 
 const navigationLinks = [
   { title: "Dashboard", href: "/admin" },
