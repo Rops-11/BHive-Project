@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { DashboardTabs } from "@/components/Admin/Dashboard/dashboardTabs"
-import AdminHeader from "@/components/Admin/AdminHeader"
+import { DashboardTabs } from "@/components/Admin/Dashboard/dashboardTabs";
+import AdminHeader from "@/components/Admin/Header/AdminHeader";
 
 export default function DashboardPage() {
   return (
@@ -13,8 +13,5 @@ export default function DashboardPage() {
         <DashboardTabs />
       </main>
     </div>
-  )
+  );
 }
-
-
-

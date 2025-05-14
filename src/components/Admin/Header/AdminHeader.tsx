@@ -10,13 +10,13 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import SideBar from "../LandingPage/SideBar";
-import { useAuth } from "../providers/AuthProvider";
-import { Button } from "../ui/button";
-import { logout } from "@/app/actions/auth";
+import SideBar from "../../LandingPage/SideBar";
+import { useAuth } from "../../providers/AuthProvider";
+import { UserAvatar } from "./UserAvatar";
+import { useSearchParams } from "next/navigation";
 
 const navigationLinks = [
-  { title: "Dashboard", href: "/admin/dashboard" },
+  { title: "Dashboard", href: "/admin" },
   { title: "Inbox", href: "/admin/inbox" },
   { title: "Rooms", href: "/admin/rooms" },
   { title: "Book", href: "/admin/book" },
@@ -25,7 +25,6 @@ const navigationLinks = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sideBar, setSideBar] = useState(false);
-  const { user } = useAuth();
 
   const isMobile = useIsMobile();
 
@@ -69,24 +68,7 @@ export default function Header() {
           </NavigationMenu>
         </div>
 
-        {!user ? (
-          <div className="hidden md:flex space-x-3">
-            <Link
-              href="/login"
-              className="bg-orange-400/30 hover:bg-orange-400/75 backdrop-blur-sm backdrop-filter text-black px-4 py-2 rounded-lg font-semibold">
-              Log-in
-            </Link>
-            <Link
-              href="/signup"
-              className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
-              Sign-up
-            </Link>
-          </div>
-        ) : (
-          <form action={logout}>
-            <Button type="submit">Logout</Button>
-          </form>
-        )}
+        <UserAvatar />
 
         <div className="flex md:hidden right-0">
           {!mobileMenuOpen && (
