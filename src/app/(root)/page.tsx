@@ -5,7 +5,7 @@ import ExploreFacilities from "@/components/LandingPage/ExploreFacilities";
 import Footer from "@/components/LandingPage/footer";
 export default function Home() {
   return (
-    <main className="flex flex-col">
+    <main className="flex flex-col scrollbar-hide">
       <Carousel />
 
       <div className="container mx-auto px-4 py-4 sm:px-6 md:py-12">
@@ -21,14 +21,9 @@ export default function Home() {
           <ExploreFacilities />
         </div>
       </div>
-
-      <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8">
-        <div className="flex justify-center items-center">
-          <Footer />
-        </div>
-
+      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
+        <Footer />
       </div>
-
     </main>
   );
 }

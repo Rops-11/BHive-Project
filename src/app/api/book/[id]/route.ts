@@ -8,9 +8,16 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await prisma.booking.delete({
+    const deletedBooking = await prisma.booking.delete({
       where: { id },
     });
+
+    if (!deletedBooking) {
+      return NextResponse.json(
+        { message: "Booking not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ message: "Booking deleted" }, { status: 200 });
   } catch (error: unknown) {

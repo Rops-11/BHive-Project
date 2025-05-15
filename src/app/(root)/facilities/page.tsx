@@ -1,12 +1,12 @@
-import React from 'react'
-import FacilityStickyScroll from '@/components/FacilityStickyScroll'
-import FacilityBanner from '@/components/FacilityBanner'
-import Amenities from '@/components/AmenitiesCard'
-import { FacilityIntroText } from '@/components/FacilityIntroText'
-import FacilityGallery from '@/components/FacilityGallery'
+import React from "react";
+import FacilityStickyScroll from "@/components/LandingPage/FacilityStickyScroll";
+import FacilityBanner from "@/components/Facilities/FacilityBanner";
+import Amenities from "@/components/Facilities/AmenitiesCard";
+import { FacilityIntroText } from "@/components/Facilities/FacilityIntroText";
+import FacilityGallery from "@/components/Facilities/FacilityGallery";
+import Footer from "@/components/LandingPage/footer";
 
-
-const RoomsPage = () => {
+const FacilitiesPage = () => {
   return (
     <div>
       <FacilityBanner />
@@ -14,8 +14,11 @@ const RoomsPage = () => {
       <Amenities />
       <FacilityStickyScroll />
       <FacilityGallery />
+      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
+        <Footer />
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default RoomsPage
+export default FacilitiesPage;
