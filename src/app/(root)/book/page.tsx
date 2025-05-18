@@ -1,9 +1,22 @@
-import React from 'react'
+"use client";
+
+import BookingForm from "@/components/Booking/BookingForm";
+import PreviewRoom from "@/components/Booking/PreviewRoom";
+import { useRouter } from "next/navigation";
+import React from "react";
 
 const BookingPage = () => {
-  return (
-    <div>BookingPage</div>
-  )
-}
+  const router = useRouter();
 
-export default BookingPage
+  return (
+    <div className="flex flex-col w-full min-h-screen lg:h-screen">
+      <div className="w-full h-20"></div>
+      <div className="w-full h-full justify-center items-center md:justify-evenly flex lg:flex-row flex-col-reverse p-10 lg:space-y-0 space-y-5">
+        <BookingForm router={router} />
+        <PreviewRoom />
+      </div>
+    </div>
+  );
+};
+
+export default BookingPage;

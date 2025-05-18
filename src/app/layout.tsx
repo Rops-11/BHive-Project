@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "../components/Header";
 import { ToastContainer, Slide } from "react-toastify";
+import "react-activity/dist/Spinner.css";
 import "react-toastify/dist/ReactToastify.css";
 
 const geistSans = Geist({
@@ -20,15 +20,16 @@ export const metadata: Metadata = {
   description: "BHive Hotel - Your Home Away From Home",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    // I SHOULD MAKE THE DEFAULT OPEN CLOSE WHEN ITS OUT OF MOBILE MODE
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastContainer
           position="top-right"
           autoClose={4000}
@@ -43,7 +44,7 @@ export default function RootLayout({
           transition={Slide}
           toastClassName={`text-xs`}
         />
-        {children}
+        <main>{children}</main>
       </body>
     </html>
   );
