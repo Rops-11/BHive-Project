@@ -28,7 +28,8 @@ export default async function RootLayout({
   return (
     // I SHOULD MAKE THE DEFAULT OPEN CLOSE WHEN ITS OUT OF MOBILE MODE
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastContainer
           position="top-right"
           autoClose={4000}

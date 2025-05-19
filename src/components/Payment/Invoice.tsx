@@ -1,34 +1,49 @@
 "use client";
 
-import useGetSpecificRoom from "@/hooks/roomHooks/useGetSpecificRoom";
 import React, { useContext, useEffect } from "react";
-// import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { BookingContextType } from "@/types/context";
+
+import { AuthContextValue, BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
 import { BookingContext } from "../providers/BookProvider";
-import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
 import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
+import { AuthContext } from "../providers/AuthProvider";
+import { Spinner } from "react-activity";
 
-const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
+const InvoiceCard = ({ admin }: { admin: boolean }) => {
   const router = useRouter();
-  const { bookingContext, setBookingContext } =
+  const { bookingContext, setBookingContext, selectedRoom, setSelectedRoom } =
     useContext<BookingContextType>(BookingContext);
-  const { roomData, loading, getRoom } = useGetSpecificRoom();
-  const { createBooking } = useCreateBooking(); // Temporary
+  const authContextHook = useContext<AuthContextValue | undefined>(AuthContext);
+  const staffFullName = authContextHook?.fullName;
+  const { createBooking, loading: bookingLoading } = useCreateBooking(); //! Temporary
 
   useEffect(() => {
-    if (bookingContext?.roomId) {
-      getRoom(bookingContext.roomId);
-    }
-  }, [bookingContext?.roomId]);
+    if (!bookingContext) {
+      const timeout = setTimeout(() => {
+        router.push("/book");
+      }, 5000);
 
-  if (loading || !bookingContext) {
+      return () => clearTimeout(timeout);
+    }
+  }, [bookingContext]);
+
+  if (!bookingContext) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loading loading={true} />
+      <div className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center justify-center min-h-[400px] text-center">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+          Booking Summary
+        </h1>
+        <div className="space-y-2">
+          <p className="text-lg font-semibold text-red-600">
+            Booking Details not provided.
+          </p>
+          <p className="text-sm text-gray-500">
+            Redirecting to booking page...
+          </p>
+        </div>
       </div>
     );
   }
@@ -42,66 +57,77 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
   if (
     bookingContext.numberOfAdults !== undefined &&
     bookingContext.numberOfChildren !== undefined &&
-    roomData?.maxGuests !== undefined &&
+    selectedRoom?.maxGuests !== undefined &&
     daysDiff > 0
   ) {
     const totalGuests =
       bookingContext.numberOfAdults + bookingContext.numberOfChildren;
-    if (totalGuests > roomData.maxGuests) {
-      excessGuestCount = totalGuests - roomData.maxGuests;
+    if (totalGuests > selectedRoom.maxGuests) {
+      excessGuestCount = totalGuests - selectedRoom.maxGuests;
     }
   }
 
   const excessGuestPrice = excessGuestCount * 100;
-  const totalRoomPrice = (roomData?.roomRate ?? 0) * daysDiff;
+  const totalRoomPrice = (selectedRoom?.roomRate ?? 0) * daysDiff;
   const total = excessGuestPrice + totalRoomPrice;
 
   const handleClickPay = async () => {
     setBookingContext!({ ...bookingContext, totalPrice: total });
-    await createBooking({ ...bookingContext, totalPrice: total }); // Temporary for Testing
-    const options = {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        authorization:
-          "Basic c2tfdGVzdF9qV25KV2NhM0U1ZjIycUVGam0yRnZ5WGc6cmVnaW5lTmJhcnRlMDEwNTA1",
-      },
-      body: JSON.stringify({
-        data: {
-          attributes: {
-            send_email_receipt: false,
-            show_description: true,
-            show_line_items: true,
-            line_items: [
-              {
-                currency: "PHP",
-                amount: 1890000,
-                description: "QUEEN BEE 2A",
-                name: "QUEEN BEE 2A",
-                quantity: 1,
-              },
-            ],
-            payment_method_types: ["gcash"],
-            description: "queen room",
-          },
+    if (staffFullName) {
+      await createBooking({ ...bookingContext, totalPrice: total });
+      router.push("/admin/book");
+    }
+    //! Temporary for Testing
+    else await createBooking({ ...bookingContext, totalPrice: total });
+
+    setBookingContext!({});
+    setSelectedRoom!(undefined);
+
+    if (!admin) {
+      const options = {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          authorization:
+            "Basic c2tfdGVzdF9qV25KV2NhM0U1ZjIycUVGam0yRnZ5WGc6cmVnaW5lTmJhcnRlMDEwNTA1",
         },
-      }),
-    };
+        body: JSON.stringify({
+          data: {
+            attributes: {
+              send_email_receipt: false,
+              show_description: true,
+              show_line_items: true,
+              line_items: [
+                {
+                  currency: "PHP",
+                  amount: 1890000,
+                  description: "QUEEN BEE 2A",
+                  name: "QUEEN BEE 2A",
+                  quantity: 1,
+                },
+              ],
+              payment_method_types: ["gcash"],
+              description: "queen room",
+            },
+          },
+        }),
+      };
 
-    const response = await fetch(
-      "https://api.paymongo.com/v1/checkout_sessions",
-      options
-    );
-    const data = await response.json();
-    console.log(data);
+      const response = await fetch(
+        "https://api.paymongo.com/v1/checkout_sessions",
+        options
+      );
+      const data = await response.json();
+      console.log(data);
 
-    if (response.ok) {
-      const checkoutUrl = data.data.attributes.checkout_url;
+      if (response.ok) {
+        const checkoutUrl = data.data.attributes.checkout_url;
 
-      router.push(checkoutUrl);
-    } else {
-      console.error("Payment error:", data);
+        router.push(checkoutUrl);
+      } else {
+        console.error("Payment error:", data);
+      }
     }
   };
 
@@ -174,12 +200,12 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
           <div className="flex justify-between items-start">
             <div className="pr-2">
               <p>
-                {roomData?.roomType ?? "Room"} - #
-                {roomData?.roomNumber ?? "N/A"}
+                {selectedRoom?.roomType ?? "Room"} - #
+                {selectedRoom?.roomNumber ?? "N/A"}
               </p>
               <p className="text-xs text-gray-500">
                 ({daysDiff} {daysDiff === 1 ? "Night" : "Nights"} @ ₱
-                {(roomData?.roomRate ?? 0).toFixed(2)}/night)
+                {(selectedRoom?.roomRate ?? 0).toFixed(2)}/night)
               </p>
             </div>
             <p className="font-medium text-right flex-shrink-0">
@@ -211,16 +237,24 @@ const InvoiceCard = ({ notInPaymentPage }: { notInPaymentPage: boolean }) => {
         </p>
       </div>
 
-      {notInPaymentPage && (
-        <div className="flex justify-end w-full mt-3 sm:mt-4">
-          <Button
-            className="sm:size-auto"
-            onClick={handleClickPay}
-            disabled={!bookingContext || total <= 0}>
-            Proceed to Payment
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end w-full mt-3 sm:mt-4">
+        <Button
+          className="sm:size-auto"
+          onClick={handleClickPay}
+          disabled={!bookingContext || total <= 0 || bookingLoading}>
+          {bookingLoading ? (
+            <Spinner
+              size={10}
+              color="#FFFFFF"
+              animating={bookingLoading}
+            />
+          ) : admin ? (
+            "Save Booking Details"
+          ) : (
+            "Proceed to Payment"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

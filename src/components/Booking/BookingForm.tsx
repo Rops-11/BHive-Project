@@ -42,9 +42,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { BookingContextType } from "@/types/context";
+import { AuthContextValue, BookingContextType } from "@/types/context";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import { BookingContext } from "../providers/BookProvider";
+import { AuthContext } from "../providers/AuthProvider";
+import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
+
+const zodFormRoomSchema = z
+  .object({
+    id: z.string().min(1, "Room ID is required"),
+    roomNumber: z.string().min(1, "Room number is required"),
+    roomType: z.string().min(1, "Room type is required"),
+  })
+  .passthrough();
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -56,9 +66,13 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  roomId: z.string().min(1, {
-    message: "Please pick a room to book.",
-  }),
+
+  room: z
+    .union([zodFormRoomSchema, z.undefined()])
+    .refine((value) => value !== undefined, {
+      message: "Please pick a room to book.",
+    }),
+
   dateRange: z
     .object({
       from: z.date().min(new Date(new Date().setHours(0, 0, 0, 0)), {
@@ -87,7 +101,12 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     availableRoomsWithDate,
   } = useOnlyAvailableRoomsOnSpecificDate();
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const { setBookingContext } = useContext<BookingContextType>(BookingContext);
+  const bookingContextHook = useContext<BookingContextType>(BookingContext);
+  const setBookingContext = bookingContextHook?.setBookingContext;
+  const setSelectedRoomContext = bookingContextHook?.setSelectedRoom;
+  const authContextHook = useContext<AuthContextValue | undefined>(AuthContext);
+  const staffFullName = authContextHook?.fullName;
+  const { loading: bookingLoading } = useCreateBooking();
 
   const {
     queenBeeRooms,
@@ -104,7 +123,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
       name: "",
       mobileNumber: "",
       email: "",
-      roomId: "",
+      room: undefined,
       dateRange: {
         from: new Date(),
         to: new Date(new Date().setDate(new Date().getDate() + 1)),
@@ -115,7 +134,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   });
 
   const selectedDateRange = form.watch("dateRange");
-  const selectedRoomId = form.watch("roomId");
+  const selectedRoom = form.watch("room");
 
   useEffect(() => {
     if (selectedDateRange?.from && selectedDateRange?.to) {
@@ -126,19 +145,37 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   }, [selectedDateRange]);
 
   useEffect(() => {
-    if (selectedRoomId && availableRoomsWithDate && !roomsLoading) {
+    if (selectedRoom && availableRoomsWithDate && !roomsLoading) {
       const isRoomStillAvailable = availableRoomsWithDate.some(
-        (room) => room.id === selectedRoomId
+        (room) => room.id === selectedRoom.id
       );
       if (!isRoomStillAvailable) {
-        form.setValue("roomId", "");
+        //! form.setValue("room", undefined as any, {
+        //!   shouldValidate: true,
+        //!   shouldDirty: true,
+        //! });
+        form.setValue(
+          "room",
+          undefined as unknown as z.infer<typeof formSchema>["room"],
+          { shouldValidate: true, shouldDirty: true }
+        );
+
+        if (setSelectedRoomContext) {
+          setSelectedRoomContext(undefined);
+        }
         toast.info(
           "Your previously selected room is not available for the new dates. Please choose another room.",
           { autoClose: 4000 }
         );
       }
     }
-  }, [availableRoomsWithDate, roomsLoading, selectedRoomId]);
+  }, [
+    availableRoomsWithDate,
+    roomsLoading,
+    selectedRoom,
+    form,
+    setSelectedRoomContext,
+  ]);
 
   useEffect(() => {
     const dateToday = new Date();
@@ -147,7 +184,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     if (!availableRoomsWithDate) {
       getAvailableRoomsWithDate(dateToday, tomorrow);
     }
-  }, []);
+  }, [availableRoomsWithDate, getAvailableRoomsWithDate]);
 
   const onSubmit: (
     values: z.infer<typeof formSchema>
@@ -155,7 +192,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
     startTransition(async () => {
       try {
         const bookingData: Booking = {
-          roomId: values.roomId,
+          roomId: values.room!.id,
           checkIn: values.dateRange.from,
           checkOut: values.dateRange.to,
           mobileNumber: values.mobileNumber,
@@ -164,9 +201,19 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
           numberOfAdults: values.numberOfAdults,
           numberOfChildren: values.numberOfChildren,
         };
+
         if (termsAccepted) {
-          setBookingContext!(bookingData);
-          router.push("/book/invoice");
+          if (setBookingContext) {
+            if (staffFullName) {
+              setBookingContext({ ...bookingData, shift: staffFullName });
+              router.push("/admin/book/invoice");
+            } else {
+              setBookingContext(bookingData);
+              router.push("/book/invoice");
+            }
+          } else {
+            toast.error("Booking context is not available.");
+          }
         } else {
           toast.error(
             "Please read and accept the terms and conditions before continuing."
@@ -180,7 +227,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
   };
 
   return (
-    <Card className="flex md:w-7/16 w-full h-full p-6">
+    <Card className="flex lg:w-7/16 w-full h-full p-6">
       <CardHeader className="flex w-full justify-center items-center">
         <CardTitle className="text-2xl font-bold">Book Your Hotel</CardTitle>
       </CardHeader>
@@ -189,7 +236,7 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col w-full h-full pt-10 justify-between py-2">
-            <div className="flex flex-col h-auto space-y-8">
+            <div className="flex flex-col h-auto space-y-3">
               <FormField
                 control={form.control}
                 name="name"
@@ -300,16 +347,37 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
               <div className="flex flex-col md:flex-row w-full justify-between gap-4">
                 <FormField
                   control={form.control}
-                  name="roomId"
+                  name="room"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-5/12">
                       <FormLabel>Available Rooms</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        value={field.value || ""}>
+                        value={field.value?.id || ""}
+                        onValueChange={(selectedRoomId) => {
+                          if (availableRoomsWithDate) {
+                            const foundRoom = availableRoomsWithDate.find(
+                              (r) => r.id === selectedRoomId
+                            );
+                            if (foundRoom) {
+                              field.onChange(foundRoom);
+                              if (setSelectedRoomContext) {
+                                setSelectedRoomContext(foundRoom);
+                              }
+                            } else {
+                              field.onChange(undefined);
+                              if (setSelectedRoomContext) {
+                                setSelectedRoomContext(undefined);
+                              }
+                            }
+                          }
+                        }}>
                         <FormControl>
                           <SelectTrigger className="border-black w-full">
-                            <SelectValue placeholder="Choose Your Room" />
+                            <SelectValue placeholder="Choose Your Room">
+                              {field.value
+                                ? `${field.value.roomNumber} - ${field.value.roomType}`
+                                : "Choose Your Room"}
+                            </SelectValue>
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -544,7 +612,12 @@ const BookingForm = ({ router }: { router: AppRouterInstance }) => {
                 <Button
                   type="submit"
                   className="w-full md:w-5/12"
-                  disabled={form.formState.isSubmitting || !termsAccepted}>
+                  disabled={
+                    form.formState.isSubmitting ||
+                    !termsAccepted ||
+                    bookingLoading ||
+                    (!form.formState.isValid && form.formState.isSubmitted)
+                  }>
                   {form.formState.isSubmitting ? "Processing..." : "Proceed"}
                 </Button>
               </div>
