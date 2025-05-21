@@ -64,7 +64,6 @@ export default function Carousel() {
           </h1>
         </div>
       </motion.div>
-      {/* BookRoom Form with Animation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -81,14 +80,14 @@ export default function Carousel() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 + i * 0.2, duration: 0.7 }}
-            className={`relative w-53 h-53 ${i === 1 ? "mr-40" : ""}`}
+            className={`relative w-60 h-53 ${i === 1 ? "mr-40" : ""}`}
             style={{
-              clipPath:
-                "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
-              WebkitClipPath:
-                "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
-              marginTop: i === 1 ? "-3.5rem" : "0",
-              marginBottom: i === 1 ? "-3.5rem" : "0",
+                  clipPath:
+                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                  WebkitClipPath:
+                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                  marginTop: i === 1 ? "-3.5rem" : "0",
+                  marginBottom: i === 1 ? "-3.5rem" : "0",
             }}
           >
             <Image

@@ -26,7 +26,7 @@ const facilities = [
     src: Bar,
     alt: "Bar",
     link: "/facilities",
-    label: "Bplace Bar",
+    label: "Bplace sunset bar",
     description: "A rooftop bar with a scenic view close to Festive walk.",
   },
 ];
