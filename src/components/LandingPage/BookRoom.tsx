@@ -6,8 +6,8 @@ import { IoSearch } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 
 const BookRoom = () => {
-  const [checkIn, setCheckIn] = useState("14 Jun 2021");
-  const [checkOut, setCheckOut] = useState("15 Jun 2021");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
   const [rooms] = useState(1);
   const [guests, setGuests] = useState(2);
 
@@ -15,7 +15,7 @@ const BookRoom = () => {
     <div className="bg-white rounded-full shadow-lg px-4 py-2 max-w-6xl mx-auto mt-8 flex items-center justify-between gap-2 md:gap-6">
 
       {/* Check-in */}
-      <div className="flex flex-col items-start px-2 border-l border-gray-300 pl-4">
+      <div className="flex flex-col items-start px-2 pl-4">
       <span className="flex items-center gap-2 text-sm text-gray-700 font-medium">
         <MdDateRange /> Check in
       </span>
