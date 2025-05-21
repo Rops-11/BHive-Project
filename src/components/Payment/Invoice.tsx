@@ -11,6 +11,8 @@ import { Separator } from "../ui/separator";
 import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
 import { AuthContext } from "../providers/AuthProvider";
 import { Spinner } from "react-activity";
+import BookingMissingFallback from "./BookingMissingFallback";
+
 
 const InvoiceCard = ({ admin }: { admin: boolean }) => {
   const router = useRouter();
@@ -31,21 +33,7 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
   }, [bookingContext]);
 
   if (!bookingContext) {
-    return (
-      <div className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-white p-6 rounded-lg shadow-lg border border-gray-200 flex flex-col items-center justify-center min-h-[400px] text-center">
-        <h1 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-          Booking Summary
-        </h1>
-        <div className="space-y-2">
-          <p className="text-lg font-semibold text-red-600">
-            Booking Details not provided.
-          </p>
-          <p className="text-sm text-gray-500">
-            Redirecting to booking page...
-          </p>
-        </div>
-      </div>
-    );
+    return <BookingMissingFallback/>
   }
 
   const daysDiff =
