@@ -9,13 +9,39 @@ export async function POST(req: NextRequest) {
   try {
     let errorInImage;
 
-    const { checkIn, checkOut } = await req.json();
+    const { checkIn, checkOut, excludeBookingId } = await req.json();
 
-    const bookings = await prisma.booking.findMany();
+    if (!checkIn || !checkOut) {
+      return NextResponse.json(
+        { message: "checkIn and checkOut dates are required." },
+        { status: 400 }
+      );
+    }
+
+    const targetCheckInDate = new Date(checkIn);
+    const targetCheckOutDate = new Date(checkOut);
+
+    if (
+      isNaN(targetCheckInDate.getTime()) ||
+      isNaN(targetCheckOutDate.getTime())
+    ) {
+      return NextResponse.json(
+        { message: "Invalid date format for checkIn or checkOut." },
+        { status: 400 }
+      );
+    }
+
+    let allBookings = await prisma.booking.findMany();
+
+    if (excludeBookingId && typeof excludeBookingId === "string") {
+      allBookings = allBookings.filter(
+        (booking) => booking.id !== excludeBookingId
+      );
+    }
 
     const overlappingBookings = findOverlappingBookings(
-      { checkIn, checkOut },
-      bookings
+      { checkIn: targetCheckInDate, checkOut: targetCheckOutDate },
+      allBookings
     );
 
     const listOfRoomIdsNotAvailable = overlappingBookings.map(
@@ -38,23 +64,27 @@ export async function POST(req: NextRequest) {
         const { data, error } = await getMedia("rooms", room.id);
 
         if (error) {
+          console.warn(`Error fetching image for room ${room.id}:`, error);
           errorInImage = true;
         }
 
-        return { ...room, images: data };
+        return { ...room, images: data || [] };
       })
     );
 
     if (errorInImage) {
       return NextResponse.json(
-        { error: "Error in fetching images" },
-        { status: 400 }
+        {
+          message:
+            "Error occurred while fetching some room images. Please try again.",
+        },
+        { status: 500 }
       );
     }
 
     return NextResponse.json(roomsWithImages, { status: 200 });
   } catch (error: unknown) {
-    console.error("Error fetching rooms:", error);
+    console.error("Error fetching available rooms:", error);
 
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
@@ -66,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Failed to fetch rooms",
+        error: "Failed to fetch available rooms",
         message: errorMessage,
         stack: errorStack,
       },

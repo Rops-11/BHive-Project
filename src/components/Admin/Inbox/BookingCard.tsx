@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -12,10 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter, // Optional: for close button etc.
-  DialogClose, // For easy closing
-} from "@/components/ui/dialog"; // Import Dialog components
-import { Button } from "@/components/ui/button"; // For close button
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Booking } from "@/types/types";
@@ -32,9 +32,8 @@ import {
   CircleHelp,
   Loader,
 } from "lucide-react";
+import EditBookingPopover from "@/components/Booking/EditBookingPopover";
 
-// ... keep your helper functions (formatDate, formatCurrency, getStatusInfo) ...
-// Helper function to format dates (adjust format as needed)
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
   try {
@@ -48,7 +47,6 @@ const formatDate = (date: Date | string | undefined): string => {
   }
 };
 
-// Helper function to format currency (Updated for PHP)
 const formatCurrency = (amount: number | undefined): string => {
   if (amount === undefined || amount === null) return "N/A";
   return new Intl.NumberFormat("en-PH", {
@@ -57,7 +55,6 @@ const formatCurrency = (amount: number | undefined): string => {
   }).format(amount);
 };
 
-// Map status to icon and color (Tailwind classes)
 const getStatusInfo = (status: string | undefined) => {
   switch (status?.toLowerCase()) {
     case "complete":
@@ -86,7 +83,7 @@ const getStatusInfo = (status: string | undefined) => {
 const BookingCard = ({ booking }: { booking: Booking }) => {
   const statusInfo = getStatusInfo(booking.status);
   const StatusIcon = statusInfo.icon;
-  // State to control the Dialog's open/closed status
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -97,9 +94,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
         <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-lg">
-              <span>
-                Room {booking.room?.roomNumber ?? booking.roomId ?? "N/A"}
-              </span>
+              <span>Room {booking.room?.roomNumber ?? "N/A"}</span>
               <Badge
                 variant="outline"
                 className={`border-none ${statusInfo.bgColor} ${statusInfo.color}`}>
@@ -218,6 +213,14 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
           )}
         </div>
         <DialogFooter>
+          <EditBookingPopover
+            booking={booking}
+            type="normal"
+          />
+          <EditBookingPopover
+            booking={booking}
+            type="room"
+          />
           <DialogClose asChild>
             <Button
               type="button"
