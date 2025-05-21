@@ -4,7 +4,7 @@ import { FaFacebook } from "react-icons/fa";
 import React from "react";
 import Image from "next/image";
 import logo from "@/assets/bhivelogo.jpg";
-import bplaceLogo from "@/assets/bplaceLogo.jpg";
+import bplaceLogo from "@/assets/BplaceLogo.jpg";
 import benitosLogo from "@/assets/benitossign.png";
 
 export default function Footer() {

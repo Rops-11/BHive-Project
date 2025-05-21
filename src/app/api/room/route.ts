@@ -28,7 +28,7 @@ export async function GET() {
 
     if (errorInImage) {
       return NextResponse.json(
-        { error: "Error in fetching images" },
+        { message: "Error in fetching images" },
         { status: 400 }
       );
     }
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     const files = formData.getAll("files") as File[];
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: "No files provided" }, { status: 400 });
+      return NextResponse.json({ message: "No files provided" }, { status: 400 });
     }
     if (!roomType || !roomNumber || isNaN(maxGuests) || isNaN(roomRate)) {
       return NextResponse.json(

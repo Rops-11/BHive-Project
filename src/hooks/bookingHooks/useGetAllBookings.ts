@@ -13,7 +13,7 @@ const useGetAllBookings = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        toast.error(error.error);
+        toast.error(error.message);
         return;
       }
 

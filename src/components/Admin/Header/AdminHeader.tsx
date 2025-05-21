@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SideBar from "../../LandingPage/SideBar";
-import { UserAvatar } from "./UserAvatar";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { logout } from "@/app/actions/auth/logout";
 
 const navigationLinks = [
   { title: "Dashboard", href: "/admin" },
@@ -75,11 +76,10 @@ export default function Header() {
             </NavigationMenu>
           </div>
         )}
+        <form action={logout}>
+          <Button>Logout</Button>
+        </form>
 
-        {}
-        {(!isMobile || !isClient) && <UserAvatar />}
-
-        {}
         {isClient && isMobile && (
           <div className="flex md:hidden right-0">
             {!mobileMenuOpen && (

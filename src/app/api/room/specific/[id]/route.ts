@@ -67,7 +67,7 @@ export async function PUT(
 
     if (OldImagesError) {
       return NextResponse.json(
-        { error: "Error in fetching the images" },
+        { message: "Error in fetching the images" },
         { status: 400 }
       );
     }

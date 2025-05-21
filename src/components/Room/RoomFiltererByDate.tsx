@@ -9,6 +9,8 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import RoomForm from "./RoomFormPopover";
 import { DateRange } from "react-day-picker";
+import { Room } from "@/types/types";
+import { GetAvailableRoomsOptions } from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 
 const RoomFiltererByDate = ({
   dateRange,
@@ -20,8 +22,9 @@ const RoomFiltererByDate = ({
   setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
   getAvailableRoomsWithDate: (
     checkIn: Date,
-    checkOut: Date
-  ) => Promise<never[] | undefined>;
+    checkOut: Date,
+    options?: GetAvailableRoomsOptions
+  ) => Promise<Room[]>;
   role?: "Guest" | "Admin";
 }) => {
   return (
@@ -78,9 +81,7 @@ const RoomFiltererByDate = ({
       </div>
       {role === "Admin" && (
         <div className="flex w-[14%]">
-          <RoomForm
-            type="Add"
-          />
+          <RoomForm type="Add" />
         </div>
       )}
     </Card>
