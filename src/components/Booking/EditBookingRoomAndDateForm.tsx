@@ -189,7 +189,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
       setIsFormInitialized(false);
       reset({ room: undefined, dateRange: { from: undefined, to: undefined } });
     }
-  }, [booking, reset, getAvailableRoomsWithDate, currentBookingIdForInit]);
+  }, [booking, reset, currentBookingIdForInit]);
 
   const selectedDateFrom = watch("dateRange.from");
   const selectedDateTo = watch("dateRange.to");
@@ -216,7 +216,6 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
     selectedDateFrom,
     selectedDateTo,
     isFormInitialized,
-    getAvailableRoomsWithDate,
     booking?.id,
   ]);
 
