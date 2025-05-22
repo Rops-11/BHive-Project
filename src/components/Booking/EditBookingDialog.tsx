@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -14,10 +14,14 @@ const EditBookingDialog = ({
   booking,
   type,
   triggerClassName,
+  refetchBookings,
+  setIsDialogOpen,
 }: {
   booking: Booking;
   type: "normal" | "room";
   triggerClassName?: string;
+  refetchBookings: () => Promise<void>;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   return (
     <Dialog>
@@ -30,8 +34,20 @@ const EditBookingDialog = ({
       </DialogTrigger>
       <DialogContent className="w-1/2">
         <DialogTitle>Edit Booking Details</DialogTitle>
-        {type === "normal" && <NormalBookingForm booking={booking} />}
-        {type === "room" && <EditBookingRoomAndDateForm booking={booking} />}
+        {type === "normal" && (
+          <NormalBookingForm
+            booking={booking}
+            refetchBookings={refetchBookings}
+            setIsDialogOpen={setIsDialogOpen}
+          />
+        )}
+        {type === "room" && (
+          <EditBookingRoomAndDateForm
+            booking={booking}
+            refetchBookings={refetchBookings}
+            setIsDialogOpen={setIsDialogOpen}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

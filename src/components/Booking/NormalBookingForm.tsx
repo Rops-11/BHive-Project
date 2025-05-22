@@ -11,13 +11,13 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Booking } from "@/types/types";
 import { toast } from "react-toastify";
 import useUpdateBooking from "@/hooks/bookingHooks/useUpdateBooking";
+import { Spinner } from "react-activity";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -39,8 +39,16 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const NormalBookingForm = ({ booking }: { booking: Booking }) => {
-  const { updateNormalBooking, loading: isUpdating } = useUpdateBooking();
+const NormalBookingForm = ({
+  booking,
+  refetchBookings,
+  setIsDialogOpen,
+}: {
+  booking: Booking;
+  refetchBookings: () => Promise<void>;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const { updateNormalBooking, loading: updateLoading } = useUpdateBooking();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -90,7 +98,8 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
         };
 
         await updateNormalBooking(booking.id!, updatePayload);
-        location.reload();
+        setIsDialogOpen(false);
+        refetchBookings();
       } catch (error) {
         console.error("Failed to update booking details:", error);
         toast.error("Failed to update booking details. Please try again.");
@@ -115,7 +124,7 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
                   type="text"
                   placeholder="Guest Name"
                   {...field}
-                  disabled={isUpdating}
+                  disabled={updateLoading}
                 />
               </FormControl>
               <FormMessage />
@@ -135,7 +144,7 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
                   type="text"
                   placeholder="Mobile Number (e.g., 09XXXXXXXXX)"
                   {...field}
-                  disabled={isUpdating}
+                  disabled={updateLoading}
                 />
               </FormControl>
               <FormMessage />
@@ -155,7 +164,7 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
                   type="email"
                   placeholder="your.email@example.com"
                   {...field}
-                  disabled={isUpdating}
+                  disabled={updateLoading}
                 />
               </FormControl>
               <FormMessage />
@@ -182,7 +191,7 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
                       const value = e.target.value;
                       field.onChange(value === "" ? undefined : Number(value));
                     }}
-                    disabled={isUpdating}
+                    disabled={updateLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -208,7 +217,7 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
                       const value = e.target.value;
                       field.onChange(value === "" ? undefined : Number(value));
                     }}
-                    disabled={isUpdating}
+                    disabled={updateLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -221,12 +230,19 @@ const NormalBookingForm = ({ booking }: { booking: Booking }) => {
           <Button
             type="submit"
             disabled={
-              isUpdating || !form.formState.isDirty || !form.formState.isValid
+              updateLoading ||
+              !form.formState.isDirty ||
+              !form.formState.isValid
             }>
-            {isUpdating ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {isUpdating ? "Saving..." : "Save Changes"}
+            {updateLoading ? (
+              <Spinner
+                size={10}
+                color="#FFFFFF"
+                animate={updateLoading}
+              />
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </div>
       </form>

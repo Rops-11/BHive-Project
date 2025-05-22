@@ -31,6 +31,7 @@ import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvail
 import useUpdateBooking from "@/hooks/bookingHooks/useUpdateBooking";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
+import { Spinner } from "react-activity";
 
 const toInputDateString = (date: Date | undefined | null): string => {
   if (!date) return "";
@@ -107,14 +108,16 @@ type EditRoomDateFormValues = z.infer<typeof editRoomDateFormSchema>;
 
 interface EditBookingRoomAndDateFormProps {
   booking: Booking & { room?: RoomType };
-  onUpdateSuccess?: () => void;
+  refetchBookings: () => Promise<void>;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const KEEP_ORIGINAL_ROOM_VALUE = "__KEEP_ORIGINAL_ROOM__";
 
 const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
   booking,
-  onUpdateSuccess,
+  refetchBookings,
+  setIsDialogOpen,
 }) => {
   const router = useRouter();
   const [isFormInitialized, setIsFormInitialized] = useState(false);
@@ -212,12 +215,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
       );
     } else if (selectedDateFrom || selectedDateTo) {
     }
-  }, [
-    selectedDateFrom,
-    selectedDateTo,
-    isFormInitialized,
-    booking?.id,
-  ]);
+  }, [selectedDateFrom, selectedDateTo, isFormInitialized, booking?.id]);
 
   useEffect(() => {
     if (
@@ -296,8 +294,8 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
         }
 
         await updateRoomInBooking(booking.id!, payload);
-        if (onUpdateSuccess) onUpdateSuccess();
-        location.reload();
+        setIsDialogOpen(false);
+        refetchBookings();
       } catch (error) {
         console.error("Form submission error:", error);
         let errorMessage = "An error occurred while updating the booking.";
@@ -582,9 +580,14 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
               updateLoading || !formState.isDirty || !formState.isValid
             }>
             {updateLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
-            {updateLoading ? "Saving..." : "Save Room & Date Changes"}
+              <Spinner
+                size={10}
+                color="#FFFFFF"
+                animate={updateLoading}
+              />
+            ) : (
+              "Save Room & Date Changes"
+            )}
           </Button>
         </div>
       </form>

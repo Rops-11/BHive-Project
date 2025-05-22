@@ -152,6 +152,7 @@ const BookingInbox = () => {
             <BookingCard
               key={booking.id}
               booking={booking}
+              refetchBookings={refetchBookings}
             />
           ))}
         </div>

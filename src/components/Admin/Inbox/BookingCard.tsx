@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Card,
@@ -38,6 +40,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
+import { Spinner } from "react-activity";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -85,11 +89,24 @@ const getStatusInfo = (status: string | undefined) => {
   }
 };
 
-const BookingCard = ({ booking }: { booking: Booking }) => {
+const BookingCard = ({
+  booking,
+  refetchBookings,
+}: {
+  booking: Booking;
+  refetchBookings: () => Promise<void>;
+}) => {
   const statusInfo = getStatusInfo(booking.status);
   const StatusIcon = statusInfo.icon;
+  const { deleteBooking } = useDeleteBooking();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleDelete = async () => {
+    await deleteBooking(booking.id!);
+    setIsDialogOpen(false);
+    await refetchBookings();
+  };
 
   return (
     <Dialog
@@ -240,14 +257,19 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
                 booking={booking}
                 type="normal"
                 triggerClassName="w-full z-[9999]"
+                refetchBookings={refetchBookings}
+                setIsDialogOpen={setIsDialogOpen}
               />
               <EditBookingDialog
                 booking={booking}
                 type="room"
                 triggerClassName="w-full z-[9999]"
+                refetchBookings={refetchBookings}
+                setIsDialogOpen={setIsDialogOpen}
               />
             </PopoverContent>
           </Popover>
+          <Button onClick={handleDelete}>Delete</Button>
 
           <DialogClose asChild>
             <Button

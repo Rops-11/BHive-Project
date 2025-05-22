@@ -10,7 +10,7 @@ interface UpdateBookingRoomAndDatesPayload {
 }
 
 const useUpdateBooking = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>();
 
   const updateNormalBooking = async (
     id: string,
@@ -48,6 +48,7 @@ const useUpdateBooking = () => {
       checkOut: Date;
     }
   ) => {
+    setLoading(true);
     try {
       const payload: UpdateBookingRoomAndDatesPayload = {
         roomId: dataForUpdate.roomId,
