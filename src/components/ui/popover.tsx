@@ -70,6 +70,8 @@ const PopoverContent = React.forwardRef<
   }
 );
 
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+
 function PopoverAnchor({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
