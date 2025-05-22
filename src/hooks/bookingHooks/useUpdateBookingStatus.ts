@@ -2,13 +2,17 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
 
-const useDeleteBooking = () => {
+const useUpdateBookingStatus = () => {
   const [loading, setLoading] = useState<boolean>();
 
-  const deleteBooking = async (id: string) => {
+  const updateStatus = async (bookingId: string, status: string) => {
     setLoading(true);
     try {
-      const response = await normalFetch(`/api/book/normal/${id}`, "delete");
+      const response = await normalFetch(
+        `/api/book/status/${bookingId}`,
+        "put",
+        { status }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -21,13 +25,13 @@ const useDeleteBooking = () => {
       toast.success(success.message);
     } catch (error) {
       console.error(error);
-      toast.error("Unknown error while deleting booking");
+      toast.error("Unknown error while updating booking status");
     } finally {
       setLoading(false);
     }
   };
 
-  return { deleteBooking, loading };
+  return { updateStatus, loading };
 };
 
-export default useDeleteBooking;
+export default useUpdateBookingStatus;

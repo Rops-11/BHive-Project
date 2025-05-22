@@ -41,6 +41,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
+import useUpdateBookingStatus from "@/hooks/bookingHooks/useUpdateBookingStatus";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -95,15 +96,27 @@ const BookingCard = ({
   booking: Booking;
   refetchBookings: () => Promise<void>;
 }) => {
-  const statusInfo = getStatusInfo(booking.status);
+  const [bookingStatus, setBookingStatus] = useState(booking.status);
+  const statusInfo = getStatusInfo(bookingStatus);
   const StatusIcon = statusInfo.icon;
   const { deleteBooking } = useDeleteBooking();
+  const { updateStatus } = useUpdateBookingStatus();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
 
   const handleDelete = async () => {
     await deleteBooking(booking.id!);
     setIsDialogOpen(false);
+    await refetchBookings();
+  };
+
+  const handleChangeStatus = async (
+    status: "Reserved" | "Ongoing" | "Complete"
+  ) => {
+    await updateStatus(booking.id!, status);
+    setBookingStatus(status);
+    setStatusOpen(false);
     await refetchBookings();
   };
 
@@ -120,7 +133,7 @@ const BookingCard = ({
                 variant="outline"
                 className={`border-none ${statusInfo.bgColor} ${statusInfo.color}`}>
                 <StatusIcon className="h-4 w-4 mr-1" />
-                {booking.status ?? "Unknown"}
+                {bookingStatus ?? "Unknown"}
               </Badge>
             </CardTitle>
             <CardDescription>
@@ -186,11 +199,57 @@ const BookingCard = ({
             <div className="flex items-center text-sm">
               <StatusIcon className={`h-4 w-4 mr-2 ${statusInfo.color}`} />
               <span className="font-medium mr-1">Status:</span>
-              <Badge
-                variant="outline"
-                className={`border-none ${statusInfo.bgColor} ${statusInfo.color}`}>
-                {booking.status ?? "Unknown"}
-              </Badge>
+              <Popover
+                open={statusOpen}
+                onOpenChange={setStatusOpen}>
+                <PopoverTrigger>
+                  <Badge
+                    variant="outline"
+                    className={`border-none hover:cursor-pointer hover:scale-105 ${statusInfo.bgColor} ${statusInfo.color}`}>
+                    {bookingStatus ?? "Unknown"}
+                  </Badge>
+                </PopoverTrigger>
+                <PopoverContent
+                  withDialog
+                  className="flex flex-col w-auto space-y-1 p-2">
+                  {bookingStatus !== "Complete" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Complete");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer bg-green-100 "text-green-600"`}>
+                        Complete
+                      </Badge>
+                    </button>
+                  )}
+                  {bookingStatus !== "Reserved" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Reserved");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer text-orange-600 bg-orange-100`}>
+                        Reserved
+                      </Badge>
+                    </button>
+                  )}
+                  {bookingStatus !== "Ongoing" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Ongoing");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer text-blue-600 bg-blue-100`}>
+                        Ongoing
+                      </Badge>
+                    </button>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           <Separator />
@@ -268,7 +327,11 @@ const BookingCard = ({
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleDelete} className="bg-red-500">Delete</Button>
+          <Button
+            onClick={handleDelete}
+            className="bg-red-500">
+            Delete
+          </Button>
 
           <DialogClose asChild>
             <Button
