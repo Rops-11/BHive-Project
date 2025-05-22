@@ -2,18 +2,19 @@ import React from "react";
 
 export const FacilityIntroText = () => {
   return (
-    <div className="rounded-lg max-w-4xl mx-auto mt-64">
+    <div className="rounded-lg max-w-4xl mx-auto mt-64 px-16">
       <h2 className="text-4xl font-semibold text-center text-[#D29D30] mb-8">
         Facilities and Amenities
       </h2>
-      <p className="text-lg text-gray-600 leading-relax">
-        At our hotel, we believe in providing a seamless and comfortable experience
-        for all our guests. Whether you&apos;re here for business or leisure, our top-tier
-        facilities and a wide range of amenities are designed to cater to your every
-        need. From our state-of-the-art fitness center and relaxing spa to high-speed
-        Wi-Fi and round-the-clock room service, we ensure that you feel right at home.
-        Explore the various facilities we offer and enjoy a stay that&apos;s as convenient
-        as it is luxurious.
+      <p className="text-lg text-gray-600 leading-relaxed text-justify">
+        Step into a haven of comfort and calm where nature and hospitality meet.
+        Enjoy organic blends and baked treats at our earthy café, or unwind in
+        the gentle hum of conversation at the rooftop bar, surrounded by
+        greenery and soft lighting. Our cozy lounge, filled with natural
+        textures and warm tones, invites you to pause, breathe, and feel at
+        home. Whether you're journaling with a cup of tea or sharing stories
+        with fellow travelers, each space is crafted to soothe the senses and
+        nurture a sense of belonging.
       </p>
     </div>
   );
