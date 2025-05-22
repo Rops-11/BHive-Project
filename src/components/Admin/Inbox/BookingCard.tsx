@@ -41,7 +41,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
-import { Spinner } from "react-activity";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -269,7 +268,7 @@ const BookingCard = ({
               />
             </PopoverContent>
           </Popover>
-          <Button onClick={handleDelete}>Delete</Button>
+          <Button onClick={handleDelete} className="bg-red-500">Delete</Button>
 
           <DialogClose asChild>
             <Button
