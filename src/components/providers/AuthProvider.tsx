@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthContextValue } from "@/types/context";
-import { User, Session } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 import {
   ReactNode,
   useState,
@@ -10,41 +10,46 @@ import {
   useContext,
 } from "react";
 import { createClient } from "utils/supabase/client";
-import Loading from "../ui/Loading";
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
   undefined
 );
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const supabase = createClient();
+  const [session, setSession] = useState<Session | undefined | null>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
 
     const getInitialSession = async () => {
-      setIsLoading(true);
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-      } catch (error) {
-        console.error("Error fetching initial session:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
+      const {
+        data: { session: initialSession },
+      } = await supabase.auth.getSession();
+      setSession(initialSession);
+      setIsLoading(false);
     };
 
     getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: string, session: Session | null) => {
-        console.log("Auth event:", event, session); // For debugging
-        setUser(session?.user ?? null);
+      (_event, newSession) => {
+        console.log(
+          "AuthProvider: onAuthStateChange event:",
+          _event,
+          "newSession:",
+          newSession
+        );
+        setSession(newSession);
+
+        if (
+          _event === "SIGNED_IN" ||
+          _event === "SIGNED_OUT" ||
+          _event === "INITIAL_SESSION"
+        ) {
+          setIsLoading(false);
+        }
       }
     );
 
@@ -54,19 +59,18 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   const contextValue: AuthContextValue = {
-    user,
-    setUser,
+    session,
+    setSession,
+    supabase,
     isLoading,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {isLoading ? <Loading loading={isLoading} /> : children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 }
 
-export const useAuth = (): AuthContextValue => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");

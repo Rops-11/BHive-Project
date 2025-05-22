@@ -1,4 +1,6 @@
-import React, { useState } from "react"; // Import useState
+"use client";
+
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -12,10 +14,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter, // Optional: for close button etc.
-  DialogClose, // For easy closing
-} from "@/components/ui/dialog"; // Import Dialog components
-import { Button } from "@/components/ui/button"; // For close button
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Booking } from "@/types/types";
@@ -32,9 +34,15 @@ import {
   CircleHelp,
   Loader,
 } from "lucide-react";
+import EditBookingDialog from "@/components/Booking/EditBookingDialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
+import useUpdateBookingStatus from "@/hooks/bookingHooks/useUpdateBookingStatus";
 
-// ... keep your helper functions (formatDate, formatCurrency, getStatusInfo) ...
-// Helper function to format dates (adjust format as needed)
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
   try {
@@ -48,7 +56,6 @@ const formatDate = (date: Date | string | undefined): string => {
   }
 };
 
-// Helper function to format currency (Updated for PHP)
 const formatCurrency = (amount: number | undefined): string => {
   if (amount === undefined || amount === null) return "N/A";
   return new Intl.NumberFormat("en-PH", {
@@ -57,7 +64,6 @@ const formatCurrency = (amount: number | undefined): string => {
   }).format(amount);
 };
 
-// Map status to icon and color (Tailwind classes)
 const getStatusInfo = (status: string | undefined) => {
   switch (status?.toLowerCase()) {
     case "complete":
@@ -83,11 +89,36 @@ const getStatusInfo = (status: string | undefined) => {
   }
 };
 
-const BookingCard = ({ booking }: { booking: Booking }) => {
-  const statusInfo = getStatusInfo(booking.status);
+const BookingCard = ({
+  booking,
+  refetchBookings,
+}: {
+  booking: Booking;
+  refetchBookings: () => Promise<void>;
+}) => {
+  const [bookingStatus, setBookingStatus] = useState(booking.status);
+  const statusInfo = getStatusInfo(bookingStatus);
   const StatusIcon = statusInfo.icon;
-  // State to control the Dialog's open/closed status
+  const { deleteBooking } = useDeleteBooking();
+  const { updateStatus } = useUpdateBookingStatus();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+
+  const handleDelete = async () => {
+    await deleteBooking(booking.id!);
+    setIsDialogOpen(false);
+    await refetchBookings();
+  };
+
+  const handleChangeStatus = async (
+    status: "Reserved" | "Ongoing" | "Complete"
+  ) => {
+    await updateStatus(booking.id!, status);
+    setBookingStatus(status);
+    setStatusOpen(false);
+    await refetchBookings();
+  };
 
   return (
     <Dialog
@@ -97,14 +128,12 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
         <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <CardHeader>
             <CardTitle className="flex items-center justify-between text-lg">
-              <span>
-                Room {booking.room?.roomNumber ?? booking.roomId ?? "N/A"}
-              </span>
+              <span>Room {booking.room?.roomNumber ?? "N/A"}</span>
               <Badge
                 variant="outline"
                 className={`border-none ${statusInfo.bgColor} ${statusInfo.color}`}>
                 <StatusIcon className="h-4 w-4 mr-1" />
-                {booking.status ?? "Unknown"}
+                {bookingStatus ?? "Unknown"}
               </Badge>
             </CardTitle>
             <CardDescription>
@@ -170,11 +199,57 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
             <div className="flex items-center text-sm">
               <StatusIcon className={`h-4 w-4 mr-2 ${statusInfo.color}`} />
               <span className="font-medium mr-1">Status:</span>
-              <Badge
-                variant="outline"
-                className={`border-none ${statusInfo.bgColor} ${statusInfo.color}`}>
-                {booking.status ?? "Unknown"}
-              </Badge>
+              <Popover
+                open={statusOpen}
+                onOpenChange={setStatusOpen}>
+                <PopoverTrigger>
+                  <Badge
+                    variant="outline"
+                    className={`border-none hover:cursor-pointer hover:scale-105 ${statusInfo.bgColor} ${statusInfo.color}`}>
+                    {bookingStatus ?? "Unknown"}
+                  </Badge>
+                </PopoverTrigger>
+                <PopoverContent
+                  withDialog
+                  className="flex flex-col w-auto space-y-1 p-2">
+                  {bookingStatus !== "Complete" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Complete");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer bg-green-100 "text-green-600"`}>
+                        Complete
+                      </Badge>
+                    </button>
+                  )}
+                  {bookingStatus !== "Reserved" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Reserved");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer text-orange-600 bg-orange-100`}>
+                        Reserved
+                      </Badge>
+                    </button>
+                  )}
+                  {bookingStatus !== "Ongoing" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Ongoing");
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer text-blue-600 bg-blue-100`}>
+                        Ongoing
+                      </Badge>
+                    </button>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           <Separator />
@@ -218,6 +293,46 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
           )}
         </div>
         <DialogFooter>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button>Edit Options</Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="flex flex-col justify-center items-center w-auto space-y-2"
+              withDialog
+              onInteractOutside={(event) => {
+                const target = event.target as HTMLElement;
+                if (target.closest('[role="button"]')) {
+                  const parentDialogTrigger = target.closest(
+                    '[aria-haspopup="dialog"]'
+                  );
+                  if (parentDialogTrigger) {
+                    event.preventDefault();
+                  }
+                }
+              }}>
+              <EditBookingDialog
+                booking={booking}
+                type="normal"
+                triggerClassName="w-full z-[9999]"
+                refetchBookings={refetchBookings}
+                setIsDialogOpen={setIsDialogOpen}
+              />
+              <EditBookingDialog
+                booking={booking}
+                type="room"
+                triggerClassName="w-full z-[9999]"
+                refetchBookings={refetchBookings}
+                setIsDialogOpen={setIsDialogOpen}
+              />
+            </PopoverContent>
+          </Popover>
+          <Button
+            onClick={handleDelete}
+            className="bg-red-500">
+            Delete
+          </Button>
+
           <DialogClose asChild>
             <Button
               type="button"
