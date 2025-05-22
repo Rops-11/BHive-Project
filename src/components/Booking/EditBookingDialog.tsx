@@ -10,17 +10,21 @@ import { Booking } from "@/types/types";
 import EditBookingRoomAndDateForm from "./EditBookingRoomAndDateForm";
 import NormalBookingForm from "./NormalBookingForm";
 
-const EditBookingPopover = ({
+const EditBookingDialog = ({
   booking,
   type,
+  triggerClassName,
 }: {
   booking: Booking;
   type: "normal" | "room";
+  triggerClassName?: string;
 }) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>
+      <DialogTrigger
+        className="z-[9999]"
+        asChild>
+        <Button className={triggerClassName}>
           {type === "normal" ? "Edit Booker Details" : "Edit Room & Date"}
         </Button>
       </DialogTrigger>
@@ -33,4 +37,4 @@ const EditBookingPopover = ({
   );
 };
 
-export default EditBookingPopover;
+export default EditBookingDialog;

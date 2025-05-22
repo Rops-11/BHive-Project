@@ -32,7 +32,12 @@ import {
   CircleHelp,
   Loader,
 } from "lucide-react";
-import EditBookingPopover from "@/components/Booking/EditBookingPopover";
+import EditBookingDialog from "@/components/Booking/EditBookingDialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -213,14 +218,37 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
           )}
         </div>
         <DialogFooter>
-          <EditBookingPopover
-            booking={booking}
-            type="normal"
-          />
-          <EditBookingPopover
-            booking={booking}
-            type="room"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button>Edit Options</Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="flex flex-col justify-center items-center w-auto space-y-2"
+              withDialog
+              onInteractOutside={(event) => {
+                const target = event.target as HTMLElement;
+                if (target.closest('[role="button"]')) {
+                  const parentDialogTrigger = target.closest(
+                    '[aria-haspopup="dialog"]'
+                  );
+                  if (parentDialogTrigger) {
+                    event.preventDefault();
+                  }
+                }
+              }}>
+              <EditBookingDialog
+                booking={booking}
+                type="normal"
+                triggerClassName="w-full z-[9999]"
+              />
+              <EditBookingDialog
+                booking={booking}
+                type="room"
+                triggerClassName="w-full z-[9999]"
+              />
+            </PopoverContent>
+          </Popover>
+
           <DialogClose asChild>
             <Button
               type="button"
