@@ -34,7 +34,7 @@ const PreviewRoom = () => {
                   <DollarSign className="mr-2 h-4 w-4 md:h-5 md:w-5 text-amber-700 flex-shrink-0" />
                   <span className="font-medium">Rate:</span>
                   <span className="ml-1.5">
-                    ${selectedRoom.roomRate.toFixed(2)} / night
+                    ₱{selectedRoom.roomRate.toFixed(2)} / night
                   </span>
                 </div>
               )}

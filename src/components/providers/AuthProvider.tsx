@@ -1,78 +1,68 @@
 "use client";
 
 import { AuthContextValue } from "@/types/context";
-import { ReactNode, useState, createContext, useContext } from "react";
-
-const FULLNAME_COOKIE_NAME = "staff_fullName";
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") {
-    return null;
-  }
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(";").shift();
-    return cookieValue ? decodeURIComponent(cookieValue) : null;
-  }
-  return null;
-}
-
-function manageClientCookie(
-  name: string,
-  value: string | null,
-  days: number = 7,
-  path: string = "/"
-) {
-  if (typeof document === "undefined") {
-    return;
-  }
-  let expires = "";
-  let valueToEncode = "";
-
-  if (value !== null) {
-    const date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-    expires = `; expires=${date.toUTCString()}`;
-    valueToEncode = value;
-  } else {
-    const date = new Date();
-    date.setTime(date.getTime() - 24 * 60 * 60 * 1000);
-    expires = `; expires=${date.toUTCString()}`;
-  }
-  document.cookie = `${name}=${encodeURIComponent(
-    valueToEncode
-  )}${expires}; path=${path}; SameSite=Lax`;
-}
+import { Session } from "@supabase/supabase-js";
+import {
+  ReactNode,
+  useState,
+  createContext,
+  useEffect,
+  useContext,
+} from "react";
+import { createClient } from "utils/supabase/client";
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
   undefined
 );
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [fullName, setFullNameStateInternal] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return getCookie(FULLNAME_COOKIE_NAME);
-    }
-    return null;
-  });
+  const supabase = createClient();
+  const [session, setSession] = useState<Session | undefined | null>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const setFullNameState = (
-    newFullName: string | null | ((prevState: string | null) => string | null)
-  ) => {
-    const valueToSet =
-      typeof newFullName === "function" ? newFullName(fullName) : newFullName;
+  useEffect(() => {
+    setIsLoading(true);
 
-    setFullNameStateInternal(valueToSet);
+    const getInitialSession = async () => {
+      const {
+        data: { session: initialSession },
+      } = await supabase.auth.getSession();
+      setSession(initialSession);
+      setIsLoading(false);
+    };
 
-    if (typeof window !== "undefined") {
-      manageClientCookie(FULLNAME_COOKIE_NAME, valueToSet);
-    }
-  };
+    getInitialSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        console.log(
+          "AuthProvider: onAuthStateChange event:",
+          _event,
+          "newSession:",
+          newSession
+        );
+        setSession(newSession);
+
+        if (
+          _event === "SIGNED_IN" ||
+          _event === "SIGNED_OUT" ||
+          _event === "INITIAL_SESSION"
+        ) {
+          setIsLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const contextValue: AuthContextValue = {
-    fullName,
-    setFullNameState,
+    session,
+    setSession,
+    supabase,
+    isLoading,
   };
 
   return (
@@ -80,7 +70,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export const useAuth = (): AuthContextValue => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");

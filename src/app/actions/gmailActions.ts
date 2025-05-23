@@ -117,7 +117,7 @@ function isApiError(error: unknown): error is ApiError {
 // --- Main Function ---
 export async function fetchUserEmails(filterBySenderEmail?: string) {
   const supabase = await createClient();
-  
+
   const {
     data: { session },
     error: sessionError,
@@ -132,7 +132,9 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
     return { error: "User not authenticated." };
   }
 
+  //! This seems to be limited at the moment and should be fixed in the future
   const googleAccessToken = session.provider_token;
+  //! This seems to be null at the moment and is not being provided by google
   const googleRefreshToken = session.provider_refresh_token;
 
   if (!googleAccessToken) {

@@ -23,11 +23,11 @@ export interface Booking {
   checkOut?: Date;
   mobileNumber?: string;
   email?: string;
-  status?: string;
+  status?: "Reserved" | "Ongoing" | "Complete";
   name?: string;
   numberOfAdults?: number;
   numberOfChildren?: number;
-  shift?: string;
+  bookingType?: "Online" | "OTC";
   totalPrice?: number;
   room?: Room;
 }

@@ -30,7 +30,7 @@ export default function Header() {
     : `mx-auto flex max-w-7xl w-full items-center`;
 
   const navLinkStyle =
-    "text-black transition-colors text-xl hover:text-red-600 hover:underline hover:bg-transparent focus:bg-transparent active:bg-transparent";
+    "text-yellow-900 transition-colors text-xl hover:text-yellow-500 hover:underline hover:bg-transparent focus:bg-transparent active:bg-transparent";
 
   return (
     <header className="fixed top-0 left-0 w-full h-20 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">

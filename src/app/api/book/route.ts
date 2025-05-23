@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "utils/db";
-import { boolean } from "zod";
 
 // This is to get all bookings:
 export async function GET() {
@@ -47,6 +46,7 @@ export async function POST(req: NextRequest) {
       mobileNumber,
       name,
       email,
+      bookingType,
       numberOfAdults,
       numberOfChildren,
       totalPrice,
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         numberOfAdults,
         numberOfChildren,
         totalPrice,
-      ].every(boolean)
+      ].every(Boolean)
     ) {
       return NextResponse.json(
         { message: "Details provided incomplete." },
@@ -71,19 +71,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newBooking = await prisma.booking.create({
-      data: {
-        roomId,
-        checkIn,
-        checkOut,
-        mobileNumber,
-        name,
-        email,
-        numberOfAdults,
-        numberOfChildren,
-        totalPrice,
-      },
-    });
+    const newBooking = bookingType
+      ? await prisma.booking.create({
+          data: {
+            roomId,
+            checkIn,
+            checkOut,
+            mobileNumber,
+            name,
+            email,
+            bookingType,
+            numberOfAdults,
+            numberOfChildren,
+            totalPrice,
+          },
+        })
+      : await prisma.booking.create({
+          data: {
+            roomId,
+            checkIn,
+            checkOut,
+            mobileNumber,
+            name,
+            email,
+            numberOfAdults,
+            numberOfChildren,
+            totalPrice,
+          },
+        });
 
     return NextResponse.json(newBooking, { status: 201 });
   } catch (error: unknown) {
