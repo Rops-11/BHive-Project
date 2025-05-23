@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "utils/db";
-import { boolean } from "zod";
 
 // This is to get all bookings:
 export async function GET() {
   try {
-    const bookings = await prisma.booking.findMany();
+    const bookings = await prisma.booking.findMany({
+      include: {
+        room: true,
+      },
+      orderBy: {
+        checkIn: "asc",
+      },
+    });
 
     return NextResponse.json(bookings, { status: 200 });
   } catch (error: unknown) {
@@ -39,6 +45,8 @@ export async function POST(req: NextRequest) {
       checkOut,
       mobileNumber,
       name,
+      email,
+      bookingType,
       numberOfAdults,
       numberOfChildren,
       totalPrice,
@@ -51,10 +59,11 @@ export async function POST(req: NextRequest) {
         checkOut,
         mobileNumber,
         name,
+        email,
         numberOfAdults,
         numberOfChildren,
         totalPrice,
-      ].every(boolean)
+      ].every(Boolean)
     ) {
       return NextResponse.json(
         { message: "Details provided incomplete." },
@@ -62,18 +71,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newBooking = await prisma.booking.create({
-      data: {
-        roomId,
-        checkIn,
-        checkOut,
-        mobileNumber,
-        name,
-        numberOfAdults,
-        numberOfChildren,
-        totalPrice,
-      },
-    });
+    const newBooking = bookingType
+      ? await prisma.booking.create({
+          data: {
+            roomId,
+            checkIn,
+            checkOut,
+            mobileNumber,
+            name,
+            email,
+            bookingType,
+            numberOfAdults,
+            numberOfChildren,
+            totalPrice,
+          },
+        })
+      : await prisma.booking.create({
+          data: {
+            roomId,
+            checkIn,
+            checkOut,
+            mobileNumber,
+            name,
+            email,
+            numberOfAdults,
+            numberOfChildren,
+            totalPrice,
+          },
+        });
 
     return NextResponse.json(newBooking, { status: 201 });
   } catch (error: unknown) {

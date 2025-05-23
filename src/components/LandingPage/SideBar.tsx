@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/bhivelogo.jpg";
 
-// Define the type for individual navigation items
 interface NavItemData {
   title: string;
   href: string;

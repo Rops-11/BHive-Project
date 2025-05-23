@@ -7,9 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String    @id @db.Uuid
-  isAdmin   Boolean   @default(false)
+model Staff {
+  id           String    @id @default(uuid()) @db.Uuid
+  fullName     String
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Room {
@@ -29,12 +33,13 @@ model Booking {
   checkIn          DateTime 
   checkOut         DateTime
   mobileNumber     String
-  status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  email            String?   
+  status           Status   @default(Reserved)
   downPayment      Boolean  @default(false)
   name             String
   numberOfAdults   Int
   numberOfChildren Int
-  shift            String?   @default("Online")// This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  bookingType      BookingType?  @default(Online)
   totalPrice       Float
   room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
@@ -43,4 +48,9 @@ enum Status {
   Reserved
   Ongoing
   Complete
+}
+
+enum BookingType {
+  Online
+  OTC
 }

@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import LPmaincover from '@/assets/LPmaincover.jpg';
-import LPsecondpic from '@/assets/LPsecondpic.jpg';
-import LPthirdpic from '@/assets/LPthirdpic.jpg';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import BookRoom from "@/components/LandingPage/BookRoom";
+
+import LPmaincover from "@/assets/LPmaincover.jpg";
+import LPsecondpic from "@/assets/LPsecondpic.jpg";
+import LPthirdpic from "@/assets/LPthirdpic.jpg";
+import HotelImg1 from "@/assets/Benitos.jpg";
+import HotelImg2 from "@/assets/BhiveOpen.jpg";
+import HotelImg3 from "@/assets/twinroom.jpg";
 
 const images = [LPmaincover, LPsecondpic, LPthirdpic];
 
@@ -22,8 +28,7 @@ export default function Carousel() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      
-      {/* Images */}
+      {/* Carousel Background */}
       <div
         className="flex transition-transform ease-in-out duration-500 h-full"
         style={{
@@ -42,33 +47,60 @@ export default function Carousel() {
           </div>
         ))}
       </div>
-
-      {/* Tagline */}
-      <div className="absolute inset-0 flex items-center justify-start px-4 sm:px-6 md:px-10">
-        <div className="text-left text-white">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-lg leading-snug sm:leading-tight">
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/50 z-10"></div>
+      {/* Tagline Text */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="absolute inset-0 flex items-center justify-start px-4 sm:px-6 md:px-10 z-20"
+      >
+        <div className="text-left-40 text-white">
+          <h1 className="text-5xl sm:text-3xl md:text-4xl font-bold drop-shadow-lg leading-snug sm:leading-tight">
             The first industrial
             <br /> concept hotel in Iloilo
-            <br />with charming ambiance.
+            <br /> with charming ambiance.
           </h1>
         </div>
-      </div>
-
-      {/* Bottom Linear Gradient effect */}
-      <div className="absolute bottom-0 left-0 w-full h-24 sm:h-32 bg-gradient-to-t from-orange-600 to-transparent z-10"></div>
-
-      {/* Dots of three pics */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${
-              currentIndex === index ? 'bg-white' : 'bg-gray-400'
-            }`}
-          />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
+        className="absolute bottom-5 left-1/2 transform -translate-x-1/2 z-30 w-full px-4"
+      >
+        <BookRoom />
+      </motion.div>
+      {/* Octagonal Images */}
+      <div className="absolute right-30 top-23 z-30 hidden lg:flex flex-col gap-1 items-end justify-center">
+        {[HotelImg1, HotelImg2, HotelImg3].map((img, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 + i * 0.2, duration: 0.7 }}
+            className={`relative w-60 h-53 ${i === 1 ? "mr-40" : ""}`}
+            style={{
+                  clipPath:
+                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                  WebkitClipPath:
+                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                  marginTop: i === 1 ? "-3.5rem" : "0",
+                  marginBottom: i === 1 ? "-3.5rem" : "0",
+            }}
+          >
+            <Image
+              src={img}
+              alt={`Octagon ${i + 1}`}
+              fill
+              className="object-cover"
+            />
+          </motion.div>
         ))}
       </div>
+      {/* Bottom Gradient */}
+      <div className="absolute bottom-0 left-0 w-full h-25 sm:h-40 bg-gradient-to-t from-yellow-500 to-transparent z-10"></div>
     </div>
   );
 }

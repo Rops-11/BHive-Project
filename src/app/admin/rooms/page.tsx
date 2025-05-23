@@ -1,4 +1,5 @@
 "use client";
+
 import HotelRoomCard from "@/components/Room/HotelRoomCard";
 import RoomFiltererByDate from "@/components/Room/RoomFiltererByDate";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,12 +32,12 @@ const Rooms = () => {
         getAvailableRoomsWithDate={getAvailableRoomsWithDate}
         role="Admin"
       />
-      <div className="flex flex-col w-full h-auto space-y-5 items-center">
+      <div className="flex flex-col h-auto w-4/5 lg:w-3/4 xl:w-2/3 space-y-5 items-center">
         {roomsLoading ? (
           <>
-            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
-            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
-            <Skeleton className="md:w-4/5 lg:w-3/4 xl:w-2/3 h-60" />
+            <Skeleton className="w-full h-60" />
+            <Skeleton className="w-full h-60" />
+            <Skeleton className="w-full h-60" />
           </>
         ) : (
           availableRoomsWithDate?.map((room) => (
