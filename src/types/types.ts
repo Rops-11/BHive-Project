@@ -27,7 +27,7 @@ export interface Booking {
   name?: string;
   numberOfAdults?: number;
   numberOfChildren?: number;
-  shift?: string;
+  bookingType?: "Online" | "OTC";
   totalPrice?: number;
   room?: Room;
 }

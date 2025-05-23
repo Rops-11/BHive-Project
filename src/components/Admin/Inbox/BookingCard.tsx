@@ -144,7 +144,7 @@ const BookingCard = ({
         </Card>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] md:max-w-[550px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] md:max-w-[550px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Booking Details</DialogTitle>
           <DialogDescription>ID: {booking.id ?? "N/A"}</DialogDescription>
@@ -281,18 +281,18 @@ const BookingCard = ({
               {formatCurrency(booking.totalPrice)}
             </div>
           </div>
-          {booking.shift && booking.shift !== "Online" && (
+          {booking.bookingType && (
             <>
               <Separator />
               <div className="flex items-center text-sm mt-2">
                 <Clock className="h-4 w-4 mr-2 text-gray-500" />
                 <span className="font-medium mr-1">Booking Type:</span>
-                {booking.shift}
+                {booking.bookingType}
               </div>
             </>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col md:flex-reverse">
           <Popover>
             <PopoverTrigger asChild>
               <Button>Edit Options</Button>
