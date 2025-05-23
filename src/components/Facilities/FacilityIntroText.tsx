@@ -12,7 +12,7 @@ export const FacilityIntroText = () => {
         the gentle hum of conversation at the rooftop bar, surrounded by
         greenery and soft lighting. Our cozy lounge, filled with natural
         textures and warm tones, invites you to pause, breathe, and feel at
-        home. Whether you're journaling with a cup of tea or sharing stories
+        home. Whether you&apos;re journaling with a cup of tea or sharing stories
         with fellow travelers, each space is crafted to soothe the senses and
         nurture a sense of belonging.
       </p>
