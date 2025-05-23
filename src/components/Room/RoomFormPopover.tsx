@@ -30,7 +30,7 @@ interface RoomFormProps {
   room?: Room;
 }
 
-const MAX_FILE_SIZE = 5000000; 
+const MAX_FILE_SIZE = 5000000;
 const MAX_FILES_COUNT = 5;
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -86,7 +86,6 @@ const createRoomFormSchema = (formType: "Add" | "Edit") => {
     files:
       formType === "Add"
         ? filesBaseSchema.refine(
-            // For "Add", at least one file is required
             (files): files is FileList =>
               files instanceof FileList && files.length > 0,
             "At least one image is required."
@@ -280,9 +279,7 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
                 <FormField
                   control={form.control}
                   name="files"
-                  render={(
-                    { field: { onChange, onBlur, name /* ref */ } } // ref is handled by RHF spread
-                  ) => (
+                  render={({ field: { onChange, onBlur, name } }) => (
                     <FormItem className="md:w-[31%] w-full">
                       <FormLabel>Images (up to {MAX_FILES_COUNT})</FormLabel>
                       <FormControl>
@@ -292,13 +289,10 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
                           multiple
                           accept={ACCEPTED_IMAGE_TYPES.join(",")}
                           onChange={(e) => {
-                            onChange(e.target.files || null); // Pass FileList or null
+                            onChange(e.target.files || null);
                           }}
                           onBlur={onBlur}
                           name={name}
-                          // The 'ref' from render prop is correctly spread via {...field}
-                          // For file inputs, react-hook-form's Controller handles the ref internally.
-                          // If you were using field.ref directly, you might assign it to the input's ref prop.
                         />
                       </FormControl>
                       <FormMessage />

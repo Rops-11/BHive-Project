@@ -39,7 +39,7 @@ const amenities = [
 
 export default function Amenities() {
     return (
-      <div className="max-w-5xl mx-auto px-8 pt-12">
+      <div className="max-w-5xl mx-auto px-32 lg:px-8 pt-12">
         <HoverEffect items={amenities} />
       </div>
     );

@@ -202,7 +202,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
         if (termsAccepted) {
           if (setBookingContext) {
             if (type === "Admin") {
-              setBookingContext(bookingData);
+              setBookingContext({ ...bookingData, bookingType: "OTC" });
               router.push("/admin/book/invoice");
             } else {
               setBookingContext(bookingData);
