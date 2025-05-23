@@ -14,9 +14,7 @@ const FacilitiesPage = () => {
       <Amenities />
       <FacilityStickyScroll />
       <FacilityGallery />
-      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 };
