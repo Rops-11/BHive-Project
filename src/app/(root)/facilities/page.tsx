@@ -6,7 +6,7 @@ import { FacilityIntroText } from "@/components/Facilities/FacilityIntroText";
 import FacilityGallery from "@/components/Facilities/FacilityGallery";
 import Footer from "@/components/LandingPage/footer";
 
-const RoomsPage = () => {
+const FacilitiesPage = () => {
   return (
     <div>
       <FacilityBanner />
@@ -21,4 +21,4 @@ const RoomsPage = () => {
   );
 };
 
-export default RoomsPage;
+export default FacilitiesPage;

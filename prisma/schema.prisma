@@ -7,9 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String    @id @db.Uuid
-  isAdmin   Boolean   @default(false)
+model Staff {
+  id           String    @id @default(uuid()) @db.Uuid
+  fullName     String
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Room {
@@ -29,7 +33,7 @@ model Booking {
   checkIn          DateTime 
   checkOut         DateTime
   mobileNumber     String
-  email            String   
+  email            String?   
   status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
   downPayment      Boolean  @default(false)
   name             String

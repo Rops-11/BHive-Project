@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "utils/db";
-import { boolean } from "zod";
 
 // This is to get all bookings:
 export async function GET() {
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
         numberOfAdults,
         numberOfChildren,
         totalPrice,
-      ].every(boolean)
+      ].every(Boolean)
     ) {
       return NextResponse.json(
         { message: "Details provided incomplete." },

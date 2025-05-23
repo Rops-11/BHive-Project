@@ -9,7 +9,7 @@ import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
 import BookingCard from "./BookingCard";
 import { Booking } from "@/types/types";
 
-const REFRESH_INTERVAL = 30000;
+const REFRESH_INTERVAL = 300000; //! This is 5 mins.
 
 const BookingInbox = () => {
   const {
@@ -53,7 +53,7 @@ const BookingInbox = () => {
         clearInterval(intervalIdRef.current);
       }
     };
-  }, []); 
+  }, []);
 
   const filteredBookings = bookings
     ? bookings.filter((booking: Booking) =>
@@ -66,7 +66,7 @@ const BookingInbox = () => {
   };
 
   const onManualRefreshClick = () => {
-    setIsInitialLoad(false); 
+    setIsInitialLoad(false);
     handleFetchBookings(false);
   };
 
@@ -101,7 +101,7 @@ const BookingInbox = () => {
                 className="pl-10 w-full"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                disabled={loading && isInitialLoad} 
+                disabled={loading && isInitialLoad}
               />
             </div>
             <Button
@@ -109,9 +109,8 @@ const BookingInbox = () => {
               size="lg"
               className="w-full sm:w-auto shrink-0"
               onClick={onManualRefreshClick}
-              disabled={loading}
-            >
-              {loading && !isInitialLoad ? ( 
+              disabled={loading}>
+              {loading && !isInitialLoad ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Refreshing...
@@ -153,6 +152,7 @@ const BookingInbox = () => {
             <BookingCard
               key={booking.id}
               booking={booking}
+              refetchBookings={refetchBookings}
             />
           ))}
         </div>
