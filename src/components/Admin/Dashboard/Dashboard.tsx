@@ -29,21 +29,21 @@ import { BookingCard } from "@/components/Admin/Dashboard/BookingCard"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const ongoingBookings = [
-  { id: "1", customerName: "John Smith", guests: 2, paymentStatus: "Paid" },
-  { id: "2", customerName: "Sarah Johnson", guests: 1, paymentStatus: "Paid" },
-  { id: "3", customerName: "Michael Brown", guests: 3, paymentStatus: "Pending" },
+  { id: "1", customerName: "John Rofer Casio", guests: 2, paymentStatus: "Paid" },
+  { id: "2", customerName: "Regine Barte", guests: 1, paymentStatus: "Paid" },
+  { id: "3", customerName: "Nicholae Sara", guests: 3, paymentStatus: "Pending" },
 ]
 
 const expectingBookings = [
-  { id: "4", customerName: "Emily Davis", guests: 2, paymentStatus: "Paid" },
-  { id: "5", customerName: "Robert Wilson", guests: 4, paymentStatus: "Paid" },
-  { id: "6", customerName: "Jennifer Lee", guests: 1, paymentStatus: "Paid" },
-  { id: "7", customerName: "David Miller", guests: 2, paymentStatus: "Pending" },
+  { id: "4", customerName: "Juan Dela Cruz", guests: 2, paymentStatus: "Paid" },
+  { id: "5", customerName: "Maria Carmela", guests: 4, paymentStatus: "Paid" },
+  { id: "6", customerName: "Princess Nicole", guests: 1, paymentStatus: "Paid" },
+  { id: "7", customerName: "Kath Saiton", guests: 2, paymentStatus: "Pending" },
 ]
 
 const newBookings = [
-  { id: "8", customerName: "Jessica Taylor", guests: 2, paymentStatus: "Paid" },
-  { id: "9", customerName: "Thomas Anderson", guests: 1, paymentStatus: "Pending" },
+  { id: "8", customerName: "Leonor Rivera", guests: 2, paymentStatus: "Paid" },
+  { id: "9", customerName: "Segunda Katigbak", guests: 1, paymentStatus: "Pending" },
 ]
 
 export function Dashboard() {
