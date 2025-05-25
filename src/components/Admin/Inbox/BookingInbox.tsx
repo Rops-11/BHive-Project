@@ -14,7 +14,7 @@ import {
 import { Loader2, Inbox, Search } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
-import BookingCard from "./BookingCard";
+import BookingCard from "../BookingCard";
 import { Booking } from "@/types/types";
 import { toast } from "react-toastify";
 
