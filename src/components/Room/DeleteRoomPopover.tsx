@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogTrigger,
@@ -6,58 +8,89 @@ import {
   DialogHeader,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from "../ui/dialog";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Room } from "@/types/types";
 import useDeleteRoom from "@/hooks/roomHooks/useDeleteRoom";
 import { toast } from "react-toastify";
-import { Spinner } from "react-activity";
+import { Loader2 } from "lucide-react";
 
-const DeleteRoomPopover = ({ room }: { room: Room }) => {
+const DeleteRoomPopover = ({
+  room,
+  onDeleteSuccess,
+}: {
+  room: Room;
+  onDeleteSuccess: () => void;
+}) => {
   const { deleteRoom, loading } = useDeleteRoom();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDelete = async () => {
-    try {
-      deleteRoom(room.id!);
-      location.reload();
-    } catch {
-      toast.error("Unknown error on delete");
+    if (!room.id) {
+      toast.error("Room ID is missing. Cannot delete.");
+      return;
+    }
+
+    await deleteRoom(room.id);
+    onDeleteSuccess();
+    setIsOpen(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (loading && !open) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(open);
     }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger
-        className="w-full"
-        asChild>
-        <Button className="w-full bg-red-500">Delete</Button>
+    <Dialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button
+          variant="destructive"
+          className="w-full"
+          onClick={() => setIsOpen(true)}>
+          Delete
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:w-1/2 w-full">
-        {loading ? (
-          <Spinner
-            loading={loading}
-            size={10}
-          />
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Delete Room</DialogTitle>
-            </DialogHeader>
-            <DialogDescription>
-              Are you sure you want to delete the room {room.roomType}:{" "}
-              {room.roomNumber}?
-            </DialogDescription>
-            <DialogFooter>
-              <Button
-                className="bg-red-500"
-                onClick={handleDelete}>
-                Delete
-              </Button>
-              <Button>Cancel</Button>
-            </DialogFooter>
-          </>
-        )}
+      <DialogContent className="sm:max-w-md">
+        {" "}
+        {}
+        <DialogHeader>
+          <DialogTitle>Delete Room</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the room: <br />
+            <strong className="font-semibold text-foreground">
+              {room.roomType} - {room.roomNumber || "N/A"}
+            </strong>
+            ?
+            <br />
+            This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="pt-4">
+          {" "}
+          {}
+          <DialogClose asChild>
+            <Button
+              variant="outline"
+              disabled={loading}>
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

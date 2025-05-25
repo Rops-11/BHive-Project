@@ -125,9 +125,11 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
 const HotelRoomCard = ({
   room,
   role = "Guest",
+  refetchRooms,
 }: {
   room: Room;
   role?: "Guest" | "Admin";
+  refetchRooms: () => void;
 }) => {
   return (
     <Dialog>
@@ -136,8 +138,7 @@ const HotelRoomCard = ({
           variant="outline"
           className={
             "flex flex-col h-82 lg:flex-row p-0 w-full justify-between lg:h-60 overflow-hidden bg-[#D29D30] text-white relative"
-          }
-        >
+          }>
           <div className="flex flex-col lg:w-5/12 lg:h-full h-6/15  p-5 text-left relative z-20">
             <h1 className="font-semibold md:text-2xl text-xl">
               {room.roomType}: {room.roomNumber}
@@ -224,10 +225,18 @@ const HotelRoomCard = ({
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="opacity-50 mb-4"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                className="opacity-50 mb-4">
+                <rect
+                  x="3"
+                  y="3"
+                  width="18"
+                  height="18"
+                  rx="2"
+                  ry="2"></rect>
+                <circle
+                  cx="8.5"
+                  cy="8.5"
+                  r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
               </svg>
               <p>No detailed images available for this room.</p>
@@ -270,10 +279,17 @@ const HotelRoomCard = ({
           {role === "Admin" && (
             <>
               <div className="flex w-auto">
-                <DeleteRoomPopover room={room} />
+                <DeleteRoomPopover
+                  room={room}
+                  onDeleteSuccess={refetchRooms}
+                />
               </div>
               <div className="flex w-auto">
-                <RoomFormPopover type="Edit" room={room} />
+                <RoomFormPopover
+                  type="Edit"
+                  room={room}
+                  onFormSubmitSuccess={refetchRooms}
+                />
               </div>
             </>
           )}
