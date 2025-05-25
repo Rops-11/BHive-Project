@@ -23,6 +23,7 @@ model Room {
   isAvailable Boolean   @default(true)
   maxGuests   Int
   roomRate    Int
+  amenities   String[]
   bookings    Booking[]
 }
 

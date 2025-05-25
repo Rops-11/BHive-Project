@@ -13,6 +13,7 @@ export interface Room {
   maxGuests?: number;
   roomRate?: number;
   images?: ImageFile[];
+  amenities?: string[];
 }
 
 export interface Booking {
