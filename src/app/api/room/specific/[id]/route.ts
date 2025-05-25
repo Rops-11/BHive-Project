@@ -58,9 +58,7 @@ export async function PUT(
     const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
-    const amenities = JSON.parse(
-      formData.get("amenities") as string
-    ) as string[];
+    const amenities = formData.getAll("amenities") as string[];
     const files = formData.getAll("files") as File[];
 
     const { data: OldImages, error: OldImagesError } = await getMedia(

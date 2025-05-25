@@ -95,7 +95,7 @@ const createRoomFormSchema = (formType: "Add" | "Edit") => {
             "At least one image is required."
           )
         : filesBaseSchema,
-    amenities: z.array(z.string()).optional(), 
+    amenities: z.array(z.string()), 
   });
 };
 
