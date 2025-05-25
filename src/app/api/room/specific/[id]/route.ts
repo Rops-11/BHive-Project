@@ -58,6 +58,9 @@ export async function PUT(
     const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
+    const amenities = JSON.parse(
+      formData.get("amenities") as string
+    ) as string[];
     const files = formData.getAll("files") as File[];
 
     const { data: OldImages, error: OldImagesError } = await getMedia(
@@ -108,7 +111,7 @@ export async function PUT(
 
     const updatedRoom = await prisma.room.update({
       where: { id },
-      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
+      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate, amenities },
     });
 
     if (files.length > 0)

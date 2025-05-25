@@ -24,6 +24,8 @@ import useEditRoom from "@/hooks/roomHooks/useEditRoom";
 import { Input } from "../ui/input";
 import { Spinner } from "react-activity";
 import { Room } from "@/types/types";
+import { AMENITIES } from "@/constants/amenities"; // This will now import the NEW list
+import { Checkbox } from "../ui/checkbox";
 
 interface RoomFormProps {
   type: "Edit" | "Add";
@@ -39,6 +41,8 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
+// The schema for amenities (z.array(z.string()).optional()) is generic and doesn't need changes
+// as long as the values in AMENITIES are strings.
 const createRoomFormSchema = (formType: "Add" | "Edit") => {
   const filesBaseSchema = z
     .custom<FileList | undefined | null>(
@@ -91,6 +95,7 @@ const createRoomFormSchema = (formType: "Add" | "Edit") => {
             "At least one image is required."
           )
         : filesBaseSchema,
+    amenities: z.array(z.string()).optional(), 
   });
 };
 
@@ -110,6 +115,7 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
       maxGuests: room?.maxGuests ?? undefined,
       roomRate: room?.roomRate ?? undefined,
       files: undefined,
+      amenities: room?.amenities ?? [], 
     },
   });
 
@@ -121,9 +127,11 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         maxGuests: room?.maxGuests ?? undefined,
         roomRate: room?.roomRate ?? undefined,
         files: undefined,
+        amenities: room?.amenities || [],
       });
     }
-  }, [isDialogOpen, room, form.reset]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDialogOpen, room, form.reset]); // form.reset was missing from deps
 
   const onSubmit = async (values: CurrentRoomFormValues) => {
     startTransition(async () => {
@@ -139,6 +147,21 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
             formData.append("files", values.files[i]);
           }
         }
+        
+        // Ensure amenities are correctly appended
+        // The backend needs to be able to parse this. If it expects "amenities[]", that's different.
+        // If values.amenities is undefined or empty, this loop won't run, which is correct.
+        if (values.amenities && values.amenities.length > 0) {
+          values.amenities.forEach((amenity) =>
+            formData.append("amenities", amenity) 
+          );
+        } else {
+          // If you need to send an empty array explicitly. Many backends will interpret
+          // the absence of 'amenities' fields as an empty array.
+          // If your backend specifically needs an empty array marker, you might do:
+          // formData.append("amenities", ""); // Or "amenities[]" : "" depending on backend
+        }
+
 
         if (type === "Add") {
           await createRoom(formData);
@@ -153,8 +176,9 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         form.reset();
         setIsDialogOpen(false);
 
-        location.reload();
-      } catch {
+        location.reload(); // Consider if this is the best UX, maybe update state instead
+      } catch (error) { // Catch specific error
+        console.error("Form submission error:", error);
         toast.error("An error occurred while submitting the form.");
       }
     });
@@ -163,13 +187,9 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
   const isLoading = type === "Add" ? roomCreateLoading : roomEditLoading;
 
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="w-full"
-          onClick={() => setIsDialogOpen(true)}>
+        <Button className="w-full" onClick={() => setIsDialogOpen(true)}>
           {type} Room
         </Button>
       </DialogTrigger>
@@ -182,7 +202,8 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col w-full space-y-8 p-1">
+            className="flex flex-col w-full space-y-8 p-1"
+          >
             <div className="flex flex-col space-y-3 w-full">
               <div className="flex md:flex-row flex-col justify-between w-full md:space-y-0 space-y-3">
                 <FormField
@@ -300,17 +321,66 @@ const RoomFormPopover = ({ type, room }: RoomFormProps) => {
                   )}
                 />
               </div>
+
+              {/* Amenities Checkbox Group - This will now use the new AMENITIES list */}
+              <FormField
+                control={form.control}
+                name="amenities"
+                render={() => (
+                  <FormItem className="pt-2">
+                    <div className="mb-2">
+                      <FormLabel className="text-base font-semibold">Amenities</FormLabel>
+                      <FormMessage /> 
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                      {AMENITIES.map((amenity) => ( // AMENITIES is now your new list
+                        <FormField
+                          key={amenity}
+                          control={form.control}
+                          name="amenities"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={amenity}
+                                className="flex flex-row items-center space-x-2"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(amenity)}
+                                    onCheckedChange={(checked) => {
+                                      const currentValues = field.value || [];
+                                      if (checked) {
+                                        field.onChange([...currentValues, amenity]);
+                                      } else {
+                                        field.onChange(
+                                          currentValues.filter(
+                                            (value) => value !== amenity
+                                          )
+                                        );
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal cursor-pointer">
+                                  {amenity}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
             <Button
               type="submit"
               className="w-1/2 self-end"
-              disabled={isLoading}>
+              disabled={isLoading}
+            >
               {isLoading ? (
-                <Spinner
-                  size={10}
-                  color="#FFFFFF"
-                  className="h-5 w-5"
-                />
+                <Spinner size={10} color="#FFFFFF" className="h-5 w-5" />
               ) : type === "Add" ? (
                 "Add Room"
               ) : (
