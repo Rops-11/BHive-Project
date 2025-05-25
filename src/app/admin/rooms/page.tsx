@@ -3,9 +3,7 @@
 import HotelRoomCard from "@/components/Room/HotelRoomCard";
 import RoomFiltererByDate from "@/components/Room/RoomFiltererByDate";
 import UpdateRoomRateDialog from "@/components/Room/UpdateRoomRateDialog";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import useDeleteRoom from "@/hooks/roomHooks/useDeleteRoom";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import React, { useEffect, useState, useCallback } from "react";
 import { DateRange } from "react-day-picker";

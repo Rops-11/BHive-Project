@@ -24,8 +24,7 @@ const FallbackAmenityIcon = () => (
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
-    strokeWidth={2}
-  >
+    strokeWidth={2}>
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -36,27 +35,27 @@ const FallbackAmenityIcon = () => (
 
 // Updated Icon mapping
 const amenityIcons: { [key in Amenity]?: JSX.Element } = {
-  "Free Wifi": ( // Was "WiFi"
+  // Was "WiFi"
+  "Free Wifi": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
+      strokeWidth={2}>
       <path d="M5 13a10 10 0 0114 0M8.5 16.5a6 6 0 017 0M12 20h.01" />
     </svg>
   ),
-  "Airconditioned": ( // Was "Air Conditioning"
+  // Was "Air Conditioning"
+  Airconditioned: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
+      strokeWidth={2}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -64,28 +63,35 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  "Television": ( // Was "TV"
+  // Was "TV"
+  Television: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
-      <rect x="3" y="5" width="18" height="12" rx="2" ry="2" />
+      strokeWidth={2}>
+      <rect
+        x="3"
+        y="5"
+        width="18"
+        height="12"
+        rx="2"
+        ry="2"
+      />
       <path d="M8 21h8" />
     </svg>
   ),
-  "Receiving Area": ( // Was "Recieving Area"
+  // Was "Recieving Area"
+  "Receiving Area": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth="2"
-    >
+      strokeWidth="2">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -93,34 +99,91 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  "Separated CR": ( // New
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M5 2a1 1 0 011-1h8a1 1 0 011 1v2H5V2zm0 3h10v1H5V5zm0 2h10v9H5V7zm2 2a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd" />
-    </svg> // Placeholder: Toilet icon
+  // New
+  // Placeholder: Toilet icon
+  "Separated CR": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      viewBox="0 0 20 20"
+      fill="currentColor">
+      <path
+        fillRule="evenodd"
+        d="M5 2a1 1 0 011-1h8a1 1 0 011 1v2H5V2zm0 3h10v1H5V5zm0 2h10v9H5V7zm2 2a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"
+        clipRule="evenodd"
+      />
+    </svg>
   ),
-  "Open CR": ( // New
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7H21M3 7V3M3 7L6 10M21 7V3M21 7L18 10M6 10H18M6 10L9 13M18 10L15 13M9 13H15M9 13V21H15V13" />
-    </svg> // Placeholder: Shower icon
+  // New
+  // Placeholder: Shower icon
+  "Open CR": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7H21M3 7V3M3 7L6 10M21 7V3M21 7L18 10M6 10H18M6 10L9 13M18 10L15 13M9 13H15M9 13V21H15V13"
+      />
+    </svg>
   ),
-  "Single Bed": ( // New
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h3" />
-    </svg> // Placeholder: Bed icon
+  // New
+  // Placeholder: Bed icon
+  "Single Bed": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h3"
+      />
+    </svg>
   ),
-  "Twin Single Bed": ( // New
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h5V7H3zM14 7v12h5a2 2 0 002-2V7h-7zM5 7V4a1 1 0 011-1h3a1 1 0 011 1v3M16 7V4a1 1 0 011-1h3a1 1 0 011 1v3" />
-    </svg> // Placeholder: Two beds icon
+  // New
+  // Placeholder: Two beds icon
+  "Twin Single Bed": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h5V7H3zM14 7v12h5a2 2 0 002-2V7h-7zM5 7V4a1 1 0 011-1h3a1 1 0 011 1v3M16 7V4a1 1 0 011-1h3a1 1 0 011 1v3"
+      />
+    </svg>
   ),
-  "Queen Size Bed": ( // New
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h10" />
-    </svg> // Placeholder: Larger bed icon
+  // New
+  // Placeholder: Larger bed icon
+  "Queen Size Bed": (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h10"
+      />
+    </svg>
   ),
   // Balcony and Safe were removed from the new AMENITIES list
 };
-
 
 const HotelRoomCard = ({
   room,
@@ -129,7 +192,7 @@ const HotelRoomCard = ({
 }: {
   room: Room;
   role?: "Guest" | "Admin";
-  refetchRooms: () => void;
+  refetchRooms?: () => void;
 }) => {
   return (
     <Dialog>
@@ -152,17 +215,16 @@ const HotelRoomCard = ({
               {room.amenities && room.amenities.length > 0 ? (
                 room.amenities.slice(0, 4).map((amenityName) => {
                   // Ensure amenityName is a valid Amenity type
-                  const amenity = amenityName as Amenity; 
+                  const amenity = amenityName as Amenity;
                   // Check if amenity is in our defined AMENITIES list to be safe
-                  if (!AMENITIES.includes(amenity)) return null; 
+                  if (!AMENITIES.includes(amenity)) return null;
 
                   const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
                   return (
                     <div
                       key={amenity}
                       className="flex items-center gap-1"
-                      title={amenity}
-                    >
+                      title={amenity}>
                       {icon}
                       <span className="hidden sm:inline">{amenity}</span>
                     </div>
@@ -250,14 +312,13 @@ const HotelRoomCard = ({
               {room.amenities.map((amenityName) => {
                 const amenity = amenityName as Amenity;
                 // Check if amenity is in our defined AMENITIES list to be safe
-                if (!AMENITIES.includes(amenity)) return null; 
+                if (!AMENITIES.includes(amenity)) return null;
 
                 const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
                 return (
                   <div
                     key={amenity}
-                    className="flex items-center gap-2 text-sm"
-                  >
+                    className="flex items-center gap-2 text-sm">
                     {icon}
                     <span>{amenity}</span>
                   </div>
@@ -281,7 +342,7 @@ const HotelRoomCard = ({
               <div className="flex w-auto">
                 <DeleteRoomPopover
                   room={room}
-                  onDeleteSuccess={refetchRooms}
+                  onDeleteSuccess={refetchRooms!}
                 />
               </div>
               <div className="flex w-auto">

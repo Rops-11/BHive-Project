@@ -76,7 +76,7 @@ const UpdateRoomRateDialog = () => {
         <DialogHeader>
           <DialogTitle>Update Room Rate</DialogTitle>
           <DialogDescription>
-            Select a room type and enter the new rate. Click save when you're
+            Select a room type and enter the new rate. Click save when you&apos;re
             done.
           </DialogDescription>
         </DialogHeader>
