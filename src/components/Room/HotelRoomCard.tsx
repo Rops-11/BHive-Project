@@ -234,8 +234,8 @@ const HotelRoomCard = ({
             </div>
           )}
         </div>
-        <div className="p-4 sm:p-6 border-t overflow-y-auto max-h-40">
-          <h3 className="font-semibold text-md mb-2">Amenities:</h3>
+        <div className="px-8 max-h-30 border-t">
+          <h3 className="font-semibold text-md my-2">Amenities:</h3>
           {room.amenities && room.amenities.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {room.amenities.map((amenityName) => {
