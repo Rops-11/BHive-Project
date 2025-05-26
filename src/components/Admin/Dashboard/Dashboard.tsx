@@ -46,6 +46,12 @@ const newBookings = [
   { id: "9", customerName: "Segunda Katigbak", guests: 1, paymentStatus: "Pending" },
 ]
 
+const TOTAL_ROOMS = 20
+
+const calculateOccupancyRate = (occupied: number, total: number) => {
+  return Math.round((occupied / total) * 100)
+}
+
 export function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [filterValue, setFilterValue] = useState("all")
@@ -56,7 +62,7 @@ export function Dashboard() {
   }
 
   const totalBookings = ongoingBookings.length + expectingBookings.length + newBookings.length
-  const occupancyRate = Math.round((ongoingBookings.length / 20) * 100)
+  const occupancyRate = calculateOccupancyRate(ongoingBookings.length, TOTAL_ROOMS)
 
   return (
     <div className="w-full bg-background min-h-screen">
@@ -98,6 +104,7 @@ export function Dashboard() {
               <div className="text-xs text-muted-foreground mt-1">+{newBookings.length} new today</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
@@ -110,7 +117,7 @@ export function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{occupancyRate}%</div>
-              <div className="text-xs text-muted-foreground mt-1">{20 - ongoingBookings.length} rooms available</div>
+              <div className="text-xs text-muted-foreground mt-1">{TOTAL_ROOMS - ongoingBookings.length} rooms available</div>
               <div className="mt-4">
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-primary rounded-full" style={{ width: `${occupancyRate}%` }} />
