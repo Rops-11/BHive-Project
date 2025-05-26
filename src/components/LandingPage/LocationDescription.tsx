@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { MapPin, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 import view from "@/assets/Outdoorview.jpg";
 import sign from "@/assets/bhiveNightSign.jpg";
@@ -15,7 +16,13 @@ const images = [
 
 export default function LocationDescription() {
   return (
-    <section className="w-full py-16 px-4 sm:px-6 lg:px-16 bg-gradient-to-b from-white to-amber-50">
+    <motion.section
+      initial={{ opacity: 0, y: 50, backgroundColor: "#ffffff" }}
+      whileInView={{ opacity: 1, y: 0, backgroundColor: "#FEF9C3" }} // light yellow
+      viewport={{ once: true }}
+      transition={{ duration: 1 }}
+      className="w-full py-16 px-4 sm:px-6 lg:px-16"
+    >
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Text Section */}
@@ -112,22 +119,22 @@ export default function LocationDescription() {
                 <div
                   key={i}
                   className={`group relative w-[300px] h-[270px] overflow-hidden transition-colors duration-300 ${
-                  i === 1 ? "mr-50" : ""
+                    i === 1 ? "mr-50" : ""
                   }`}
                   style={{
-                  clipPath:
-                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-                  WebkitClipPath:
-                    "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-                  marginTop: i === 1 ? "-3.5rem" : "0",
-                  marginBottom: i === 1 ? "-3.5rem" : "0",
+                    clipPath:
+                      "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                    WebkitClipPath:
+                      "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+                    marginTop: i === 1 ? "-3.5rem" : "0",
+                    marginBottom: i === 1 ? "-3.5rem" : "0",
                   }}
                 >
                   <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  className="object-cover"
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover"
                   />
                 </div>
               ))}
@@ -135,6 +142,6 @@ export default function LocationDescription() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

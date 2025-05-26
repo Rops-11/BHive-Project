@@ -33,6 +33,7 @@ import {
   CheckCircle,
   CircleHelp,
   Loader,
+  Loader2,
 } from "lucide-react";
 import EditBookingDialog from "@/components/Booking/EditBookingDialog";
 import {
@@ -42,6 +43,7 @@ import {
 } from "@/components/ui/popover";
 import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
 import useUpdateBookingStatus from "@/hooks/bookingHooks/useUpdateBookingStatus";
+import { Spinner } from "react-activity";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -99,11 +101,12 @@ const BookingCard = ({
   const [bookingStatus, setBookingStatus] = useState(booking.status);
   const statusInfo = getStatusInfo(bookingStatus);
   const StatusIcon = statusInfo.icon;
-  const { deleteBooking } = useDeleteBooking();
-  const { updateStatus } = useUpdateBookingStatus();
+  const { deleteBooking, loading: deleteLoading } = useDeleteBooking();
+  const { updateStatus, loading: statusLoading } = useUpdateBookingStatus();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const handleDelete = async () => {
     await deleteBooking(booking.id!);
@@ -206,7 +209,15 @@ const BookingCard = ({
                   <Badge
                     variant="outline"
                     className={`border-none hover:cursor-pointer hover:scale-105 ${statusInfo.bgColor} ${statusInfo.color}`}>
-                    {bookingStatus ?? "Unknown"}
+                    {statusLoading ? (
+                      <Spinner
+                        size={8}
+                        color="FFFFFF"
+                        animate={statusLoading}
+                      />
+                    ) : (
+                      bookingStatus ?? "Unknown"
+                    )}
                   </Badge>
                 </PopoverTrigger>
                 <PopoverContent
@@ -216,6 +227,7 @@ const BookingCard = ({
                     <button
                       onClick={() => {
                         handleChangeStatus("Complete");
+                        setStatusOpen(false);
                       }}>
                       <Badge
                         variant="outline"
@@ -228,6 +240,7 @@ const BookingCard = ({
                     <button
                       onClick={() => {
                         handleChangeStatus("Reserved");
+                        setStatusOpen(false);
                       }}>
                       <Badge
                         variant="outline"
@@ -240,6 +253,7 @@ const BookingCard = ({
                     <button
                       onClick={() => {
                         handleChangeStatus("Ongoing");
+                        setStatusOpen(false);
                       }}>
                       <Badge
                         variant="outline"
@@ -327,11 +341,49 @@ const BookingCard = ({
               />
             </PopoverContent>
           </Popover>
-          <Button
-            onClick={handleDelete}
-            className="bg-red-500">
-            Delete
-          </Button>
+          <Dialog
+            open={isDeleteConfirmOpen}
+            onOpenChange={setIsDeleteConfirmOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="w-full sm:w-auto"
+                disabled={deleteLoading}>
+                {deleteLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Delete Booking
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[400px]">
+              <DialogHeader>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this booking for{" "}
+                  <strong>{booking.name}</strong> (Room{" "}
+                  {booking.room?.roomNumber ?? booking.roomId ?? "N/A"})? This
+                  action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteConfirmOpen(false)}
+                  disabled={deleteLoading}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={deleteLoading}>
+                  {deleteLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Delete
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <DialogClose asChild>
             <Button

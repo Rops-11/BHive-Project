@@ -23,6 +23,7 @@ model Room {
   isAvailable Boolean   @default(true)
   maxGuests   Int
   roomRate    Int
+  amenities   String[]
   bookings    Booking[]
 }
 
@@ -34,7 +35,8 @@ model Booking {
   checkOut         DateTime
   mobileNumber     String
   email            String?   
-  status           Status   @default(Reserved)
+  status           Status         @default(Reserved)
+  paymentStatus    PaymentStatus  @default(Partial)
   downPayment      Boolean  @default(false)
   name             String
   numberOfAdults   Int
@@ -48,6 +50,11 @@ enum Status {
   Reserved
   Ongoing
   Complete
+}
+
+enum PaymentStatus {
+  Paid
+  Partial
 }
 
 enum BookingType {

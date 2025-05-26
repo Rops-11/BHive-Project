@@ -29,7 +29,7 @@ import { format as formatDate } from "date-fns";
 import { Booking, Room as RoomType } from "@/types/types";
 import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
 import useUpdateBooking from "@/hooks/bookingHooks/useUpdateBooking";
-import { useRouter } from "next/navigation";
+
 import { Input } from "../ui/input";
 import { Spinner } from "react-activity";
 
@@ -119,11 +119,11 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
   refetchBookings,
   setIsDialogOpen,
 }) => {
-  const router = useRouter();
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [currentBookingIdForInit, setCurrentBookingIdForInit] = useState<
     string | undefined
   >();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     getAvailableRoomsWithDate,
@@ -174,7 +174,13 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
         dateRange: { from: checkInDate, to: checkOutDate },
       });
 
-      if (checkInDate && checkOutDate && checkOutDate > checkInDate) {
+      if (
+        checkInDate &&
+        checkOutDate &&
+        checkOutDate > checkInDate &&
+        !isNaN(checkInDate.getTime()) &&
+        !isNaN(checkOutDate.getTime())
+      ) {
         getAvailableRoomsWithDate(checkInDate, checkOutDate, {
           excludeBookingId: booking.id,
         })
@@ -192,7 +198,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
       setIsFormInitialized(false);
       reset({ room: undefined, dateRange: { from: undefined, to: undefined } });
     }
-  }, [booking, reset, currentBookingIdForInit]);
+  }, [booking, reset, currentBookingIdForInit, getAvailableRoomsWithDate]);
 
   const selectedDateFrom = watch("dateRange.from");
   const selectedDateTo = watch("dateRange.to");
@@ -206,16 +212,23 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
     if (
       selectedDateFrom &&
       selectedDateTo &&
-      selectedDateTo > selectedDateFrom
+      selectedDateTo > selectedDateFrom &&
+      !isNaN(selectedDateFrom.getTime()) &&
+      !isNaN(selectedDateTo.getTime())
     ) {
       getAvailableRoomsWithDate(selectedDateFrom, selectedDateTo, {
         excludeBookingId: booking.id,
       }).catch((err) =>
         console.error("EFFECT 2 (User Date Change): Room fetch error:", err)
       );
-    } else if (selectedDateFrom || selectedDateTo) {
     }
-  }, [selectedDateFrom, selectedDateTo, isFormInitialized, booking?.id]);
+  }, [
+    selectedDateFrom,
+    selectedDateTo,
+    isFormInitialized,
+    booking?.id,
+    getAvailableRoomsWithDate,
+  ]);
 
   useEffect(() => {
     if (
@@ -245,6 +258,8 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
   ]);
 
   const onSubmitHandler = async (values: EditRoomDateFormValues) => {
+    if (isSubmitting) return;
+
     if (!booking || !booking.id || !booking.roomId) {
       toast.error(
         "Original booking information is incomplete (missing ID or RoomID)."
@@ -256,6 +271,16 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
       form.trigger(["dateRange.from", "dateRange.to"]);
       return;
     }
+
+    if (
+      isNaN(values.dateRange.from.getTime()) ||
+      isNaN(values.dateRange.to.getTime())
+    ) {
+      toast.error("Invalid date format. Please re-select dates.");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     startTransition(async () => {
       try {
@@ -281,37 +306,53 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
         );
 
         if (!isChosenRoomAvailable) {
-          const roomDetailForToast = values.room
-            ? `${values.room.roomNumber} - ${values.room.roomType}`
-            : booking.room
-            ? `${booking.room.roomNumber} - ${booking.room.roomType}`
-            : `ID ${payload.roomId.substring(0, 6)}`;
+          const isOriginalRoom = payload.roomId === booking.roomId;
+          const datesChanged =
+            toInputDateString(payload.checkIn) !==
+              toInputDateString(new Date(booking.checkIn!)) ||
+            toInputDateString(payload.checkOut) !==
+              toInputDateString(new Date(booking.checkOut!));
 
-          toast.error(
-            `Room ${roomDetailForToast} is not available for the selected new dates. Please choose another room or adjust dates.`
-          );
-          return;
+          if (!isOriginalRoom || datesChanged) {
+            const roomDetailForToast = values.room
+              ? `${values.room.roomNumber} - ${values.room.roomType}`
+              : booking.room
+              ? `${booking.room.roomNumber} - ${booking.room.roomType}`
+              : `ID ${payload.roomId.substring(0, 6)}`;
+
+            toast.error(
+              `Room ${roomDetailForToast} is not available for the selected new dates. Please choose another room or adjust dates.`
+            );
+            setIsSubmitting(false);
+            return;
+          }
         }
 
         await updateRoomInBooking(booking.id!, payload);
         setIsDialogOpen(false);
-        refetchBookings();
+        await refetchBookings();
       } catch (error) {
         console.error("Form submission error:", error);
         let errorMessage = "An error occurred while updating the booking.";
         if (error instanceof Error) {
           if (
-            error.message
-              .toLowerCase()
-              .includes("not available for the chosen dates") ||
-            error.message.toLowerCase().includes("room is not available")
+            !(
+              error.message
+                .toLowerCase()
+                .includes("not available for the chosen dates") ||
+              error.message.toLowerCase().includes("room is not available")
+            )
           ) {
-            return;
+            errorMessage = error.message;
+          } else if (!toast.isActive("room-not-available-err")) {
+            errorMessage = error.message;
           }
-          errorMessage = error.message;
         }
-
-        toast.error(errorMessage);
+        if (errorMessage) {
+          toast.error(errorMessage, { toastId: "update-booking-err" });
+        }
+      } finally {
+        setIsSubmitting(false);
       }
     });
   };
@@ -320,7 +361,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
     new Date(new Date().setHours(0, 0, 0, 0))
   );
   let minDateForToInput: string;
-  if (selectedDateFrom) {
+  if (selectedDateFrom && !isNaN(selectedDateFrom.getTime())) {
     const nextDayAfterFrom = new Date(selectedDateFrom);
     nextDayAfterFrom.setDate(selectedDateFrom.getDate() + 1);
     minDateForToInput = toInputDateString(nextDayAfterFrom);
@@ -337,6 +378,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
       </div>
     );
   }
+
   if (booking.id !== currentBookingIdForInit || !isFormInitialized) {
     return (
       <div className="flex items-center justify-center h-full w-full min-h-[200px]">
@@ -350,6 +392,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
     ? `${booking.room.roomNumber} - ${booking.room.roomType}`
     : "N/A (No current room)";
   const selectPlaceholder = `Keep current room (${currentRoomDisplay})`;
+  const showSpinner = isSubmitting || updateLoading;
 
   return (
     <Form {...form}>
@@ -373,17 +416,21 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
                       field.onChange(newDate);
                       if (
                         newDate &&
+                        !isNaN(newDate.getTime()) &&
                         selectedDateTo &&
+                        !isNaN(selectedDateTo.getTime()) &&
                         newDate >= selectedDateTo
                       ) {
                         setValue("dateRange.to", undefined, {
                           shouldValidate: true,
                         });
                       }
+
                       trigger("dateRange.from");
                       trigger("dateRange.to");
                     }}
                     min={minDateForFromInput}
+                    disabled={showSpinner}
                   />
                 </FormControl>
                 <FormMessage />
@@ -404,11 +451,16 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
                     onChange={(e) => {
                       const newDate = fromInputDateString(e.target.value);
                       field.onChange(newDate);
+
                       trigger("dateRange.to");
                       trigger("dateRange.from");
                     }}
                     min={minDateForToInput}
-                    disabled={!selectedDateFrom}
+                    disabled={
+                      !selectedDateFrom ||
+                      isNaN(selectedDateFrom.getTime()) ||
+                      showSpinner
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -423,15 +475,19 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>
-                New Available Room{" "}
+                New Available Room
                 <span className="text-xs text-muted-foreground">
                   (Optional - select to change)
                 </span>
               </FormLabel>
               <Select
+                disabled={showSpinner}
                 value={field.value?.id || ""}
                 onValueChange={(selectedValue) => {
-                  if (selectedValue === KEEP_ORIGINAL_ROOM_VALUE) {
+                  if (
+                    selectedValue === KEEP_ORIGINAL_ROOM_VALUE ||
+                    !selectedValue
+                  ) {
                     field.onChange(undefined);
                     return;
                   }
@@ -493,6 +549,7 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
                               ))}
                             </SelectGroup>
                           )}
+
                           {suites && suites.length > 0 && (
                             <SelectGroup>
                               <SelectLabel>Suites</SelectLabel>
@@ -570,20 +627,17 @@ const EditBookingRoomAndDateForm: React.FC<EditBookingRoomAndDateFormProps> = ({
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
-            disabled={updateLoading}>
+            onClick={() => setIsDialogOpen(false)}
+            disabled={showSpinner}>
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={
-              updateLoading || !formState.isDirty || !formState.isValid
-            }>
-            {updateLoading ? (
+            disabled={showSpinner || !formState.isDirty || !formState.isValid}>
+            {showSpinner ? (
               <Spinner
-                size={10}
+                size={16}
                 color="#FFFFFF"
-                animate={updateLoading}
               />
             ) : (
               "Save Room & Date Changes"
