@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function InboxPage() {
   return (
-    <div className="flex flex-col h-screen w-full items-center p-4 pt-24  bg-muted/40"> 
+    <div className="flex flex-col h-screen w-full items-center p-4 pt-24">
       <Tabs
         defaultValue="booking"
         className="w-full max-w-5xl h-full flex flex-col flex-grow">

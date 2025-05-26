@@ -1,186 +1,338 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Calendar, Filter, Hotel, RefreshCcw } from "lucide-react"
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect, useMemo } from "react";
+import { Calendar, Filter, Hotel, RefreshCcw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { BookingCard } from "@/components/Admin/Dashboard/BookingCard"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "react-toastify";
+import { Booking } from "@/types/types";
+import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
+import { isFuture, parseISO, startOfDay } from "date-fns";
+import BookingCard from "../BookingCard";
 
-const ongoingBookings = [
-  { id: "1", customerName: "John Rofer Casio", guests: 2, paymentStatus: "Paid" },
-  { id: "2", customerName: "Regine Barte", guests: 1, paymentStatus: "Paid" },
-  { id: "3", customerName: "Nicholae Sara", guests: 3, paymentStatus: "Pending" },
-]
-
-const expectingBookings = [
-  { id: "4", customerName: "Juan Dela Cruz", guests: 2, paymentStatus: "Paid" },
-  { id: "5", customerName: "Maria Carmela", guests: 4, paymentStatus: "Paid" },
-  { id: "6", customerName: "Princess Nicole", guests: 1, paymentStatus: "Paid" },
-  { id: "7", customerName: "Kath Saiton", guests: 2, paymentStatus: "Pending" },
-]
-
-const newBookings = [
-  { id: "8", customerName: "Leonor Rivera", guests: 2, paymentStatus: "Paid" },
-  { id: "9", customerName: "Segunda Katigbak", guests: 1, paymentStatus: "Pending" },
-]
-
-const TOTAL_ROOMS = 20
-
-const calculateOccupancyRate = (occupied: number, total: number) => {
-  return Math.round((occupied / total) * 100)
-}
+const getStartOfDay = (date: string | Date | undefined): Date | null => {
+  if (!date) return null;
+  return startOfDay(typeof date === "string" ? parseISO(date) : date);
+};
 
 export function Dashboard() {
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [filterValue, setFilterValue] = useState("all")
+  const [filterValue, setFilterValue] = useState("all");
+  const {
+    bookings: allBookingsData,
+    loading,
+    error,
+    getAllBookings: refetchAllBookings,
+  } = useGetAllBookings();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(`Error fetching bookings: ${error}`);
+    }
+  }, [error]);
 
   const handleRefresh = () => {
-    setIsRefreshing(true)
-    setTimeout(() => setIsRefreshing(false), 1500)
-  }
+    refetchAllBookings();
+  };
 
-  const totalBookings = ongoingBookings.length + expectingBookings.length + newBookings.length
-  const occupancyRate = calculateOccupancyRate(ongoingBookings.length, TOTAL_ROOMS)
+  const processedBookings = useMemo(() => {
+    if (!allBookingsData) {
+      return { ongoing: [], expecting: [], new: [], filteredForTabs: [] };
+    }
+    const todayStart = startOfDay(new Date());
+
+    let filteredByDropdown = allBookingsData;
+    if (filterValue !== "all") {
+      filteredByDropdown = allBookingsData.filter((booking) => {
+        if (filterValue === "Today") {
+          const checkInDay = getStartOfDay(booking.checkIn);
+          return checkInDay && checkInDay.getTime() === todayStart.getTime();
+        }
+        if (filterValue === "OTC") return booking.bookingType === "OTC";
+        if (filterValue === "Online") return booking.bookingType === "Online";
+        return true;
+      });
+    }
+
+    const ongoing: Booking[] = [];
+    const expecting: Booking[] = [];
+    const newBookingsForTab: Booking[] = [];
+
+    filteredByDropdown.forEach((booking) => {
+      const checkInDate = getStartOfDay(booking.checkIn);
+      const checkOutDate = getStartOfDay(booking.checkOut);
+      const dateBookedComparable = getStartOfDay(booking.dateBooked);
+
+      if (
+        dateBookedComparable &&
+        dateBookedComparable.getTime() === todayStart.getTime()
+      ) {
+        newBookingsForTab.push(booking);
+      }
+
+      if (
+        booking.status === "Ongoing" ||
+        (checkInDate &&
+          checkOutDate &&
+          checkInDate <= todayStart &&
+          checkOutDate >= todayStart)
+      ) {
+        ongoing.push(booking);
+      } else if (
+        booking.status === "Reserved" &&
+        checkInDate &&
+        isFuture(checkInDate)
+      ) {
+        expecting.push(booking);
+      }
+    });
+
+    return {
+      ongoing,
+      expecting,
+      new: newBookingsForTab,
+      filteredForTabs: filteredByDropdown,
+    };
+  }, [allBookingsData, filterValue]);
+
+  const { ongoing, expecting, new: newCategorized } = processedBookings;
+
+  const totalBookingsForDisplay = useMemo(
+    () => processedBookings.filteredForTabs.length,
+    [processedBookings.filteredForTabs]
+  );
+
+  const newBookingsCountForStat = useMemo(() => {
+    if (!allBookingsData) return 0;
+    const todayStart = startOfDay(new Date());
+    return allBookingsData.filter((b) => {
+      const dateBookedComparable = getStartOfDay(b.dateBooked);
+      return (
+        dateBookedComparable &&
+        dateBookedComparable.getTime() === todayStart.getTime()
+      );
+    }).length;
+  }, [allBookingsData]);
+
+  const occupancyRate = useMemo(() => {
+    if (!allBookingsData) return 0;
+    const todayStart = startOfDay(new Date());
+    const currentlyOngoingCount = allBookingsData.filter((b) => {
+      const checkInDate = getStartOfDay(b.checkIn);
+      const checkOutDate = getStartOfDay(b.checkOut);
+      return (
+        b.status === "Ongoing" ||
+        (checkInDate &&
+          checkOutDate &&
+          checkInDate <= todayStart &&
+          checkOutDate >= todayStart)
+      );
+    }).length;
+
+    const totalRooms = 20;
+    return totalRooms > 0
+      ? Math.round((currentlyOngoingCount / totalRooms) * 100)
+      : 0;
+  }, [allBookingsData]);
+
+  const renderBookingList = (
+    bookingsToList: Booking[],
+    isLoadingFlag: boolean,
+    skeletonCount: number
+  ) => {
+    if (isLoadingFlag) {
+      return Array(skeletonCount)
+        .fill(0)
+        .map((_, i) => (
+          <Skeleton
+            key={`skel-${i}-${Math.random()}`}
+            className="h-24 w-full rounded-lg"
+          />
+        ));
+    }
+    if (!bookingsToList || bookingsToList.length === 0) {
+      return (
+        <div className="text-sm text-muted-foreground text-center py-4">
+          No bookings in this category for the current filter.
+        </div>
+      );
+    }
+    return bookingsToList.map((booking) => (
+      <BookingCard
+        key={booking.id}
+        booking={booking}
+        refetchBookings={refetchAllBookings}
+      />
+    ));
+  };
 
   return (
     <div className="w-full bg-background min-h-screen">
-      <main className="container mx-auto py-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div className="flex items-center gap-2">
-            <Select value={filterValue} onValueChange={setFilterValue}>
-              <SelectTrigger className="w-[180px]">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Filter by" />
+      <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Dashboard
+          </h1>
+          <div className="flex items-center gap-3">
+            <Select
+              value={filterValue}
+              onValueChange={setFilterValue}
+              disabled={loading}>
+              <SelectTrigger className="w-[200px]">
+                <Filter className="mr-2 h-4 w-4 flex-shrink-0" />
+                <SelectValue placeholder="Filter by type/date" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Bookings</SelectItem>
-                <SelectItem value="Today">Today&apos;s Bookings</SelectItem>
-                <SelectItem value="OTC">Over the counter</SelectItem>
+                <SelectItem value="Today">Today&apos;s Check-ins</SelectItem>
+                <SelectItem value="OTC">Over the Counter</SelectItem>
                 <SelectItem value="Online">Online</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={handleRefresh} disabled={isRefreshing}>
-              <RefreshCcw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={loading}>
+              <RefreshCcw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />
               <span className="sr-only">Refresh data</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 mb-6">
+        {}
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div>
-                <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-                <CardDescription>All active and upcoming</CardDescription>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-full">
-                <Calendar className="h-4 w-4 text-primary" />
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Bookings
+              </CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{totalBookings}</div>
-              <div className="text-xs text-muted-foreground mt-1">+{newBookings.length} new today</div>
+              {loading && !allBookingsData ? (
+                <Skeleton className="h-8 w-1/2 my-1" />
+              ) : (
+                <div className="text-2xl font-bold">
+                  {totalBookingsForDisplay}
+                </div>
+              )}
+              <div className="text-xs text-muted-foreground">
+                +{newBookingsCountForStat} new bookings (booked today)
+              </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div>
-                <CardTitle className="text-sm font-medium">Occupancy Rate</CardTitle>
-                <CardDescription>Current room usage</CardDescription>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-full">
-                <Hotel className="h-4 w-4 text-primary" />
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Occupancy Rate
+              </CardTitle>
+              <Hotel className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{occupancyRate}%</div>
-              <div className="text-xs text-muted-foreground mt-1">{TOTAL_ROOMS - ongoingBookings.length} rooms available</div>
-              <div className="mt-4">
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${occupancyRate}%` }} />
-                </div>
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>0%</span>
-                  <span>50%</span>
-                  <span>100%</span>
-                </div>
+              {loading && !allBookingsData ? (
+                <Skeleton className="h-8 w-1/4 my-1" />
+              ) : (
+                <div className="text-2xl font-bold">{occupancyRate}%</div>
+              )}
+              <div className="text-xs text-muted-foreground">
+                {allBookingsData ? (
+                  20 -
+                  allBookingsData.filter((b) => {
+                    const checkInDate = getStartOfDay(b.checkIn);
+                    const checkOutDate = getStartOfDay(b.checkOut);
+                    const todayStart = startOfDay(new Date());
+                    return (
+                      b.status === "Ongoing" ||
+                      (checkInDate &&
+                        checkOutDate &&
+                        checkInDate <= todayStart &&
+                        checkOutDate >= todayStart)
+                    );
+                  }).length
+                ) : (
+                  <span>
+                    <Skeleton className="h-4 w-12 inline-block" />
+                  </span>
+                )}{" "}
+                rooms available
               </div>
             </CardContent>
           </Card>
+          {}
         </div>
 
-        <Tabs defaultValue="ongoing" className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="ongoing" className="relative">
-                Ongoing
-                <Badge className="ml-2 px-1.5 h-5 absolute -top-2 -right-2 bg-primary text-primary-foreground">
-                  {ongoingBookings.length}
+        <Tabs
+          defaultValue="ongoing"
+          className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger
+              value="ongoing"
+              className="relative">
+              Ongoing
+              {!loading && (
+                <Badge
+                  variant="secondary"
+                  className="ml-2 px-1.5 py-0.5 text-xs absolute -top-2 -right-2">
+                  {ongoing.length}
                 </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="expecting" className="relative">
-                Expecting
-                <Badge className="ml-2 px-1.5 h-5 absolute -top-2 -right-2 bg-primary text-primary-foreground">
-                  {expectingBookings.length}
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="expecting"
+              className="relative">
+              Expecting
+              {!loading && (
+                <Badge
+                  variant="secondary"
+                  className="ml-2 px-1.5 py-0.5 text-xs absolute -top-2 -right-2">
+                  {expecting.length}
                 </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="new" className="relative">
-                New
-                <Badge className="ml-2 px-1.5 h-5 absolute -top-2 -right-2 bg-primary text-primary-foreground">
-                  {newBookings.length}
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="new"
+              className="relative">
+              New (Booked Today)
+              {!loading && (
+                <Badge
+                  variant="secondary"
+                  className="ml-2 px-1.5 py-0.5 text-xs absolute -top-2 -right-2">
+                  {newCategorized.length}
                 </Badge>
-              </TabsTrigger>
-            </TabsList>
-          </div>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="ongoing" className="space-y-4">
-            {isRefreshing
-              ? Array(3).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))
-              : ongoingBookings.map((booking) => <BookingCard key={booking.id} booking={booking} />)}
+          <TabsContent
+            value="ongoing"
+            className="space-y-4">
+            {renderBookingList(ongoing, loading, 3)}
           </TabsContent>
-
-          <TabsContent value="expecting" className="space-y-4">
-            {isRefreshing
-              ? Array(4).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))
-              : expectingBookings.map((booking) => <BookingCard key={booking.id} booking={booking} />)}
+          <TabsContent
+            value="expecting"
+            className="space-y-4">
+            {renderBookingList(expecting, loading, 4)}
           </TabsContent>
-
-          <TabsContent value="new" className="space-y-4">
-            {isRefreshing
-              ? Array(2).fill(0).map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                ))
-              : newBookings.map((booking) => <BookingCard key={booking.id} booking={booking} />)}
+          <TabsContent
+            value="new"
+            className="space-y-4">
+            {renderBookingList(newCategorized, loading, 2)}
           </TabsContent>
         </Tabs>
       </main>
     </div>
-  )
+  );
 }
