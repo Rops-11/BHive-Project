@@ -194,6 +194,7 @@ const HotelRoomCard = ({
   role?: "Guest" | "Admin";
   refetchRooms?: () => void;
 }) => {
+  console.log(room);
   return (
     <Dialog>
       <DialogTrigger asChild>
