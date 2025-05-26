@@ -30,6 +30,7 @@ import {
   BedDouble,
   DollarSign,
   Clock,
+  XCircle,
   CheckCircle,
   CircleHelp,
   Loader,
@@ -82,6 +83,12 @@ const getStatusInfo = (status: string | undefined) => {
         color: "text-orange-600",
         bgColor: "bg-orange-100",
       };
+    case "cancelled":
+      return {
+        icon: XCircle,
+        color: "text-red-600",
+        bgColor: "bg-red-100",
+      };
     default:
       return {
         icon: CircleHelp,
@@ -115,7 +122,7 @@ const BookingCard = ({
   };
 
   const handleChangeStatus = async (
-    status: "Reserved" | "Ongoing" | "Complete"
+    status: "Reserved" | "Ongoing" | "Complete" | "Cancelled"
   ) => {
     await updateStatus(booking.id!, status);
     setBookingStatus(status);
@@ -259,6 +266,19 @@ const BookingCard = ({
                         variant="outline"
                         className={`border-none hover:scale-105 hover:cursor-pointer text-blue-600 bg-blue-100`}>
                         Ongoing
+                      </Badge>
+                    </button>
+                  )}
+                  {bookingStatus !== "Cancelled" && (
+                    <button
+                      onClick={() => {
+                        handleChangeStatus("Cancelled");
+                        setStatusOpen(false);
+                      }}>
+                      <Badge
+                        variant="outline"
+                        className={`border-none hover:scale-105 hover:cursor-pointer text-red-600 bg-red-100`}>
+                        Cancelled
                       </Badge>
                     </button>
                   )}
