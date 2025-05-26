@@ -50,6 +50,7 @@ enum Status {
   Reserved
   Ongoing
   Complete
+  Cancelled
 }
 
 enum PaymentStatus {

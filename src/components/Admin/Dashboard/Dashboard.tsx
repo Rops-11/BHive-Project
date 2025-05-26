@@ -84,7 +84,8 @@ export function Dashboard() {
         (checkInDate &&
           checkOutDate &&
           checkInDate <= todayStart &&
-          checkOutDate >= todayStart)
+          checkOutDate >= todayStart &&
+          booking.status !== "Cancelled")
       ) {
         ongoing.push(booking);
       } else if (
@@ -134,7 +135,8 @@ export function Dashboard() {
         (checkInDate &&
           checkOutDate &&
           checkInDate <= todayStart &&
-          checkOutDate >= todayStart)
+          checkOutDate >= todayStart &&
+          b.status !== "Cancelled")
       );
     }).length;
 
@@ -259,7 +261,8 @@ export function Dashboard() {
                       (checkInDate &&
                         checkOutDate &&
                         checkInDate <= todayStart &&
-                        checkOutDate >= todayStart)
+                        checkOutDate >= todayStart &&
+                        b.status !== "Cancelled")
                     );
                   }).length
                 ) : (

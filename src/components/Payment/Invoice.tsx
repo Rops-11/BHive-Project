@@ -1,39 +1,59 @@
 "use client";
 
-import React, { useContext, useEffect } from "react";
-
-import { AuthContextValue, BookingContextType } from "@/types/context";
+import React, { useContext, useEffect, useState } from "react";
+import { BookingContextType } from "@/types/context";
 import { checkDaysDifference } from "utils/utils";
 import { BookingContext } from "../providers/BookProvider";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Separator } from "../ui/separator";
 import useCreateBooking from "@/hooks/bookingHooks/useCreateBooking";
-import { AuthContext } from "../providers/AuthProvider";
 import { Spinner } from "react-activity";
+import "react-activity/dist/library.css";
 import BookingMissingFallback from "./BookingMissingFallback";
-
+import useCheckRoomAvailability from "@/hooks/roomHooks/useCheckRoomAvailability";
+import { toast } from "react-toastify";
+import { Booking } from "@/types/types";
 
 const InvoiceCard = ({ admin }: { admin: boolean }) => {
   const router = useRouter();
   const { bookingContext, setBookingContext, selectedRoom, setSelectedRoom } =
     useContext<BookingContextType>(BookingContext);
-  const authContextHook = useContext<AuthContextValue | undefined>(AuthContext);
-  const authSession = authContextHook?.session;
-  const { createBooking, loading: bookingLoading } = useCreateBooking(); //! Temporary
+
+  const {
+    createBooking,
+    loading: createBookingAPILoading,
+    bookingDetails: createdBookingDetails,
+  } = useCreateBooking();
+  const { checkRoomIsAvailable, isLoading: isCheckingAvail } =
+    useCheckRoomAvailability();
+
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     if (!bookingContext) {
       const timeout = setTimeout(() => {
-        router.push("/book");
-      }, 5000);
-
+        if (!bookingContext) {
+          router.push(admin ? "/admin/book" : "/book");
+        }
+      }, 3000);
       return () => clearTimeout(timeout);
     }
-  }, [bookingContext]);
+  }, [bookingContext, router, admin]);
 
-  if (!bookingContext) {
-    return <BookingMissingFallback/>
+  useEffect(() => {
+    if (createdBookingDetails && createdBookingDetails.id) {
+    }
+  }, [
+    createdBookingDetails,
+    router,
+    admin,
+    setBookingContext,
+    setSelectedRoom,
+  ]);
+
+  if (!bookingContext || !selectedRoom) {
+    return <BookingMissingFallback />;
   }
 
   const daysDiff =
@@ -57,76 +77,85 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
 
   const excessGuestPrice = excessGuestCount * 100;
   const totalRoomPrice = (selectedRoom?.roomRate ?? 0) * daysDiff;
-  const total = excessGuestPrice + totalRoomPrice;
+  const finalTotal = excessGuestPrice + totalRoomPrice;
 
   const handleClickPay = async () => {
-    setBookingContext!({ ...bookingContext, totalPrice: total });
-    if (authSession) {
-      await createBooking({ ...bookingContext, totalPrice: total });
-      router.push("/admin/book");
+    if (
+      !bookingContext ||
+      !selectedRoom ||
+      !setBookingContext ||
+      !setSelectedRoom
+    ) {
+      toast.error("Booking details are incomplete. Please try again.");
+      router.push(admin ? "/admin/book" : "/book");
+      return;
     }
-    //! Temporary for Testing
-    else await createBooking({ ...bookingContext, totalPrice: total });
+    if (finalTotal <= 0) {
+      toast.warn("Total amount is invalid. Please review your booking.");
+      return;
+    }
 
-    setBookingContext!({});
-    setSelectedRoom!(undefined);
+    setIsProcessingPayment(true);
 
-    if (!admin) {
-      const options = {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-          authorization:
-            "Basic c2tfdGVzdF9qV25KV2NhM0U1ZjIycUVGam0yRnZ5WGc6cmVnaW5lTmJhcnRlMDEwNTA1",
-        },
-        body: JSON.stringify({
-          data: {
-            attributes: {
-              send_email_receipt: false,
-              show_description: true,
-              show_line_items: true,
-              line_items: [
-                {
-                  currency: "PHP",
-                  amount: 1890000,
-                  description: "QUEEN BEE 2A",
-                  name: "QUEEN BEE 2A",
-                  quantity: 1,
-                },
-              ],
-              payment_method_types: ["gcash"],
-              description: "queen room",
-            },
-          },
-        }),
+    try {
+      const availabilityResult = await checkRoomIsAvailable({
+        roomId: selectedRoom.id!,
+        checkIn: bookingContext.checkIn!,
+        checkOut: bookingContext.checkOut!,
+      });
+
+      if (!availabilityResult.isAvailable) {
+        toast.error(
+          availabilityResult.message ||
+            "Sorry, the selected room is no longer available. Please select another room."
+        );
+        setSelectedRoom(undefined);
+        router.push(admin ? "/admin/book" : "/book");
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const bookingDataForCreation: Booking = {
+        ...bookingContext,
+        roomId: selectedRoom.id,
+        totalPrice: finalTotal,
       };
 
-      const response = await fetch(
-        "https://api.paymongo.com/v1/checkout_sessions",
-        options
-      );
-      const data = await response.json();
-      console.log(data);
+      await createBooking(bookingDataForCreation);
 
-      if (response.ok) {
-        const checkoutUrl = data.data.attributes.checkout_url;
-
-        router.push(checkoutUrl);
-      } else {
-        console.error("Payment error:", data);
+      if (admin) {
+        if (!createBookingAPILoading && createdBookingDetails?.id) {
+          toast.info("Admin booking saved. Redirecting...");
+          setSelectedRoom(undefined);
+          router.push("/admin/book");
+        }
+        setIsProcessingPayment(false);
+        return;
       }
+
+      // process the payment thru gcash here, needs image
+      router.push("/");
+    } catch (error) {
+      console.error("Error processing payment/booking:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
+  const isLoading =
+    isProcessingPayment || isCheckingAvail || createBookingAPILoading;
+
+  if (createdBookingDetails) return <div>Redirecting back to home page.</div>;
+
   return (
     <div className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-white p-3 sm:p-4 md:p-6 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg border border-gray-200 flex flex-col h-full">
-      {bookingLoading ? (
-        <div className="flex w-full h-full justify-center items-center">
+      {isLoading ? (
+        <div className="flex w-full h-full justify-center items-center min-h-[300px]">
           <Spinner
             size={25}
             color="#000000"
-            animating={bookingLoading}
+            animating={true}
           />
         </div>
       ) : (
@@ -143,7 +172,7 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5 text-xs sm:text-sm text-gray-700">
               <p>
-                <span className="font-medium">Name: </span>{" "}
+                <span className="font-medium">Name: </span>
                 {bookingContext.name}
               </p>
               <p>
@@ -151,12 +180,11 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
                 {bookingContext.mobileNumber}
               </p>
               <p className="sm:col-span-2">
-                <span className="font-medium">Email: </span>{" "}
-                {bookingContext.email}
+                <span className="font-medium">Email: </span>
+                {bookingContext.email || "N/A"}
               </p>
             </div>
           </div>
-
           <Separator className="my-2 sm:my-3" />
 
           <div className="mb-3 sm:mb-4">
@@ -184,12 +212,10 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
               </p>
               <p className="col-span-2">
                 <span className="font-medium">Duration: </span>
-                {daysDiff}
-                {daysDiff === 1 ? "Night" : "Nights"}
+                {daysDiff} {daysDiff === 1 ? "Night" : "Nights"}
               </p>
             </div>
           </div>
-
           <Separator className="my-2 sm:my-3" />
 
           <div className="flex-grow">
@@ -212,13 +238,12 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
                   ₱{totalRoomPrice.toFixed(2)}
                 </p>
               </div>
-
               {excessGuestCount > 0 && (
                 <div className="flex justify-between items-start">
                   <div className="pr-2">
                     <p>Additional Guest Charge</p>
                     <p className="text-xs text-gray-500">
-                      ({excessGuestCount}
+                      ({excessGuestCount}{" "}
                       {excessGuestCount === 1 ? "Guest" : "Guests"} @
                       ₱100.00/guest)
                     </p>
@@ -234,7 +259,10 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
           <div className="mt-3 pt-2 sm:pt-3 border-t border-gray-200 text-right">
             <p className="text-sm sm:text-base font-bold text-gray-900">
               Total Due:
-              <span className="text-base sm:text-lg"> ₱{total.toFixed(2)}</span>
+              <span className="text-base sm:text-lg">
+                {" "}
+                ₱{finalTotal.toFixed(2)}
+              </span>
             </p>
           </div>
 
@@ -242,8 +270,12 @@ const InvoiceCard = ({ admin }: { admin: boolean }) => {
             <Button
               className="sm:size-auto"
               onClick={handleClickPay}
-              disabled={!bookingContext || total <= 0 || bookingLoading}>
-              {admin ? "Save Booking Details" : "Proceed to Payment"}
+              disabled={isLoading || !bookingContext || finalTotal <= 0}>
+              {isLoading
+                ? "Processing..."
+                : admin
+                ? "Save Booking Details"
+                : "Proceed to Payment"}
             </Button>
           </div>
         </>
