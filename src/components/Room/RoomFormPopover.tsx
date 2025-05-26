@@ -157,7 +157,7 @@ const RoomFormPopover = ({
 
       if (values.amenities && values.amenities.length > 0) {
         values.amenities.forEach((amenity) =>
-          formData.append("amenities[]", amenity)
+          formData.append("amenities", amenity)
         );
       }
 
