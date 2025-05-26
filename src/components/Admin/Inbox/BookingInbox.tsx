@@ -14,7 +14,7 @@ import {
 import { Loader2, Inbox, Search } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
-import BookingCard from "./BookingCard";
+import BookingCard from "../BookingCard";
 import { Booking } from "@/types/types";
 import { toast } from "react-toastify";
 
@@ -25,7 +25,8 @@ type BookingFilterOptionValue =
   | "all"
   | "statusOngoing"
   | "statusReserved"
-  | "statusComplete";
+  | "statusComplete"
+  | "statusCancelled";
 
 const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
   [
@@ -34,6 +35,7 @@ const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
     { value: "statusOngoing", label: "Status: Ongoing" },
     { value: "statusReserved", label: "Status: Reserved" },
     { value: "statusComplete", label: "Status: Complete" },
+    { value: "statusCancelled", label: "Status: Cancelled" },
   ];
 
 const BookingInbox = () => {
@@ -92,13 +94,15 @@ const BookingInbox = () => {
               if (!booking.checkIn) return false;
               const checkInDate = new Date(booking.checkIn);
               checkInDate.setHours(0, 0, 0, 0);
-              return checkInDate >= today;
+              return checkInDate >= today && booking.status !== "Cancelled";
             case "statusOngoing":
               return booking.status === "Ongoing";
             case "statusReserved":
               return booking.status === "Reserved";
             case "statusComplete":
               return booking.status === "Complete";
+            case "statusCancelled":
+              return booking.status === "Cancelled";
             case "all":
             default:
               return true;
@@ -163,6 +167,32 @@ const BookingInbox = () => {
               />
             </div>
 
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto shrink-0"
+              onClick={() => setSearchTerm("")}
+              disabled={(loading && isInitialLoad) || searchTerm === ""}>
+              Clear Search
+            </Button>
+
+            <Button
+              type="button"
+              size="lg"
+              className="w-full sm:w-auto shrink-0"
+              onClick={onManualRefreshClick}
+              disabled={loading}>
+              {loading && !isInitialLoad ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                "Refresh"
+              )}
+            </Button>
+
             <Select
               value={activeFilter}
               onValueChange={(value) =>
@@ -182,32 +212,6 @@ const BookingInbox = () => {
                 ))}
               </SelectContent>
             </Select>
-
-            <Button
-              type="button"
-              size="lg"
-              className="w-full sm:w-auto shrink-0"
-              onClick={onManualRefreshClick}
-              disabled={loading}>
-              {loading && !isInitialLoad ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Refreshing...
-                </>
-              ) : (
-                "Refresh"
-              )}
-            </Button>
-
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto shrink-0"
-              onClick={() => setSearchTerm("")}
-              disabled={(loading && isInitialLoad) || searchTerm === ""}>
-              Clear Search
-            </Button>
           </div>
         </CardHeader>
       </Card>

@@ -1,4 +1,5 @@
 import { Booking } from "@/types/types";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { normalFetch } from "utils/fetch";
@@ -15,6 +16,10 @@ const useCreateBooking = () => {
       if (!response.ok) {
         const error = await response.json();
         toast.error(error.message);
+
+        if (response.status === 406) {
+          redirect("/book");
+        }
         return;
       }
 

@@ -24,7 +24,9 @@ export interface Booking {
   checkOut?: Date;
   mobileNumber?: string;
   email?: string;
-  status?: "Reserved" | "Ongoing" | "Complete";
+  status?: "Reserved" | "Ongoing" | "Complete" | "Cancelled";
+  paymentStatus?: "Paid" | "Partial";
+  downPayment?: boolean;
   name?: string;
   numberOfAdults?: number;
   numberOfChildren?: number;

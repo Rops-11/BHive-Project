@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, startTransition } from "react";
+import React, { useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -17,49 +17,66 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Booking } from "@/types/types";
 import { toast } from "react-toastify";
 import useUpdateBooking from "@/hooks/bookingHooks/useUpdateBooking";
-import { Spinner } from "react-activity";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(1, {
-    message: "Please enter your name.",
+    message: "Please enter the guest's name.",
   }),
-  mobileNumber: z.string().length(11, {
-    message: "Please enter your mobile number.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
+  mobileNumber: z
+    .string()
+    .length(11, {
+      message: "Mobile number must be 11 digits.",
+    })
+    .optional()
+    .or(z.literal("")),
+  email: z
+    .string()
+    .email({
+      message: "Please enter a valid email address.",
+    })
+    .optional()
+    .or(z.literal("")),
   numberOfAdults: z.coerce
-    .number({ invalid_type_error: "Number is required." })
+    .number({
+      required_error: "Number of adults is required.",
+      invalid_type_error: "Must be a number.",
+    })
     .min(1, { message: "At least 1 adult is required." }),
   numberOfChildren: z.coerce
-    .number({ invalid_type_error: "Number is required." })
+    .number({
+      required_error: "Number of children is required.",
+      invalid_type_error: "Must be a number.",
+    })
     .min(0, { message: "Number of children cannot be negative." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface NormalBookingFormProps {
+  booking: Booking;
+  refetchBookings: () => Promise<void> | void;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 const NormalBookingForm = ({
   booking,
   refetchBookings,
   setIsDialogOpen,
-}: {
-  booking: Booking;
-  refetchBookings: () => Promise<void>;
-  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+}: NormalBookingFormProps) => {
   const { updateNormalBooking, loading: updateLoading } = useUpdateBooking();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-
     defaultValues: {
-      name: "",
-      mobileNumber: "",
-      email: "",
-      numberOfAdults: undefined,
-      numberOfChildren: undefined,
+      name: booking?.name || "",
+      mobileNumber: booking?.mobileNumber || "",
+      email: booking?.email || "",
+
+      numberOfAdults: booking?.numberOfAdults ?? 1,
+      numberOfChildren: booking?.numberOfChildren ?? 0,
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -68,50 +85,42 @@ const NormalBookingForm = ({
         name: booking.name || "",
         mobileNumber: booking.mobileNumber || "",
         email: booking.email || "",
-        numberOfAdults: booking.numberOfAdults ?? undefined,
-        numberOfChildren: booking.numberOfChildren ?? undefined,
+        numberOfAdults: booking.numberOfAdults ?? 1,
+        numberOfChildren: booking.numberOfChildren ?? 0,
       });
     }
-  }, [booking]);
+  }, [booking, form]);
 
   const onSubmit = async (values: FormValues) => {
-    if (
-      !booking ||
-      !booking.id ||
-      !booking.roomId ||
-      !booking.checkIn ||
-      !booking.checkOut
-    ) {
-      toast.error("Booking information is incomplete. Cannot update.");
-      console.error("Incomplete booking data:", booking);
+    if (!booking || !booking.id) {
+      toast.error("Booking ID is missing. Cannot update.");
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const updatePayload: Booking = {
-          name: values.name,
-          mobileNumber: values.mobileNumber,
-          email: values.email,
-          numberOfAdults: values.numberOfAdults,
-          numberOfChildren: values.numberOfChildren,
-        };
+    try {
+      const updatePayload: Partial<Booking> = {
+        name: values.name,
+        mobileNumber: values.mobileNumber,
+        email: values.email,
+        numberOfAdults: values.numberOfAdults,
+        numberOfChildren: values.numberOfChildren,
+      };
 
-        await updateNormalBooking(booking.id!, updatePayload);
-        setIsDialogOpen(false);
-        refetchBookings();
-      } catch (error) {
-        console.error("Failed to update booking details:", error);
-        toast.error("Failed to update booking details. Please try again.");
-      }
-    });
+      await updateNormalBooking(booking.id, updatePayload);
+
+      setIsDialogOpen(false);
+      await refetchBookings();
+    } catch (error) {
+      console.error("Failed to update booking details:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 py-4">
+        className="space-y-4 py-2">
         <FormField
           control={form.control}
           name="name"
@@ -120,7 +129,6 @@ const NormalBookingForm = ({
               <FormLabel>Guest Name</FormLabel>
               <FormControl>
                 <Input
-                  className="border-black"
                   type="text"
                   placeholder="Guest Name"
                   {...field}
@@ -140,7 +148,6 @@ const NormalBookingForm = ({
               <FormLabel>Mobile Number</FormLabel>
               <FormControl>
                 <Input
-                  className="border-black"
                   type="text"
                   placeholder="Mobile Number (e.g., 09XXXXXXXXX)"
                   {...field}
@@ -160,7 +167,6 @@ const NormalBookingForm = ({
               <FormLabel>Email Address</FormLabel>
               <FormControl>
                 <Input
-                  className="border-black"
                   type="email"
                   placeholder="your.email@example.com"
                   {...field}
@@ -172,25 +178,19 @@ const NormalBookingForm = ({
           )}
         />
 
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <FormField
             control={form.control}
             name="numberOfAdults"
             render={({ field }) => (
-              <FormItem className="w-full md:w-1/2">
+              <FormItem className="w-full sm:w-1/2">
                 <FormLabel>Number of Adults</FormLabel>
                 <FormControl>
                   <Input
-                    className="border-black"
                     type="number"
                     min="1"
                     placeholder="#"
                     {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === "" ? undefined : Number(value));
-                    }}
                     disabled={updateLoading}
                   />
                 </FormControl>
@@ -203,20 +203,14 @@ const NormalBookingForm = ({
             control={form.control}
             name="numberOfChildren"
             render={({ field }) => (
-              <FormItem className="w-full md:w-1/2">
+              <FormItem className="w-full sm:w-1/2">
                 <FormLabel>Number of Children</FormLabel>
                 <FormControl>
                   <Input
-                    className="border-black"
                     type="number"
                     min="0"
                     placeholder="#"
                     {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === "" ? undefined : Number(value));
-                    }}
                     disabled={updateLoading}
                   />
                 </FormControl>
@@ -226,23 +220,14 @@ const NormalBookingForm = ({
           />
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-2">
           <Button
             type="submit"
-            disabled={
-              updateLoading ||
-              !form.formState.isDirty ||
-              !form.formState.isValid
-            }>
+            disabled={updateLoading || !form.formState.isDirty}>
             {updateLoading ? (
-              <Spinner
-                size={10}
-                color="#FFFFFF"
-                animate={updateLoading}
-              />
-            ) : (
-              "Save Changes"
-            )}
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            {updateLoading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>
