@@ -7,7 +7,7 @@ import { ReactNode, useState, createContext, useContext } from "react";
 export const BookingContext = createContext({});
 
 export default function BookingProvider({ children }: { children: ReactNode }) {
-  const [bookingContext, setBookingContext] = useState<Booking>();
+  const [bookingContext, setBookingContext] = useState<Booking | undefined>();
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>();
 
   return (

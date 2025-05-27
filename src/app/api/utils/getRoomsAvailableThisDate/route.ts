@@ -31,17 +31,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let allBookings = await prisma.booking.findMany();
+    let activeBookings = await prisma.booking.findMany({
+      where: {
+        status: {
+          notIn: ["Cancelled", "Complete"],
+        },
+      },
+      include: {
+        room: true,
+      },
+      orderBy: {
+        checkIn: "asc",
+      },
+    });
 
     if (excludeBookingId && typeof excludeBookingId === "string") {
-      allBookings = allBookings.filter(
+      activeBookings = activeBookings.filter(
         (booking) => booking.id !== excludeBookingId
       );
     }
 
     const overlappingBookings = findOverlappingBookings(
       { checkIn: targetCheckInDate, checkOut: targetCheckOutDate },
-      allBookings
+      activeBookings
     );
 
     const listOfRoomIdsNotAvailable = overlappingBookings.map(
