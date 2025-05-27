@@ -16,6 +16,8 @@ export interface Room {
   amenities?: string[];
 }
 
+
+
 export interface Booking {
   id?: string;
   roomId?: string;
@@ -36,6 +38,8 @@ export interface Booking {
   file?: File;
   image?: ImageFile;
 }
+
+
 
 export interface EmailDetail {
   id: string | null | undefined;

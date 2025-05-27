@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Card,
   CardHeader,
@@ -54,21 +54,155 @@ import useUpdateBookingStatus from "@/hooks/bookingHooks/useUpdateBookingStatus"
 import { Spinner } from "react-activity";
 import NextImage from "next/image";
 import useUpdateBookingPaymentStatus from "@/hooks/bookingHooks/useUpdateBookingPaymentStatus";
+import { formatDate } from "utils/utils";
+import { z } from "zod";
+import { normalFetch } from "utils/fetch";
+
+const bookingNotificationPayloadSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  roomId: z.string().min(1),
+  verified: z.boolean(),
+  checkIn: z.string(),
+});
+
+type BookingNotificationPayload = z.infer<
+  typeof bookingNotificationPayloadSchema
+>;
+
+export type ZodFieldErrors = Record<string, string[] | undefined>;
+
+export type ErrorDetails =
+  | ZodFieldErrors
+  | Record<string, unknown>
+  | string
+  | null;
+
+interface UseSendBookingNotificationOptions {
+  onSuccess?: (data: { message: string }) => void;
+  onError?: (error: string, details?: ErrorDetails) => void;
+}
+
+interface UseSendBookingNotificationReturn {
+  sendNotification: (payload: BookingNotificationPayload) => Promise<void>;
+  isLoading: boolean;
+  error: string | null;
+  successMessage: string | null;
+}
+
+const useSendBookingNotification = (
+  options?: UseSendBookingNotificationOptions
+): UseSendBookingNotificationReturn => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const sendNotification = useCallback(
+    async (payload: BookingNotificationPayload) => {
+      setIsLoading(true);
+      setError(null);
+      setSuccessMessage(null);
+
+      const validationResult =
+        bookingNotificationPayloadSchema.safeParse(payload);
+      if (!validationResult.success) {
+        const errorMessage = "Invalid payload data for email notification.";
+        const errorDetails: ZodFieldErrors =
+          validationResult.error.flatten().fieldErrors;
+        console.error(errorMessage, errorDetails);
+        setError(errorMessage);
+        options?.onError?.(errorMessage, errorDetails);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await normalFetch(
+          "/api/utils/sendEmail",
+          "post",
+          payload
+        );
+
+        const contentType = response.headers.get("content-type");
+        if (response.ok) {
+          if (contentType && contentType.includes("application/json")) {
+            const responseData = await response.json();
+            setSuccessMessage(
+              responseData.message || "Notification sent successfully!"
+            );
+            options?.onSuccess?.(responseData);
+          } else {
+            const text = await response.text();
+            console.warn(
+              "Email API success but non-JSON response:",
+              text.substring(0, 100)
+            );
+            setSuccessMessage("Notification processed (non-JSON response).");
+            options?.onSuccess?.({
+              message: "Notification processed (non-JSON response).",
+            });
+          }
+        } else {
+          let apiErrorMessage = `Request failed with status ${response.status}`;
+          let errorDetailsFromApi: ErrorDetails = null;
+          if (contentType && contentType.includes("application/json")) {
+            try {
+              const errorData = await response.json();
+              apiErrorMessage = errorData.message || apiErrorMessage;
+
+              if (
+                typeof errorData.errors === "object" &&
+                errorData.errors !== null
+              ) {
+                errorDetailsFromApi = errorData.errors as Record<
+                  string,
+                  unknown
+                >;
+              } else if (typeof errorData.errors === "string") {
+                errorDetailsFromApi = errorData.errors;
+              }
+            } catch {
+              const text = await response.text();
+              apiErrorMessage += `. Non-JSON error response: ${text.substring(
+                0,
+                200
+              )}`;
+            }
+          } else {
+            const text = await response.text();
+            apiErrorMessage += `. HTML error response: ${text.substring(
+              0,
+              200
+            )}`;
+          }
+          console.error(
+            "API Error sending email:",
+            apiErrorMessage,
+            errorDetailsFromApi
+          );
+          setError(apiErrorMessage);
+          options?.onError?.(apiErrorMessage, errorDetailsFromApi);
+        }
+      } catch (e: unknown) {
+        let errorMessage =
+          "An unexpected error occurred while sending the notification.";
+        if (e instanceof Error) {
+          errorMessage = e.message;
+        }
+        console.error("Fetch Error sending email:", errorMessage, e);
+        setError(errorMessage);
+        options?.onError?.(errorMessage, null);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [options]
+  );
+
+  return { sendNotification, isLoading, error, successMessage };
+};
 
 type DisplayablePaymentStatus = "Partial" | "Paid";
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return "N/A";
-  try {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return "Invalid Date";
-  }
-};
 
 const formatCurrency = (amount: number | undefined): string => {
   if (amount === undefined || amount === null) return "N/A";
@@ -87,46 +221,46 @@ const getStatusInfo = (status: string | undefined) => {
         color: "text-green-600",
         bgColor: "bg-green-100",
         label: "Complete",
-      };
+      } as const;
     case "ongoing":
       return {
         icon: Loader,
         color: "text-blue-600",
         bgColor: "bg-blue-100",
         label: "Ongoing",
-      };
+      } as const;
     case "reserved":
       return {
         icon: Clock,
         color: "text-orange-600",
         bgColor: "bg-orange-100",
         label: "Reserved",
-      };
+      } as const;
     case "cancelled":
       return {
         icon: XCircle,
         color: "text-red-600",
         bgColor: "bg-red-100",
         label: "Cancelled",
-      };
+      } as const;
     case "pending":
       return {
         icon: CircleHelp,
         color: "text-yellow-600",
         bgColor: "bg-yellow-100",
         label: "Pending",
-      };
+      } as const;
     default:
       return {
         icon: CircleHelp,
         color: "text-gray-600",
         bgColor: "bg-gray-100",
         label: status || "Unknown",
-      };
+      } as const;
   }
 };
 
-const getPaymentStatusInfo = (status: DisplayablePaymentStatus) => {
+const getPaymentStatusInfo = (status: DisplayablePaymentStatus | undefined) => {
   if (
     status === null ||
     status === undefined ||
@@ -137,7 +271,7 @@ const getPaymentStatusInfo = (status: DisplayablePaymentStatus) => {
       color: "text-orange-600",
       bgColor: "bg-orange-100",
       label: "Pending",
-    };
+    } as const;
   }
   switch (status?.toLowerCase()) {
     case "paid":
@@ -146,21 +280,21 @@ const getPaymentStatusInfo = (status: DisplayablePaymentStatus) => {
         color: "text-green-600",
         bgColor: "bg-green-100",
         label: "Paid",
-      };
+      } as const;
     case "partial":
       return {
         icon: Percent,
         color: "text-blue-600",
         bgColor: "bg-blue-100",
         label: "Partial",
-      };
+      } as const;
     default:
       return {
         icon: CircleHelp,
         color: "text-gray-600",
         bgColor: "bg-gray-100",
         label: "Unknown",
-      };
+      } as const;
   }
 };
 
@@ -175,8 +309,9 @@ const BookingCard = ({
     booking.status
   );
 
-  const [currentPaymentStatus, setCurrentPaymentStatus] =
-    useState<DisplayablePaymentStatus>(booking.paymentStatus!);
+  const [currentPaymentStatus, setCurrentPaymentStatus] = useState<
+    DisplayablePaymentStatus | undefined
+  >(booking.paymentStatus);
 
   const bookingStatusInfo = getStatusInfo(currentBookingStatus);
   const BookingStatusIcon = bookingStatusInfo.icon;
@@ -189,6 +324,16 @@ const BookingCard = ({
   const { updatePaymentStatus, loading: paymentStatusLoading } =
     useUpdateBookingPaymentStatus();
 
+  const { sendNotification, isLoading: isSendingEmail } =
+    useSendBookingNotification({
+      onSuccess: (data) => {
+        console.log("Email notification sent successfully:", data.message);
+      },
+      onError: (error, details) => {
+        console.error("Failed to send email notification:", error, details);
+      },
+    });
+
   const [isMainDialogOpen, setIsMainDialogOpen] = useState(false);
   const [isBookingStatusPopoverOpen, setIsBookingStatusPopoverOpen] =
     useState(false);
@@ -198,6 +343,41 @@ const BookingCard = ({
   const [isProofDialogOpen, setIsProofDialogOpen] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [isDeclineLoading, setIsDeclineLoading] = useState(false);
+
+  const prepareEmailPayload = (
+    currentBooking: Booking,
+    verifiedStatus: boolean
+  ): BookingNotificationPayload | null => {
+    if (
+      !currentBooking.email ||
+      !currentBooking.name ||
+      !currentBooking.checkIn
+    ) {
+      console.warn(
+        "Missing essential details (email, name, checkIn) for email notification for booking ID:",
+        currentBooking.id
+      );
+      return null;
+    }
+
+    const roomId = currentBooking.room?.id ?? currentBooking.roomId;
+    if (!roomId) {
+      console.warn(
+        "Missing room ID for email notification for booking ID:",
+        currentBooking.id
+      );
+      return null;
+    }
+
+    return {
+      email: currentBooking.email,
+      name: currentBooking.name,
+      roomId: String(roomId),
+      verified: verifiedStatus,
+      checkIn: formatDate(currentBooking.checkIn),
+    };
+  };
 
   const handleDelete = async () => {
     if (!booking.id) return;
@@ -208,23 +388,55 @@ const BookingCard = ({
   };
 
   const handleChangeBookingStatus = async (
-    newStatus: "Reserved" | "Ongoing" | "Complete" | "Cancelled" | "Pending"
+    newStatus: "Reserved" | "Ongoing" | "Complete" | "Cancelled"
   ) => {
     if (!booking.id) return;
-    await updateStatus(booking.id, newStatus);
+
+    const statusBeforeChange = currentBookingStatus;
+
     setCurrentBookingStatus(newStatus);
     setIsBookingStatusPopoverOpen(false);
-    await refetchBookings();
+
+    try {
+      await updateStatus(booking.id, newStatus);
+
+      if (statusBeforeChange?.toLowerCase() === "pending") {
+        let payload: BookingNotificationPayload | null = null;
+        if (newStatus.toLowerCase() === "reserved") {
+          payload = prepareEmailPayload(booking, true);
+        } else if (newStatus.toLowerCase() === "cancelled") {
+          payload = prepareEmailPayload(booking, false);
+        }
+
+        if (payload) {
+          await sendNotification(payload);
+        }
+      }
+      await refetchBookings();
+    } catch (error) {
+      console.error(`Error updating booking status to ${newStatus}:`, error);
+      setCurrentBookingStatus(statusBeforeChange);
+    }
   };
 
   const handleChangePaymentStatus = async (
     newPaymentStatus: DisplayablePaymentStatus
   ) => {
     if (!booking.id) return;
-    await updatePaymentStatus(booking.id, newPaymentStatus);
+    const originalPaymentStatus = currentPaymentStatus;
     setCurrentPaymentStatus(newPaymentStatus);
     setIsPaymentStatusPopoverOpen(false);
-    await refetchBookings();
+
+    try {
+      await updatePaymentStatus(booking.id, newPaymentStatus);
+      await refetchBookings();
+    } catch (error) {
+      console.error(
+        `Error updating payment status to ${newPaymentStatus}:`,
+        error
+      );
+      setCurrentPaymentStatus(originalPaymentStatus);
+    }
   };
 
   const handleConfirmPaymentAndReserve = async () => {
@@ -233,14 +445,26 @@ const BookingCard = ({
     const originalBookingStatus = currentBookingStatus;
     const originalPaymentStatus = currentPaymentStatus;
 
-    const newActualPaymentStatus: DisplayablePaymentStatus = "Partial";
+    const newBookingStatus = "Reserved" as const;
+    const newActualPaymentStatus = "Partial" as const;
 
-    setCurrentBookingStatus("Reserved");
+    setCurrentBookingStatus(newBookingStatus);
     setCurrentPaymentStatus(newActualPaymentStatus);
 
     try {
-      await updateStatus(booking.id, "Reserved");
+      await updateStatus(booking.id, newBookingStatus);
       await updatePaymentStatus(booking.id, newActualPaymentStatus);
+
+      const payload = prepareEmailPayload(booking, true);
+      if (payload) {
+        await sendNotification(payload);
+      } else {
+        console.warn(
+          "Booking confirmed and reserved, but email notification could not be sent due to missing/invalid details in payload for booking ID:",
+          booking.id
+        );
+      }
+
       setIsProofDialogOpen(false);
       await refetchBookings();
     } catch (error) {
@@ -250,26 +474,70 @@ const BookingCard = ({
     }
   };
 
+  const handleDeclinePaymentAndBooking = async () => {
+    if (!booking.id) return;
+
+    setIsDeclineLoading(true);
+
+    const payload = prepareEmailPayload(booking, false);
+    if (payload) {
+      try {
+        await sendNotification(payload);
+      } catch (emailError) {
+        console.error(
+          "Failed to send decline notification email, but proceeding with booking deletion:",
+          emailError
+        );
+      }
+    } else {
+      console.warn(
+        "Could not prepare email payload for booking decline (ID:",
+        booking.id,
+        "). Proceeding with deletion."
+      );
+    }
+
+    try {
+      await deleteBooking(booking.id);
+    } catch (deletionError) {
+      console.error("Error deleting booking after decline:", deletionError);
+      setIsDeclineLoading(false);
+      return;
+    }
+
+    setIsProofDialogOpen(false);
+    setIsMainDialogOpen(false);
+    await refetchBookings();
+    setIsDeclineLoading(false);
+  };
+
   const paymentProofImageUrl = booking.image?.name
     ? `https://dwfbvqkcxeajmtqciozz.supabase.co/storage/v1/object/public/payment/${booking.id}/${booking.image.name}`
     : null;
 
-  const availableBookingStatusOptions: (
-    | "Reserved"
-    | "Ongoing"
-    | "Complete"
-    | "Cancelled"
-  )[] = ["Reserved", "Ongoing", "Complete", "Cancelled"];
+  const availableBookingStatusOptions = [
+    "Reserved",
+    "Ongoing",
+    "Complete",
+    "Cancelled",
+  ] as const;
 
-  const availablePaymentStatusOptionsToSet: DisplayablePaymentStatus[] = [
-    "Partial",
-    "Paid",
-  ];
+  const availablePaymentStatusOptionsToSet = ["Partial", "Paid"] as const;
+
+  const anyLoading =
+    statusLoading ||
+    paymentStatusLoading ||
+    isSendingEmail ||
+    isDeclineLoading ||
+    deleteLoading;
 
   return (
     <Dialog
       open={isMainDialogOpen}
-      onOpenChange={setIsMainDialogOpen}>
+      onOpenChange={(open) => {
+        if (anyLoading && !open) return;
+        setIsMainDialogOpen(open);
+      }}>
       <DialogTrigger asChild>
         <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <CardHeader>
@@ -299,6 +567,7 @@ const BookingCard = ({
         </DialogHeader>
 
         <div className="space-y-4">
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 py-2">
             <div className="space-y-1.5">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
@@ -330,7 +599,7 @@ const BookingCard = ({
                 </span>
               </div>
             </div>
-
+            {}
             <div className="space-y-1.5">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
                 Dates & Status
@@ -365,6 +634,7 @@ const BookingCard = ({
                       variant="outline"
                       className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${bookingStatusInfo.bgColor} ${bookingStatusInfo.color} font-medium capitalize`}
                       onClick={() => {
+                        if (anyLoading) return;
                         if (
                           currentBookingStatus?.toLowerCase() === "pending" &&
                           !paymentProofImageUrl &&
@@ -395,18 +665,21 @@ const BookingCard = ({
                         statusOption.toLowerCase()
                       )
                         return null;
+
                       if (currentBookingStatus?.toLowerCase() === "pending") {
                         if (
                           !paymentProofImageUrl &&
-                          statusOption !== "Cancelled" &&
-                          currentPaymentStatus?.toLowerCase() === "pending"
-                        )
+                          currentPaymentStatus?.toLowerCase() === "pending" &&
+                          statusOption !== "Cancelled"
+                        ) {
                           return null;
+                        }
                         if (
                           paymentProofImageUrl &&
                           !["Reserved", "Cancelled"].includes(statusOption)
-                        )
+                        ) {
                           return null;
+                        }
                       }
 
                       const optionInfo = getStatusInfo(statusOption);
@@ -415,7 +688,7 @@ const BookingCard = ({
                           key={statusOption}
                           variant="ghost"
                           size="sm"
-                          disabled={statusLoading}
+                          disabled={anyLoading}
                           className={`w-full justify-start cursor-pointer text-xs h-auto py-1.5 px-2 ${optionInfo.bgColor} ${optionInfo.color} hover:${optionInfo.bgColor}/80`}
                           onClick={() => {
                             handleChangeBookingStatus(statusOption);
@@ -431,6 +704,7 @@ const BookingCard = ({
             </div>
           </div>
           <Separator />
+          {}
           {booking.room && (
             <div className="space-y-1.5 py-2">
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
@@ -446,10 +720,21 @@ const BookingCard = ({
                 <span className="font-medium mr-1.5">Type:</span>
                 <span className="truncate">{booking.room.roomType}</span>
               </div>
+              {(booking.room.id || booking.roomId) && (
+                <div className="flex items-center text-sm">
+                  <Hash className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0 opacity-50" />
+                  <span className="font-medium mr-1.5 text-muted-foreground">
+                    Room ID:
+                  </span>
+                  <span className="truncate text-muted-foreground">
+                    {booking.room.id ?? booking.roomId}
+                  </span>
+                </div>
+              )}
             </div>
           )}
           <Separator />
-
+          {}
           <div className="space-y-3 py-2">
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
               Payment
@@ -466,6 +751,7 @@ const BookingCard = ({
                 <Dialog
                   open={isProofDialogOpen}
                   onOpenChange={(open) => {
+                    if (anyLoading && !open) return;
                     setIsProofDialogOpen(open);
                     if (open) {
                       setImageLoading(true);
@@ -476,7 +762,8 @@ const BookingCard = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs h-auto py-1 px-2">
+                      className="text-xs h-auto py-1 px-2"
+                      disabled={anyLoading}>
                       <FileImage className="h-3.5 w-3.5 mr-1.5" />
                       View Proof
                     </Button>
@@ -531,27 +818,43 @@ const BookingCard = ({
                         </div>
                       )}
                     </div>
-                    <DialogFooter className="p-4 border-t flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0">
+                    <DialogFooter className="p-4 border-t flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:gap-x-2">
                       {currentBookingStatus?.toLowerCase() === "pending" &&
                         !imageError &&
                         paymentProofImageUrl && (
-                          <Button
-                            onClick={handleConfirmPaymentAndReserve}
-                            disabled={statusLoading || paymentStatusLoading}
-                            className="w-full sm:w-auto">
-                            {statusLoading || paymentStatusLoading ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                            )}
-                            Confirm & Reserve
-                          </Button>
+                          <>
+                            <Button
+                              onClick={handleConfirmPaymentAndReserve}
+                              disabled={anyLoading}
+                              className="w-full sm:w-auto">
+                              {statusLoading ||
+                              paymentStatusLoading ||
+                              isSendingEmail ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                              )}
+                              Confirm & Reserve
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={handleDeclinePaymentAndBooking}
+                              disabled={anyLoading}
+                              className="w-full sm:w-auto">
+                              {isDeclineLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <XCircle className="mr-2 h-4 w-4" />
+                              )}
+                              Decline Payment
+                            </Button>
+                          </>
                         )}
                       <DialogClose asChild>
                         <Button
                           variant="outline"
                           className="w-full sm:w-auto"
-                          disabled={statusLoading || paymentStatusLoading}>
+                          disabled={anyLoading}>
                           Close
                         </Button>
                       </DialogClose>
@@ -572,7 +875,13 @@ const BookingCard = ({
                 <PopoverTrigger asChild>
                   <Badge
                     variant="outline"
-                    className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${paymentStatusDisplayInfo.bgColor} ${paymentStatusDisplayInfo.color} font-medium capitalize`}>
+                    className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${paymentStatusDisplayInfo.bgColor} ${paymentStatusDisplayInfo.color} font-medium capitalize`}
+                    onClick={() => {
+                      if (!anyLoading)
+                        setIsPaymentStatusPopoverOpen(
+                          !isPaymentStatusPopoverOpen
+                        );
+                    }}>
                     {paymentStatusLoading ? (
                       <Spinner
                         size={12}
@@ -599,7 +908,7 @@ const BookingCard = ({
                         key={statusOption}
                         variant="ghost"
                         size="sm"
-                        disabled={paymentStatusLoading}
+                        disabled={anyLoading}
                         className={`w-full justify-start cursor-pointer text-xs h-auto py-1.5 px-2 ${optionInfo.bgColor} ${optionInfo.color} hover:${optionInfo.bgColor}/80`}
                         onClick={() => {
                           handleChangePaymentStatus(statusOption);
@@ -613,7 +922,7 @@ const BookingCard = ({
               </Popover>
             </div>
           </div>
-
+          {}
           {booking.bookingType && (
             <>
               <Separator />
@@ -625,13 +934,14 @@ const BookingCard = ({
             </>
           )}
         </div>
-
+        {}
         <DialogFooter className="flex flex-col space-y-2 pt-4 md:flex-row md:space-y-0 md:space-x-2 md:justify-end">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full md:w-auto">
+                className="w-full md:w-auto"
+                disabled={anyLoading}>
                 <Edit className="mr-2 h-4 w-4" /> Edit
               </Button>
             </PopoverTrigger>
@@ -655,12 +965,15 @@ const BookingCard = ({
 
           <Dialog
             open={isDeleteConfirmOpen}
-            onOpenChange={setIsDeleteConfirmOpen}>
+            onOpenChange={(open) => {
+              if (anyLoading && !open) return;
+              setIsDeleteConfirmOpen(open);
+            }}>
             <DialogTrigger asChild>
               <Button
                 variant="destructive"
                 className="w-full md:w-auto"
-                disabled={deleteLoading}>
+                disabled={anyLoading}>
                 {deleteLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -683,13 +996,13 @@ const BookingCard = ({
                 <Button
                   variant="outline"
                   onClick={() => setIsDeleteConfirmOpen(false)}
-                  disabled={deleteLoading}>
+                  disabled={anyLoading}>
                   Cancel
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={handleDelete}
-                  disabled={deleteLoading}>
+                  disabled={anyLoading}>
                   {deleteLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -703,7 +1016,8 @@ const BookingCard = ({
             <Button
               type="button"
               variant="outline"
-              className="w-full md:w-auto">
+              className="w-full md:w-auto"
+              disabled={anyLoading}>
               Close
             </Button>
           </DialogClose>
