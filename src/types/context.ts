@@ -3,7 +3,9 @@ import { Booking, Room } from "./types";
 
 export interface BookingContextType {
   bookingContext?: Booking;
-  setBookingContext?: React.Dispatch<React.SetStateAction<Booking>> | undefined;
+  setBookingContext?:
+    | React.Dispatch<React.SetStateAction<Booking | undefined>>
+    | undefined;
   selectedRoom?: Room;
   setSelectedRoom?:
     | React.Dispatch<React.SetStateAction<Room | undefined>>
