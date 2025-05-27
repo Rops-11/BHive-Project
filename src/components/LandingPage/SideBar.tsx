@@ -70,7 +70,6 @@ const SideBar: React.FC<SideBarProps> = ({
         </button>
       </div>
 
-      {/* Navigation */}
       <div className="flex flex-col py-6 px-4 space-y-2">
         {navItems?.map((item) => {
           const isActive = pathname === item.href;
