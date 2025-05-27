@@ -116,24 +116,24 @@ const PreviewRoom = () => {
   const { selectedRoom } = useBooking();
 
   return (
-    <Card className="flex flex-col lg:w-7/16 w-full h-full p-4 md:p-6 bg-amber-400/20 backdrop-filter backdrop-blur-lg rounded-xl overflow-y-auto scrollbar-thin scrollbar-thumb-amber-500 scrollbar-track-amber-100">
+    <Card className="flex flex-col lg:w-7/16 w-full h-[550px] lg:h-[600px] p-4 md:p-6 bg-amber-400/20 backdrop-filter backdrop-blur-lg rounded-xl overflow-y-auto scrollbar-thin scrollbar-thumb-amber-500 scrollbar-track-amber-100">
       {selectedRoom ? (
         <>
-          <CardHeader className="pb-3 pt-1 px-1">
+          <CardHeader className="pt-1 px-1">
             <h3 className="text-xl md:text-2xl font-semibold text-slate-700">
               {selectedRoom.roomType || "Room Details"}:{" "}
               {selectedRoom.roomNumber || "N/A"}
             </h3>
           </CardHeader>
           <CardContent className="flex flex-col flex-grow p-1 space-y-4">
-            <div className="relative w-full aspect-[16/10] md:aspect-video max-h-[250px] md:max-h-[350px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center">
+            <div className="relative w-full aspect-[16/10] md:aspect-video max-h-[250px] md:max-h-[250px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center">
               <RoomImagesCarousel
                 roomId={selectedRoom.id!}
                 images={selectedRoom.images || []}
               />
             </div>
 
-            <div className="space-y-3 pt-2 text-sm md:text-base">
+            <div className="space-y-1.5 text-sm md:text-base">
               {typeof selectedRoom.roomRate === "number" && (
                 <div className="flex items-center text-slate-600">
                   <DollarSign className="mr-2 h-4 w-4 md:h-5 md:w-5 text-amber-700 flex-shrink-0" />
@@ -154,10 +154,10 @@ const PreviewRoom = () => {
               {/* Amenities Section */}
               {selectedRoom.amenities && selectedRoom.amenities.length > 0 && (
                 <div className="pt-1"> {/* Reduced top padding slightly from pt-2 to pt-1 if space-y-3 is on parent */}
-                  <h4 className="font-medium text-slate-600 mb-1.5">
+                  <h4 className="font-medium text-slate-600 mb-1">
                     Amenities:
                   </h4>
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-slate-600">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-slate-600">
                     {selectedRoom.amenities.map((amenityName) => {
                       const amenity = amenityName as Amenity;
                       // Ensure amenity is in our defined AMENITIES list to be safe

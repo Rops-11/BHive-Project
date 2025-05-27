@@ -324,7 +324,8 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-full pt-10 justify-between py-2">
+        className="flex flex-col w-full h-full pt-10 justify-between py-2"
+      >
         <div className="flex flex-col h-auto space-y-3">
           <FormField
             control={form.control}
@@ -397,7 +398,8 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                         className={cn(
                           "w-full justify-start text-left font-normal border-black bg-transparent",
                           !field.value?.from && "text-muted-foreground"
-                        )}>
+                        )}
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value?.from ? (
                           field.value.to ? (
@@ -414,9 +416,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0"
-                    align="start">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       initialFocus
                       mode="range"
@@ -472,7 +472,8 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                       !selectedDateRange?.from ||
                       !selectedDateRange?.to ||
                       selectedDateRange.to <= selectedDateRange.from
-                    }>
+                    }
+                  >
                     <FormControl>
                       <SelectTrigger className="border-black w-full">
                         <SelectValue placeholder="Choose Your Room">
@@ -493,9 +494,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                             <SelectGroup>
                               <SelectLabel>Queen Bee Rooms</SelectLabel>
                               {queenBeeRooms.map((room) => (
-                                <SelectItem
-                                  key={room.id}
-                                  value={room.id!}>
+                                <SelectItem key={room.id} value={room.id!}>
                                   {room.roomNumber} - {room.roomType}
                                 </SelectItem>
                               ))}
@@ -505,9 +504,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                             <SelectGroup>
                               <SelectLabel>Suites</SelectLabel>
                               {suites.map((room) => (
-                                <SelectItem
-                                  key={room.id}
-                                  value={room.id!}>
+                                <SelectItem key={room.id} value={room.id!}>
                                   {room.roomNumber} - {room.roomType}
                                 </SelectItem>
                               ))}
@@ -517,9 +514,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                             <SelectGroup>
                               <SelectLabel>Family Suites</SelectLabel>
                               {familySuites.map((room) => (
-                                <SelectItem
-                                  key={room.id}
-                                  value={room.id!}>
+                                <SelectItem key={room.id} value={room.id!}>
                                   {room.roomNumber} - {room.roomType}
                                 </SelectItem>
                               ))}
@@ -530,9 +525,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                               <SelectGroup>
                                 <SelectLabel>Single Standard</SelectLabel>
                                 {singleStandardRooms.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
+                                  <SelectItem key={room.id} value={room.id!}>
                                     {room.roomNumber} - {room.roomType}
                                   </SelectItem>
                                 ))}
@@ -543,9 +536,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                               <SelectGroup>
                                 <SelectLabel>Single Deluxe</SelectLabel>
                                 {singleDeluxeRooms.map((room) => (
-                                  <SelectItem
-                                    key={room.id}
-                                    value={room.id!}>
+                                  <SelectItem key={room.id} value={room.id!}>
                                     {room.roomNumber} - {room.roomType}
                                   </SelectItem>
                                 ))}
@@ -555,9 +546,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                             <SelectGroup>
                               <SelectLabel>Twin Bee Rooms</SelectLabel>
                               {twinBeeRooms.map((room) => (
-                                <SelectItem
-                                  key={room.id}
-                                  value={room.id!}>
+                                <SelectItem key={room.id} value={room.id!}>
                                   {room.roomNumber} - {room.roomType}
                                 </SelectItem>
                               ))}
@@ -644,9 +633,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                 checked={termsAccepted}
                 onCheckedChange={(checked) => setTermsAccepted(!!checked)}
               />
-              <Label
-                htmlFor="terms"
-                className="cursor-pointer">
+              <Label htmlFor="terms" className="cursor-pointer">
                 I have read and accept the{" "}
                 <Dialog>
                   <DialogTrigger asChild>
@@ -665,14 +652,15 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
               </Label>
             </div>
           )}
-          <div className="flex w-full justify-evenly gap-4">
+          <div className="flex flex-col md:flex-row w-full md:justify-evenly gap-4">
             <Button
               type="button"
               variant="outline"
               className="w-full md:w-5/12 border-red-600 text-red-600 hover:bg-red-50"
               onClick={() => {
                 router.back();
-              }}>
+              }}
+            >
               Cancel
             </Button>
             <Button
@@ -682,7 +670,8 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                 isSubmittingWithCheck ||
                 (type === "Guest" && !termsAccepted) ||
                 (!form.formState.isValid && form.formState.isSubmitted)
-              }>
+              }
+            >
               {isSubmittingWithCheck ? "Checking & Processing..." : "Proceed"}
             </Button>
           </div>
