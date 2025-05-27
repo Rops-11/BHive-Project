@@ -1,15 +1,15 @@
 "use client";
 
+import React, { useEffect, useState, useCallback } from "react";
 import HotelRoomCard from "@/components/Room/HotelRoomCard";
 import RoomFiltererByDate from "@/components/Room/RoomFiltererByDate";
 import UpdateRoomRateDialog from "@/components/Room/UpdateRoomRateDialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
-import React, { useEffect, useState, useCallback } from "react";
-import { DateRange } from "react-day-picker";
-
-import { Card } from "@/components/ui/card";
 import RoomFormPopover from "@/components/Room/RoomFormPopover";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { DateRange } from "react-day-picker";
+import useOnlyAvailableRoomsOnSpecificDate from "@/hooks/utilsHooks/useOnlyAvailableRoomsOnSpecificDate";
+import { Room } from "@/types/types";
 
 const Rooms = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -41,9 +41,19 @@ const Rooms = () => {
     refetchRooms();
   }, []);
 
+  // Group rooms by roomType
+  const groupedRooms: Record<string, Room[]> = {};
+  availableRoomsWithDate.forEach((room) => {
+    const type = room.roomType || "Unknown";
+    if (!groupedRooms[type]) {
+      groupedRooms[type] = [];
+    }
+    groupedRooms[type].push(room);
+  });
+
   return (
-    <div className="flex flex-col w-full min-h-screen items-center space-y-5 pt-24">
-      <Card className="flex flex-col md:flex-row p-4 w-full max-w-4xl gap-4 items-stretch md:items-end">
+    <div className="flex flex-col w-full min-h-screen items-center space-y-8 pt-24 px-4 lg:px-16">
+      <Card className="flex flex-col md:flex-row p-4 w-full max-w-7xl gap-4 items-stretch md:items-end">
         <div className="flex-grow w-full">
           <RoomFiltererByDate
             dateRange={dateRange}
@@ -53,10 +63,7 @@ const Rooms = () => {
         </div>
 
         <div className="flex flex-shrink-0 w-full sm:w-auto">
-          <RoomFormPopover
-            type="Add"
-            onFormSubmitSuccess={refetchRooms}
-          />
+          <RoomFormPopover type="Add" onFormSubmitSuccess={refetchRooms} />
         </div>
 
         <div className="w-full md:w-auto flex-shrink-0 self-center md:self-end">
@@ -64,7 +71,7 @@ const Rooms = () => {
         </div>
       </Card>
 
-      <div className="flex flex-col h-auto w-full max-w-4xl space-y-6 items-center">
+      <div className="w-full h-auto mt-10 space-y-20 max-w-7xl">
         {roomsLoading ? (
           <>
             <Skeleton className="w-full h-60 rounded-lg" />
@@ -72,13 +79,20 @@ const Rooms = () => {
             <Skeleton className="w-full h-60 rounded-lg" />
           </>
         ) : (
-          availableRoomsWithDate.map((room) => (
-            <HotelRoomCard
-              key={room.id}
-              room={room}
-              role="Admin"
-              refetchRooms={refetchRooms}
-            />
+          Object.entries(groupedRooms).map(([roomType, rooms]) => (
+            <div key={roomType} className="px-4 lg:px-8">
+              <h2 className="text-3xl font-bold mb-8 text-[#D29D30]">{roomType} Rooms</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {rooms.map((room) => (
+                  <HotelRoomCard
+                    key={room.id}
+                    room={room}
+                    role="Admin"
+                    refetchRooms={refetchRooms}
+                  />
+                ))}
+              </div>
+            </div>
           ))
         )}
       </div>
