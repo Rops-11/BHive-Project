@@ -27,7 +27,7 @@ model Booking {
   mobileNumber     String
   email            String?   
   status           Status         @default(Pending)
-  paymentStatus    PaymentStatus  @default(Partial)
+  paymentStatus    PaymentStatus  @default(Paid)
   name             String
   numberOfAdults   Int
   numberOfChildren Int

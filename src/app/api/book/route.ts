@@ -62,6 +62,11 @@ export async function GET() {
   }
 }
 
+type AppError = Error & {
+  statusCode?: number;
+  cleanupBookingId?: string;
+};
+
 export async function POST(req: NextRequest) {
   let tempBookingIdForCleanup: string | null = null;
 
@@ -83,7 +88,7 @@ export async function POST(req: NextRequest) {
     const paymentStatusStr = formData.get("paymentStatus") as string | null;
     const file = formData.get("file") as File | null;
 
-    const validationMap: { [key: string]: any } = {
+    const validationMap: { [key: string]: string | null } = {
       roomId,
       checkIn: checkInStr,
       checkOut: checkOutStr,
@@ -96,7 +101,7 @@ export async function POST(req: NextRequest) {
 
     const missingFields = Object.entries(validationMap)
       .filter(
-        ([_, value]) =>
+        ([, value]: [string, string | null]) =>
           value === null ||
           value === undefined ||
           (typeof value === "string" && value.trim() === "")
@@ -191,8 +196,8 @@ export async function POST(req: NextRequest) {
       if (conflictingBooking) {
         const error = new Error(
           "Room is already booked for the selected dates."
-        );
-        (error as any).statusCode = 409;
+        ) as AppError;
+        error.statusCode = 409;
         throw error;
       }
 
@@ -239,13 +244,17 @@ export async function POST(req: NextRequest) {
         const uploadResult = await uploadImage("payment", newBooking.id, file);
 
         if (uploadResult.error) {
+          const errorMessage =
+            uploadResult.error instanceof Error
+              ? uploadResult.error.message
+              : String(uploadResult.error);
           console.error(
-            `Image upload failed for booking ${newBooking.id}: ${uploadResult.error.message}`
+            `Image upload failed for booking ${newBooking.id}: ${errorMessage}`
           );
           const uploadFailError = new Error(
-            `Booking record created (ID: ${newBooking.id}), but payment proof upload failed: ${uploadResult.error.message}. The booking will be rolled back.`
-          );
-          (uploadFailError as any).cleanupBookingId = newBooking.id;
+            `Booking record created (ID: ${newBooking.id}), but payment proof upload failed: ${errorMessage}. The booking will be rolled back.`
+          ) as AppError;
+          uploadFailError.cleanupBookingId = newBooking.id;
           throw uploadFailError;
         }
       }
@@ -259,35 +268,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(finalBookingDetails, { status: 201 });
   } catch (error: unknown) {
     console.error("Error during booking process:", error);
-    const bookingIdToCleanup =
-      (error as any)?.cleanupBookingId || tempBookingIdForCleanup;
 
-    if (bookingIdToCleanup) {
+    const bookingIdToClean: string | null =
+      error instanceof Error &&
+      typeof (error as AppError).cleanupBookingId === "string"
+        ? (error as AppError).cleanupBookingId!
+        : tempBookingIdForCleanup;
+
+    if (bookingIdToClean) {
       try {
         console.warn(
-          `Attempting to clean up (delete) booking due to error: ${bookingIdToCleanup}`
+          `Attempting to clean up (delete) booking due to error: ${bookingIdToClean}`
         );
-        await prisma.booking.delete({ where: { id: bookingIdToCleanup } });
+        await prisma.booking.delete({ where: { id: bookingIdToClean } });
         console.log(
-          `Successfully cleaned up (deleted) booking: ${bookingIdToCleanup}`
+          `Successfully cleaned up (deleted) booking: ${bookingIdToClean}`
         );
       } catch (cleanupError) {
         console.error(
-          `FATAL: Failed to clean up booking ${bookingIdToCleanup}. Manual intervention required. Cleanup error:`,
+          `FATAL: Failed to clean up booking ${bookingIdToClean}. Manual intervention required. Cleanup error:`,
           cleanupError
         );
       }
     }
 
     if (error instanceof Error) {
-      const statusCode = (error as any).statusCode || 500;
-      let message = error.message;
+      const appError = error as AppError;
+
+      const statusCode = appError.statusCode || 500;
+      let message = appError.message;
       let details: string | undefined;
 
-      if ((error as any).cleanupBookingId) {
+      if (appError.cleanupBookingId) {
         message =
           "The booking could not be completed due to an issue with payment proof upload. The attempted booking has been rolled back. Please try again.";
-        details = error.message;
+        details = appError.message;
       }
 
       return NextResponse.json(
@@ -296,7 +311,7 @@ export async function POST(req: NextRequest) {
           message: message,
           details: details,
           stack:
-            process.env.NODE_ENV === "development" ? error.stack : undefined,
+            process.env.NODE_ENV === "development" ? appError.stack : undefined,
         },
         { status: statusCode }
       );

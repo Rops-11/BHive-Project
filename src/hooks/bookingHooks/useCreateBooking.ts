@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { Booking } from "@/types/types";
 import { normalFetch } from "utils/fetch";
 
@@ -17,7 +16,7 @@ type CreateBookingPayload = Omit<
 const useCreateBooking = () => {
   const [bookingDetails, setBookingDetails] = useState<Booking | undefined>();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState<string>();
 
   const createBooking = async (payload: CreateBookingPayload) => {
     setLoading(true);
@@ -52,14 +51,15 @@ const useCreateBooking = () => {
         } else if (response.statusText) {
           message = response.statusText;
         }
-
+        setError(message);
         return;
       }
 
+
       const newBookingData: Booking = await response.json();
       setBookingDetails(newBookingData);
-    } catch (e: any) {
-      console.error("Error in createBooking hook:", e);
+    } catch {
+      console.error("Unknown error in createBooking hook");
     } finally {
       setLoading(false);
     }

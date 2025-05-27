@@ -46,16 +46,20 @@ const InvoiceCard = ({
   const [showRedirectMessage, setShowRedirectMessage] = useState(false);
 
   useEffect(() => {
+    if (showRedirectMessage) {
+      return;
+    }
+
     if (!bookingContext) {
       const timeout = setTimeout(() => {
-        if (!context?.bookingContext) {
+        if (!showRedirectMessage && !context?.bookingContext) {
           toast.warn("Booking details missing, redirecting...");
           router.push(admin ? "/admin/book" : "/book");
         }
       }, 3000);
       return () => clearTimeout(timeout);
     }
-  }, [bookingContext, context, router, admin]);
+  }, [bookingContext, context, router, admin, showRedirectMessage]);
 
   useEffect(() => {
     if (
@@ -63,15 +67,22 @@ const InvoiceCard = ({
       createdBookingDetails.id &&
       !createBookingAPILoading
     ) {
+      setIsProcessingPayment(false);
       setShowRedirectMessage(true);
 
-      if (setBookingContext) setBookingContext(undefined);
-      if (setSelectedRoom) setSelectedRoom(undefined);
-
-      const redirectPath = admin ? "/admin/inbox" : `/`;
-
       const redirectTimeout = setTimeout(() => {
-        router.push(redirectPath);
+        if (setBookingContext) {
+          setBookingContext(undefined);
+        }
+        if (setSelectedRoom) {
+          setSelectedRoom(undefined);
+        }
+
+        if (admin) {
+          router.push("/admin/inbox");
+        } else {
+          router.push("/");
+        }
       }, 2500);
 
       return () => clearTimeout(redirectTimeout);
@@ -98,18 +109,20 @@ const InvoiceCard = ({
   }, [createBookingError, createBookingAPILoading]);
 
   if (!bookingContext || !selectedRoom) {
-    return <BookingMissingFallback />;
+    if (!showRedirectMessage) {
+      return <BookingMissingFallback />;
+    }
   }
 
   const daysDiff =
-    bookingContext.checkIn && bookingContext.checkOut
+    bookingContext?.checkIn && bookingContext?.checkOut
       ? checkDaysDifference(bookingContext.checkIn, bookingContext.checkOut)
       : 0;
 
   let excessGuestCount = 0;
   if (
-    bookingContext.numberOfAdults !== undefined &&
-    bookingContext.numberOfChildren !== undefined &&
+    bookingContext?.numberOfAdults !== undefined &&
+    bookingContext?.numberOfChildren !== undefined &&
     selectedRoom?.maxGuests !== undefined &&
     daysDiff > 0
   ) {
@@ -179,7 +192,6 @@ const InvoiceCard = ({
         numberOfAdults: bookingContext.numberOfAdults!,
         numberOfChildren: bookingContext.numberOfChildren!,
         bookingType: bookingContext.bookingType,
-
         roomId: selectedRoom.id!,
         totalPrice: finalTotal,
       };
@@ -203,20 +215,17 @@ const InvoiceCard = ({
         } else if (paymentType === "partial") {
           guestBookingPayload.paymentStatus = "Partial";
         } else {
-          toast.warn("Invalid payment type specified.");
+          toast.error("Invalid payment type. Please contact support.");
           setIsProcessingPayment(false);
           return;
         }
         await createBooking(guestBookingPayload);
       }
-
-      admin ? router.push("/admin/inbox") : router.push("/");
     } catch (error) {
       console.error("Error initiating booking process:", error);
       toast.error(
         "An unexpected error occurred while initiating your booking. Please try again."
       );
-
       setIsProcessingPayment(false);
     }
   };
@@ -240,6 +249,10 @@ const InvoiceCard = ({
         </div>
       </div>
     );
+  }
+
+  if (!bookingContext || !selectedRoom) {
+    return <BookingMissingFallback />;
   }
 
   return (
@@ -314,8 +327,6 @@ const InvoiceCard = ({
           <Separator className="my-2 sm:my-3" />
 
           <div className="flex-grow">
-            {" "}
-            {}
             <h2 className="text-sm sm:text-base font-semibold text-gray-800 mb-1.5 sm:mb-2">
               Billing Breakdown
             </h2>
@@ -323,12 +334,12 @@ const InvoiceCard = ({
               <div className="flex justify-between items-start">
                 <div className="pr-2">
                   <p className="font-medium">
-                    {selectedRoom?.roomType ?? "Room"} - #
-                    {selectedRoom?.roomNumber ?? "N/A"}
+                    {selectedRoom.roomType ?? "Room"} - #
+                    {selectedRoom.roomNumber ?? "N/A"}
                   </p>
                   <p className="text-xs text-gray-500">
                     ({daysDiff} {daysDiff === 1 ? "Night" : "Nights"} @ ₱
-                    {(selectedRoom?.roomRate ?? 0).toFixed(2)}/night)
+                    {(selectedRoom.roomRate ?? 0).toFixed(2)}/night)
                   </p>
                 </div>
                 <p className="font-semibold text-right flex-shrink-0">
@@ -354,13 +365,10 @@ const InvoiceCard = ({
           </div>
 
           <div className="mt-auto pt-3 sm:pt-4 border-t border-gray-200 text-right">
-            {" "}
-            {}
             <p className="text-sm sm:text-base font-bold text-gray-900">
               Total Amount Due:
               <span className="text-base sm:text-lg ml-1">
-                {" "}
-                {}₱{finalTotal.toFixed(2)}
+                ₱{finalTotal.toFixed(2)}
               </span>
             </p>
             {!admin && (
@@ -386,7 +394,7 @@ const InvoiceCard = ({
                     size={16}
                     color="currentColor"
                     className="mr-2"
-                  />{" "}
+                  />
                   Processing...
                 </>
               ) : admin ? (

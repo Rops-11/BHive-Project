@@ -37,6 +37,11 @@ import {
   Loader2,
   FileImage,
   AlertTriangle,
+  Edit,
+  Trash2,
+  CreditCard,
+  Percent,
+  Mail,
 } from "lucide-react";
 import EditBookingDialog from "@/components/Booking/EditBookingDialog";
 import {
@@ -48,6 +53,9 @@ import useDeleteBooking from "@/hooks/bookingHooks/useDeleteBooking";
 import useUpdateBookingStatus from "@/hooks/bookingHooks/useUpdateBookingStatus";
 import { Spinner } from "react-activity";
 import NextImage from "next/image";
+import useUpdateBookingPaymentStatus from "@/hooks/bookingHooks/useUpdateBookingPaymentStatus";
+
+type DisplayablePaymentStatus = "Partial" | "Paid";
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return "N/A";
@@ -78,32 +86,80 @@ const getStatusInfo = (status: string | undefined) => {
         icon: CheckCircle,
         color: "text-green-600",
         bgColor: "bg-green-100",
+        label: "Complete",
       };
     case "ongoing":
-      return { icon: Loader, color: "text-blue-600", bgColor: "bg-blue-100" };
+      return {
+        icon: Loader,
+        color: "text-blue-600",
+        bgColor: "bg-blue-100",
+        label: "Ongoing",
+      };
     case "reserved":
       return {
         icon: Clock,
         color: "text-orange-600",
         bgColor: "bg-orange-100",
+        label: "Reserved",
       };
     case "cancelled":
       return {
         icon: XCircle,
         color: "text-red-600",
         bgColor: "bg-red-100",
+        label: "Cancelled",
       };
     case "pending":
       return {
         icon: CircleHelp,
-        color: "text-gray-600",
-        bgColor: "bg-gray-100",
+        color: "text-yellow-600",
+        bgColor: "bg-yellow-100",
+        label: "Pending",
       };
     default:
       return {
         icon: CircleHelp,
         color: "text-gray-600",
         bgColor: "bg-gray-100",
+        label: status || "Unknown",
+      };
+  }
+};
+
+const getPaymentStatusInfo = (status: DisplayablePaymentStatus) => {
+  if (
+    status === null ||
+    status === undefined ||
+    status?.toLowerCase() === "pending"
+  ) {
+    return {
+      icon: Clock,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
+      label: "Pending",
+    };
+  }
+  switch (status?.toLowerCase()) {
+    case "paid":
+      return {
+        icon: CheckCircle,
+        color: "text-green-600",
+        bgColor: "bg-green-100",
+        label: "Paid",
+      };
+    case "partial":
+      return {
+        icon: Percent,
+        color: "text-blue-600",
+        bgColor: "bg-blue-100",
+        label: "Partial",
+      };
+    default:
+      return {
+        icon: CircleHelp,
+        color: "text-gray-600",
+        bgColor: "bg-gray-100",
+        label: "Unknown",
       };
   }
 };
@@ -115,14 +171,29 @@ const BookingCard = ({
   booking: Booking;
   refetchBookings: () => Promise<void>;
 }) => {
-  const [bookingStatus, setBookingStatus] = useState(booking.status);
-  const statusInfo = getStatusInfo(bookingStatus);
-  const StatusIcon = statusInfo.icon;
+  const [currentBookingStatus, setCurrentBookingStatus] = useState(
+    booking.status
+  );
+
+  const [currentPaymentStatus, setCurrentPaymentStatus] =
+    useState<DisplayablePaymentStatus>(booking.paymentStatus!);
+
+  const bookingStatusInfo = getStatusInfo(currentBookingStatus);
+  const BookingStatusIcon = bookingStatusInfo.icon;
+
+  const paymentStatusDisplayInfo = getPaymentStatusInfo(currentPaymentStatus);
+  const PaymentStatusIcon = paymentStatusDisplayInfo.icon;
+
   const { deleteBooking, loading: deleteLoading } = useDeleteBooking();
   const { updateStatus, loading: statusLoading } = useUpdateBookingStatus();
+  const { updatePaymentStatus, loading: paymentStatusLoading } =
+    useUpdateBookingPaymentStatus();
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
+  const [isMainDialogOpen, setIsMainDialogOpen] = useState(false);
+  const [isBookingStatusPopoverOpen, setIsBookingStatusPopoverOpen] =
+    useState(false);
+  const [isPaymentStatusPopoverOpen, setIsPaymentStatusPopoverOpen] =
+    useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isProofDialogOpen, setIsProofDialogOpen] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -132,33 +203,73 @@ const BookingCard = ({
     if (!booking.id) return;
     await deleteBooking(booking.id);
     setIsDeleteConfirmOpen(false);
-    setIsDialogOpen(false);
+    setIsMainDialogOpen(false);
     await refetchBookings();
   };
 
-  const handleChangeStatus = async (
+  const handleChangeBookingStatus = async (
     newStatus: "Reserved" | "Ongoing" | "Complete" | "Cancelled" | "Pending"
   ) => {
     if (!booking.id) return;
     await updateStatus(booking.id, newStatus);
-    setBookingStatus(newStatus);
-    setStatusOpen(false);
+    setCurrentBookingStatus(newStatus);
+    setIsBookingStatusPopoverOpen(false);
     await refetchBookings();
   };
 
-  const handleConfirmPayment = async () => {
-    await handleChangeStatus("Reserved");
-    setIsProofDialogOpen(false);
+  const handleChangePaymentStatus = async (
+    newPaymentStatus: DisplayablePaymentStatus
+  ) => {
+    if (!booking.id) return;
+    await updatePaymentStatus(booking.id, newPaymentStatus);
+    setCurrentPaymentStatus(newPaymentStatus);
+    setIsPaymentStatusPopoverOpen(false);
+    await refetchBookings();
+  };
+
+  const handleConfirmPaymentAndReserve = async () => {
+    if (!booking.id) return;
+
+    const originalBookingStatus = currentBookingStatus;
+    const originalPaymentStatus = currentPaymentStatus;
+
+    const newActualPaymentStatus: DisplayablePaymentStatus = "Partial";
+
+    setCurrentBookingStatus("Reserved");
+    setCurrentPaymentStatus(newActualPaymentStatus);
+
+    try {
+      await updateStatus(booking.id, "Reserved");
+      await updatePaymentStatus(booking.id, newActualPaymentStatus);
+      setIsProofDialogOpen(false);
+      await refetchBookings();
+    } catch (error) {
+      console.error("Error confirming payment and reserving:", error);
+      setCurrentBookingStatus(originalBookingStatus);
+      setCurrentPaymentStatus(originalPaymentStatus);
+    }
   };
 
   const paymentProofImageUrl = booking.image?.name
     ? `https://dwfbvqkcxeajmtqciozz.supabase.co/storage/v1/object/public/payment/${booking.id}/${booking.image.name}`
     : null;
 
+  const availableBookingStatusOptions: (
+    | "Reserved"
+    | "Ongoing"
+    | "Complete"
+    | "Cancelled"
+  )[] = ["Reserved", "Ongoing", "Complete", "Cancelled"];
+
+  const availablePaymentStatusOptionsToSet: DisplayablePaymentStatus[] = [
+    "Partial",
+    "Paid",
+  ];
+
   return (
     <Dialog
-      open={isDialogOpen}
-      onOpenChange={setIsDialogOpen}>
+      open={isMainDialogOpen}
+      onOpenChange={setIsMainDialogOpen}>
       <DialogTrigger asChild>
         <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <CardHeader>
@@ -166,13 +277,13 @@ const BookingCard = ({
               <span>Room {booking.room?.roomNumber ?? "N/A"}</span>
               <Badge
                 variant="outline"
-                className={`border-none ${statusInfo.bgColor} ${statusInfo.color} font-medium capitalize`}>
-                <StatusIcon className="h-4 w-4 mr-1.5" />
-                {bookingStatus ?? "Unknown"}
+                className={`border-none ${bookingStatusInfo.bgColor} ${bookingStatusInfo.color} font-medium capitalize`}>
+                <BookingStatusIcon className="h-4 w-4 mr-1.5" />
+                {bookingStatusInfo.label}
               </Badge>
             </CardTitle>
             <CardDescription>
-              <span className="font-medium">{booking.name}</span> |
+              <span className="font-medium">{booking.name}</span> |{" "}
               {formatDate(booking.checkIn)} - {formatDate(booking.checkOut)}
             </CardDescription>
           </CardHeader>
@@ -199,7 +310,7 @@ const BookingCard = ({
                 <span className="truncate">{booking.name ?? "N/A"}</span>
               </div>
               <div className="flex items-center text-sm">
-                <User className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <Mail className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
                 <span className="font-medium mr-1.5">Email:</span>
                 <span className="truncate">{booking.email ?? "N/A"}</span>
               </div>
@@ -214,7 +325,7 @@ const BookingCard = ({
                 <Users className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
                 <span className="font-medium mr-1.5">Guests:</span>
                 <span className="truncate">
-                  {booking.numberOfAdults ?? 0} Adult(s),
+                  {booking.numberOfAdults ?? 0} Adult(s),{" "}
                   {booking.numberOfChildren ?? 0} Child(ren)
                 </span>
               </div>
@@ -242,17 +353,29 @@ const BookingCard = ({
                 </span>
               </div>
               <div className="flex items-center text-sm">
-                <StatusIcon
-                  className={`h-4 w-4 mr-2 ${statusInfo.color} flex-shrink-0`}
+                <BookingStatusIcon
+                  className={`h-4 w-4 mr-2 ${bookingStatusInfo.color} flex-shrink-0`}
                 />
                 <span className="font-medium mr-1.5">Status:</span>
                 <Popover
-                  open={statusOpen}
-                  onOpenChange={setStatusOpen}>
+                  open={isBookingStatusPopoverOpen}
+                  onOpenChange={setIsBookingStatusPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Badge
                       variant="outline"
-                      className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${statusInfo.bgColor} ${statusInfo.color} font-medium capitalize`}>
+                      className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${bookingStatusInfo.bgColor} ${bookingStatusInfo.color} font-medium capitalize`}
+                      onClick={() => {
+                        if (
+                          currentBookingStatus?.toLowerCase() === "pending" &&
+                          !paymentProofImageUrl &&
+                          currentPaymentStatus?.toLowerCase() === "pending"
+                        ) {
+                          return;
+                        }
+                        setIsBookingStatusPopoverOpen(
+                          !isBookingStatusPopoverOpen
+                        );
+                      }}>
                       {statusLoading ? (
                         <Spinner
                           size={12}
@@ -260,45 +383,48 @@ const BookingCard = ({
                           className="mr-1"
                         />
                       ) : null}
-                      {bookingStatus ?? "Unknown"}
+                      {bookingStatusInfo.label}
                     </Badge>
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
                     className="flex flex-col w-auto space-y-1 p-1.5">
-                    {["Reserved", "Ongoing", "Complete", "Cancelled"].map(
-                      (statusOption) => {
-                        const optionInfo = getStatusInfo(statusOption);
+                    {availableBookingStatusOptions.map((statusOption) => {
+                      if (
+                        currentBookingStatus?.toLowerCase() ===
+                        statusOption.toLowerCase()
+                      )
+                        return null;
+                      if (currentBookingStatus?.toLowerCase() === "pending") {
                         if (
-                          bookingStatus?.toLowerCase() ===
-                          statusOption.toLowerCase()
+                          !paymentProofImageUrl &&
+                          statusOption !== "Cancelled" &&
+                          currentPaymentStatus?.toLowerCase() === "pending"
                         )
                           return null;
-
-                        if (bookingStatus === "Pending") return null;
-
-                        return (
-                          <Button
-                            key={statusOption}
-                            variant="ghost"
-                            size="sm"
-                            className={`w-full justify-start cursor-pointer text-xs h-auto py-1.5 px-2 ${optionInfo.bgColor} ${optionInfo.color} hover:${optionInfo.bgColor}/80`}
-                            onClick={() => {
-                              handleChangeStatus(
-                                statusOption as
-                                  | "Reserved"
-                                  | "Ongoing"
-                                  | "Complete"
-                                  | "Cancelled"
-                                  | "Pending"
-                              );
-                            }}>
-                            <optionInfo.icon className="h-3.5 w-3.5 mr-2" />
-                            {statusOption}
-                          </Button>
-                        );
+                        if (
+                          paymentProofImageUrl &&
+                          !["Reserved", "Cancelled"].includes(statusOption)
+                        )
+                          return null;
                       }
-                    )}
+
+                      const optionInfo = getStatusInfo(statusOption);
+                      return (
+                        <Button
+                          key={statusOption}
+                          variant="ghost"
+                          size="sm"
+                          disabled={statusLoading}
+                          className={`w-full justify-start cursor-pointer text-xs h-auto py-1.5 px-2 ${optionInfo.bgColor} ${optionInfo.color} hover:${optionInfo.bgColor}/80`}
+                          onClick={() => {
+                            handleChangeBookingStatus(statusOption);
+                          }}>
+                          <optionInfo.icon className="h-3.5 w-3.5 mr-2" />
+                          {optionInfo.label}
+                        </Button>
+                      );
+                    })}
                   </PopoverContent>
                 </Popover>
               </div>
@@ -324,8 +450,8 @@ const BookingCard = ({
           )}
           <Separator />
 
-          <div className="space-y-1.5 py-2">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+          <div className="space-y-3 py-2">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
               Payment
             </h3>
             <div className="flex items-center justify-between text-sm">
@@ -336,11 +462,6 @@ const BookingCard = ({
                   {formatCurrency(booking.totalPrice)}
                 </span>
               </div>
-              <div className="flex items-center">
-                <span className="font-medium mr-1.5">Payment Status:</span>
-                <span className="truncate">{booking.paymentStatus}</span>
-              </div>
-
               {paymentProofImageUrl && (
                 <Dialog
                   open={isProofDialogOpen}
@@ -355,7 +476,7 @@ const BookingCard = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-xs h-auto py-1 px-2 ml-4">
+                      className="text-xs h-auto py-1 px-2">
                       <FileImage className="h-3.5 w-3.5 mr-1.5" />
                       View Proof
                     </Button>
@@ -411,26 +532,26 @@ const BookingCard = ({
                       )}
                     </div>
                     <DialogFooter className="p-4 border-t flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0">
-                      {bookingStatus?.toLowerCase() === "pending" &&
+                      {currentBookingStatus?.toLowerCase() === "pending" &&
                         !imageError &&
                         paymentProofImageUrl && (
                           <Button
-                            onClick={handleConfirmPayment}
-                            disabled={statusLoading}
+                            onClick={handleConfirmPaymentAndReserve}
+                            disabled={statusLoading || paymentStatusLoading}
                             className="w-full sm:w-auto">
-                            {statusLoading && booking.status === "Pending" ? (
+                            {statusLoading || paymentStatusLoading ? (
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                               <CheckCircle className="mr-2 h-4 w-4" />
                             )}
-                            Confirm Payment
+                            Confirm & Reserve
                           </Button>
                         )}
                       <DialogClose asChild>
                         <Button
                           variant="outline"
                           className="w-full sm:w-auto"
-                          disabled={statusLoading}>
+                          disabled={statusLoading || paymentStatusLoading}>
                           Close
                         </Button>
                       </DialogClose>
@@ -439,13 +560,65 @@ const BookingCard = ({
                 </Dialog>
               )}
             </div>
+
+            <div className="flex items-center text-sm">
+              <PaymentStatusIcon
+                className={`h-4 w-4 mr-2 ${paymentStatusDisplayInfo.color} flex-shrink-0`}
+              />
+              <span className="font-medium mr-1.5">Payment Status:</span>
+              <Popover
+                open={isPaymentStatusPopoverOpen}
+                onOpenChange={setIsPaymentStatusPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className={`border-none hover:opacity-80 transition-opacity cursor-pointer ${paymentStatusDisplayInfo.bgColor} ${paymentStatusDisplayInfo.color} font-medium capitalize`}>
+                    {paymentStatusLoading ? (
+                      <Spinner
+                        size={12}
+                        color="currentColor"
+                        className="mr-1"
+                      />
+                    ) : null}
+                    {paymentStatusDisplayInfo.label}
+                  </Badge>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  className="flex flex-col w-auto space-y-1 p-1.5">
+                  {availablePaymentStatusOptionsToSet.map((statusOption) => {
+                    if (
+                      currentPaymentStatus?.toLowerCase() ===
+                      statusOption.toLowerCase()
+                    )
+                      return null;
+
+                    const optionInfo = getPaymentStatusInfo(statusOption);
+                    return (
+                      <Button
+                        key={statusOption}
+                        variant="ghost"
+                        size="sm"
+                        disabled={paymentStatusLoading}
+                        className={`w-full justify-start cursor-pointer text-xs h-auto py-1.5 px-2 ${optionInfo.bgColor} ${optionInfo.color} hover:${optionInfo.bgColor}/80`}
+                        onClick={() => {
+                          handleChangePaymentStatus(statusOption);
+                        }}>
+                        <optionInfo.icon className="h-3.5 w-3.5 mr-2" />
+                        {optionInfo.label}
+                      </Button>
+                    );
+                  })}
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           {booking.bookingType && (
             <>
               <Separator />
               <div className="flex items-center text-sm py-2">
-                <Clock className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <CreditCard className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
                 <span className="font-medium mr-1.5">Booking Type:</span>
                 <span className="truncate">{booking.bookingType}</span>
               </div>
@@ -459,25 +632,23 @@ const BookingCard = ({
               <Button
                 variant="outline"
                 className="w-full md:w-auto">
-                Edit Options
+                <Edit className="mr-2 h-4 w-4" /> Edit
               </Button>
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              className="flex flex-col justify-center items-center w-auto space-y-2 p-2">
+              className="flex flex-col w-auto p-2 space-y-1">
               <EditBookingDialog
                 booking={booking}
                 type="normal"
-                triggerClassName="w-full z-[9999]"
                 refetchBookings={refetchBookings}
-                setIsDialogOpen={setIsDialogOpen}
+                setIsDialogOpen={setIsMainDialogOpen}
               />
               <EditBookingDialog
                 booking={booking}
                 type="room"
-                triggerClassName="w-full z-[9999]"
                 refetchBookings={refetchBookings}
-                setIsDialogOpen={setIsDialogOpen}
+                setIsDialogOpen={setIsMainDialogOpen}
               />
             </PopoverContent>
           </Popover>
@@ -490,18 +661,20 @@ const BookingCard = ({
                 variant="destructive"
                 className="w-full md:w-auto"
                 disabled={deleteLoading}>
-                {deleteLoading && (
+                {deleteLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="mr-2 h-4 w-4" />
                 )}
-                Delete Booking
+                Delete
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[400px]">
               <DialogHeader>
                 <DialogTitle>Confirm Deletion</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to delete this booking for
-                  <strong>{booking.name}</strong> (Room
+                  Are you sure you want to delete this booking for{" "}
+                  <strong>{booking.name}</strong> (Room{" "}
                   {booking.room?.roomNumber ?? booking.roomId ?? "N/A"})? This
                   action cannot be undone.
                 </DialogDescription>
