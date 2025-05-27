@@ -78,6 +78,7 @@ const SideBar: React.FC<SideBarProps> = ({
             <Link
               key={item.title}
               href={item.href}
+              prefetch={false}
               onClick={() => {
                 setSideBar(false);
                 setTimeout(() => setMobileMenuOpen(false), 300);
