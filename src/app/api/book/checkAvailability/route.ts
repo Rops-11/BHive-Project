@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { startOfDay } from "date-fns";
 import { prisma } from "utils/db";
+import { startOfDay } from "date-fns";
+import { getUnavailableRoomIdsForPeriod } from "utils/utils";
 
 interface CheckAvailabilityRequestPayload {
   roomId: string;
@@ -9,24 +10,18 @@ interface CheckAvailabilityRequestPayload {
   excludeBookingId?: string;
 }
 
-interface CheckAvailabilityResponseData {
-  isAvailable: boolean;
-  message?: string;
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as CheckAvailabilityRequestPayload;
     const {
       roomId,
       checkIn: checkInStr,
       checkOut: checkOutStr,
       excludeBookingId,
-    } = body as CheckAvailabilityRequestPayload;
+    } = body;
 
     const requiredFields = [roomId, checkInStr, checkOutStr];
     const fieldNamesForValidation = ["roomId", "checkIn", "checkOut"];
-
     const missingFields = requiredFields.reduce((acc, field, index) => {
       if (
         field === undefined ||
@@ -57,14 +52,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
     if (checkOutDate <= checkInDate) {
       return NextResponse.json(
         { message: "Check-out date must be after check-in date." },
         { status: 400 }
       );
     }
-
     const today = startOfDay(new Date());
     if (checkInDate < today) {
       return NextResponse.json(
@@ -73,48 +66,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const conflictingBookingsCount = await prisma.booking.count({
-      where: {
-        roomId: roomId,
-        ...(excludeBookingId && { NOT: { id: excludeBookingId } }),
-        status: {
-          notIn: ["Cancelled", "Complete"],
-        },
+    const unavailableRoomIds = await getUnavailableRoomIdsForPeriod(
+      prisma,
+      checkInStr,
+      checkOutStr,
+      excludeBookingId
+    );
 
-        checkIn: {
-          lt: checkOutDate,
-        },
-        checkOut: {
-          gt: checkInDate,
-        },
-      },
-    });
-
-    if (conflictingBookingsCount > 0) {
+    if (unavailableRoomIds.includes(roomId)) {
       return NextResponse.json(
         {
           isAvailable: false,
           message: "Room is not available for the selected dates.",
-        } as CheckAvailabilityResponseData,
+        },
         { status: 200 }
       );
     }
 
-    return NextResponse.json(
-      { isAvailable: true } as CheckAvailabilityResponseData,
-      { status: 200 }
-    );
+    return NextResponse.json({ isAvailable: true }, { status: 200 });
   } catch (error: unknown) {
     console.error("Error checking room availability:", error);
 
+    if (
+      error instanceof Error &&
+      (error.message.includes("Invalid date format") ||
+        error.message.includes("Check-out date must be after") ||
+        error.message.includes("Check-in date cannot be in the past") ||
+        error.message.includes("date strings are required"))
+    ) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
+
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
-
     const errorStack =
       error instanceof Error && process.env.NODE_ENV === "development"
         ? error.stack
         : undefined;
-
     return NextResponse.json(
       {
         error: "Failed to check room availability",

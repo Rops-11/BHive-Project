@@ -1,96 +1,63 @@
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { getMedia } from "utils/supabase/storage";
-import { findOverlappingBookings } from "utils/utils";
+import { getUnavailableRoomIdsForPeriod } from "utils/utils";
 
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
-    let errorInImage;
+    const body = await req.json();
+    const {
+      checkIn: checkInStr,
+      checkOut: checkOutStr,
+      excludeBookingId,
+    } = body;
 
-    const { checkIn, checkOut, excludeBookingId } = await req.json();
-
-    if (!checkIn || !checkOut) {
-      return NextResponse.json(
-        { message: "checkIn and checkOut dates are required." },
-        { status: 400 }
-      );
-    }
-
-    const targetCheckInDate = new Date(checkIn);
-    const targetCheckOutDate = new Date(checkOut);
-
-    if (
-      isNaN(targetCheckInDate.getTime()) ||
-      isNaN(targetCheckOutDate.getTime())
-    ) {
-      return NextResponse.json(
-        { message: "Invalid date format for checkIn or checkOut." },
-        { status: 400 }
-      );
-    }
-
-    let activeBookings = await prisma.booking.findMany({
-      where: {
-        status: {
-          notIn: ["Cancelled", "Complete"],
-        },
-      },
-      include: {
-        room: true,
-      },
-      orderBy: {
-        checkIn: "asc",
-      },
-    });
-
-    if (excludeBookingId && typeof excludeBookingId === "string") {
-      activeBookings = activeBookings.filter(
-        (booking) => booking.id !== excludeBookingId
-      );
-    }
-
-    const overlappingBookings = findOverlappingBookings(
-      { checkIn: targetCheckInDate, checkOut: targetCheckOutDate },
-      activeBookings
+    const unavailableRoomIds = await getUnavailableRoomIdsForPeriod(
+      prisma,
+      checkInStr,
+      checkOutStr,
+      excludeBookingId
     );
 
-    const listOfRoomIdsNotAvailable = overlappingBookings.map(
-      (booking) => booking.roomId
-    );
+    const roomWhereClause: Prisma.RoomWhereInput = {};
+
+    if (unavailableRoomIds.length > 0) {
+      roomWhereClause.id = { notIn: unavailableRoomIds };
+    }
 
     const rooms = await prisma.room.findMany({
       orderBy: [{ roomRate: "asc" }],
-      where: {
-        NOT: {
-          id: {
-            in: listOfRoomIdsNotAvailable,
-          },
-        },
-      },
+      where: roomWhereClause,
     });
 
+    let errorInImageRetrieval = false;
     const roomsWithImages = await Promise.all(
       rooms.map(async (room) => {
-        const { data, error } = await getMedia("rooms", room.id);
-
-        if (error) {
-          console.warn(`Error fetching image for room ${room.id}:`, error);
-          errorInImage = true;
+        try {
+          const { data, error: mediaError } = await getMedia("rooms", room.id);
+          if (mediaError) {
+            console.warn(
+              `Error fetching image for room ${room.id}: ${
+                mediaError.message || JSON.stringify(mediaError)
+              }`
+            );
+            errorInImageRetrieval = true;
+            return { ...room, images: [] };
+          }
+          return { ...room, images: data || [] };
+        } catch {
+          console.error("Unkown error has occured.");
+          errorInImageRetrieval = true;
+          return { ...room, images: [] };
         }
-
-        return { ...room, images: data || [] };
       })
     );
 
-    if (errorInImage) {
-      return NextResponse.json(
-        {
-          message:
-            "Error occurred while fetching some room images. Please try again.",
-        },
-        { status: 500 }
+    if (errorInImageRetrieval) {
+      console.warn(
+        "One or more room images could not be fetched. Returning available rooms data."
       );
     }
 
@@ -98,9 +65,18 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error("Error fetching available rooms:", error);
 
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    if (
+      error instanceof Error &&
+      (error.message.includes("Invalid date format") ||
+        error.message.includes("Check-out date must be after") ||
+        error.message.includes("Check-in date cannot be in the past") ||
+        error.message.includes("date strings are required"))
+    ) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
 
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     const errorStack =
       error instanceof Error && process.env.NODE_ENV === "development"
         ? error.stack
