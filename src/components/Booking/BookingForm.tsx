@@ -642,9 +642,62 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                     </span>
                   </DialogTrigger>
                   <DialogContent className="h-auto max-h-[80vh] flex flex-col">
-                    <DialogTitle>Terms and Conditions</DialogTitle>
+                    <DialogTitle>
+                      {" "}
+                      BHive Hotel House Rules & Guidelines:{" "}
+                    </DialogTitle>
                     <DialogDescription className="overflow-y-auto flex-grow pr-2">
-                      Lorem ipsum dolor sit amet...
+                      Please read and adhere to the following house rules and
+                      guidelines during your stay at BHive Hotel. These rules
+                      are designed to ensure a safe, comfortable, and enjoyable
+                      experience for all guests. Failure to comply may result in
+                      penalties or eviction without refund.
+                      <br />
+                      <br />
+                      1. Check-In & Check-Out: Standard check-in time is 2:00
+                      PM, and check-out is 12:00 NN. Early check-in or late
+                      check-out is subject to availability and extra charges.
+                      <br />
+                      <br />
+                      2. Guest Responsibility: Guests are responsible for their
+                      personal belongings. The hotel is not liable for lost or
+                      stolen items.
+                      <br />
+                      <br />
+                      3. Room Capacity & Extra Persons: Each room has a maximum
+                      capacity. An extra charge of Php 600.00 applies per
+                      additional guest.
+                      <br />
+                      <br />
+                      4. Noise & Disturbances: Please be considerate. Loud music
+                      or noise disturbing other guests is not allowed.
+                      <br />
+                      <br />
+                      5. Smoking & Vaping Policy: Strictly prohibited. A penalty
+                      of Php 3,000.00 applies per violation.
+                      <br />
+                      <br />
+                      6. Pets & Prohibited Items: Pets are not allowed.
+                      Hazardous items like explosives, firearms, and dangerous
+                      chemicals are strictly prohibited.
+                      <br />
+                      <br />
+                      7. Damage Charges: Guests will be charged for any damages
+                      to hotel property, including stained beddings (Php
+                      2,000.00).
+                      <br />
+                      <br />
+                      8. Health & Safety Regulations: Guests must comply with
+                      sanitation and distancing guidelines for public health
+                      safety.
+                      <br />
+                      <br />
+                      9. Booking Policies: Reservations require a 50% down
+                      payment, which is non-refundable.
+                      <br />
+                      <br />
+                      10. Privacy Policy: Personal data is collected and
+                      processed in line with the Data Privacy Act of 2012.{" "}
                     </DialogDescription>
                   </DialogContent>
                 </Dialog>
