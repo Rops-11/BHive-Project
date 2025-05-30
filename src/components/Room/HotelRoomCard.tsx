@@ -14,9 +14,8 @@ import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
 import DeleteRoomPopover from "./DeleteRoomPopover";
 import NextImage from "next/image";
-import { Amenity, AMENITIES } from "@/constants/amenities"; // Ensure Amenity is imported
+import { Amenity, AMENITIES } from "@/constants/amenities";
 
-// Fallback Icon (remains the same)
 const FallbackAmenityIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -28,12 +27,11 @@ const FallbackAmenityIcon = () => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M5 13l4 4L19 7" // Generic checkmark
+      d="M5 13l4 4L19 7"
     />
   </svg>
 );
 
-// Updated Icon mapping (remains the same)
 const amenityIcons: { [key in Amenity]?: JSX.Element } = {
   "Free Wifi": (
     <svg
@@ -188,33 +186,35 @@ const HotelRoomCard = ({
           className={
             "flex flex-col h-82 lg:flex-row p-0 w-full justify-between lg:h-60 overflow-hidden bg-[#D29D30] text-white relative"
           }>
-          {/* Text Content Div: Added w-full for mobile, justify-between for vertical spacing */}
           <div className="flex flex-col justify-between w-full lg:w-6/12 lg:h-full h-6/15 p-5 text-left relative z-20">
-            {/* Room Info Block: Wrapped in a div */}
             <div>
               <h1 className="font-semibold md:text-2xl text-xl">
                 {room.roomType}: {room.roomNumber}
               </h1>
-              {/* Adjusted margin for rate paragraph for consistency */}
+
               <p className="mt-1 md:mt-2 text-md">
                 Rate: ₱ {room.roomRate?.toFixed(2)} / night
               </p>
-              <p className="text-sm mt-1">Max Guests: {room.maxGuests || "N/A"}</p>
+              <p className="text-sm mt-1">
+                Max Guests: {room.maxGuests || "N/A"}
+              </p>
             </div>
 
-            {/* --- AMENITIES BLOCK START --- */}
-            {/* Removed lg:mt-auto as parent div's justify-between handles this. Kept mt-2 for spacing. */}
             <div className="mt-2 text-sm">
-              {/* Mobile & Tablet Amenity Display (up to md, i.e., <lg): max 2 amenities */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 items-center lg:hidden">
                 {room.amenities && room.amenities.length > 0 ? (
                   <>
                     {room.amenities.slice(0, 2).map((amenityName) => {
                       const amenity = amenityName as Amenity;
                       if (!AMENITIES.includes(amenity)) return null;
-                      const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
+                      const icon = amenityIcons[amenity] || (
+                        <FallbackAmenityIcon />
+                      );
                       return (
-                        <div key={`${amenity}-mobile`} className="flex items-center gap-1" title={amenity}>
+                        <div
+                          key={`${amenity}-mobile`}
+                          className="flex items-center gap-1"
+                          title={amenity}>
                           {icon}
                           <span className="hidden sm:inline">{amenity}</span>
                         </div>
@@ -233,16 +233,20 @@ const HotelRoomCard = ({
                 )}
               </div>
 
-              {/* Desktop Amenity Display (lg and up): max 4 amenities */}
               <div className="hidden lg:flex lg:flex-wrap lg:gap-3 gap-y-1 items-center">
                 {room.amenities && room.amenities.length > 0 ? (
                   <>
                     {room.amenities.slice(0, 4).map((amenityName) => {
                       const amenity = amenityName as Amenity;
                       if (!AMENITIES.includes(amenity)) return null;
-                      const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
+                      const icon = amenityIcons[amenity] || (
+                        <FallbackAmenityIcon />
+                      );
                       return (
-                        <div key={`${amenity}-desktop`} className="flex items-center gap-1" title={amenity}>
+                        <div
+                          key={`${amenity}-desktop`}
+                          className="flex items-center gap-1"
+                          title={amenity}>
                           {icon}
                           <span className="inline">{amenity}</span>
                         </div>
@@ -261,8 +265,6 @@ const HotelRoomCard = ({
                 )}
               </div>
             </div>
-            {/* --- AMENITIES BLOCK END --- */}
-
           </div>
           <div className="relative w-full lg:w-6/12 lg:h-full h-9/15 ">
             {room.images?.length ? (
@@ -327,7 +329,8 @@ const HotelRoomCard = ({
             </div>
           )}
         </div>
-        <div className="px-8 max-h-30 border-t"> {/* Consider overflow-y-auto if content can exceed max-h-30 */}
+        <div className="px-8 max-h-30 border-t">
+          {" "}
           <h3 className="font-semibold text-md my-2">Amenities:</h3>
           {room.amenities && room.amenities.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
