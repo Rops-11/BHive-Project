@@ -93,10 +93,10 @@ const BookingInbox = () => {
 
           switch (activeFilter) {
             case "upcoming":
-              if (!booking.checkIn) return false;
-              const checkInDate = new Date(booking.checkIn);
-              checkInDate.setHours(0, 0, 0, 0);
-              return checkInDate >= today && booking.status !== "Cancelled";
+              if (!booking.checkOut) return false;
+              const checkOutDate = new Date(booking.checkOut);
+              checkOutDate.setHours(0, 0, 0, 0);
+              return checkOutDate >= today && booking.status !== "Cancelled";
             case "statusOngoing":
               return booking.status === "Ongoing";
             case "statusReserved":
