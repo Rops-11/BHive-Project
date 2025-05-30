@@ -7,12 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String    @id @db.Uuid
-  isAdmin   Boolean   @default(false)
-  histories History[]
-}
-
 model Room {
   id          String    @id @default(uuid()) @db.Uuid
   roomType    String
@@ -20,15 +14,8 @@ model Room {
   isAvailable Boolean   @default(true)
   maxGuests   Int
   roomRate    Int
+  amenities   String[]
   bookings    Booking[]
-}
-
-model History {
-  id        String  @id @default(uuid()) @db.Uuid
-  userId    String  @db.Uuid
-  bookingId String  @unique @db.Uuid
-  booking   Booking @relation(fields: [bookingId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
 }
 
 model Booking {
@@ -38,19 +25,31 @@ model Booking {
   checkIn          DateTime 
   checkOut         DateTime
   mobileNumber     String
-  status           Status   @default(Reserved)  // This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
-  downPayment      Boolean  @default(false)
+  email            String?   
+  status           Status         @default(Pending)
+  paymentStatus    PaymentStatus  @default(Paid)
   name             String
   numberOfAdults   Int
   numberOfChildren Int
-  shift            String?   @default("Online")// This is only updated on the admin side. After acceptance of booking. Or during the walk-in booking.
+  bookingType      BookingType?  @default(Online)
   totalPrice       Float
-  room             Room     @relation(fields: [roomId], references: [id])
-  history          History?
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 enum Status {
+  Pending
   Reserved
   Ongoing
   Complete
+  Cancelled
+}
+
+enum PaymentStatus {
+  Paid
+  Partial
+}
+
+enum BookingType {
+  Online
+  OTC
 }

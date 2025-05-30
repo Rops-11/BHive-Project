@@ -1,12 +1,9 @@
-// export interface Hotel {
-//   id          :string
-//   name        :string
-//   description :string
-//   location    :string
-//   facts       :string[]
-//   facilities  :Facility[]
-//   rooms       :Room[]
-// }
+import { StaticImageData } from "next/image";
+
+export interface ImageFile {
+  name: string;
+  id?: string;
+}
 
 export interface Room {
   id?: string;
@@ -15,7 +12,11 @@ export interface Room {
   isAvailable?: boolean;
   maxGuests?: number;
   roomRate?: number;
+  images?: ImageFile[];
+  amenities?: string[];
 }
+
+
 
 export interface Booking {
   id?: string;
@@ -24,12 +25,29 @@ export interface Booking {
   checkIn?: Date;
   checkOut?: Date;
   mobileNumber?: string;
-  status?: string;
+  email?: string;
+  status?: "Pending" | "Reserved" | "Ongoing" | "Complete" | "Cancelled";
+  paymentStatus?: "Paid" | "Partial";
+  downPayment?: boolean;
   name?: string;
   numberOfAdults?: number;
   numberOfChildren?: number;
-  shift?: string;
+  bookingType?: "Online" | "OTC";
   totalPrice?: number;
+  room?: Room;
+  file?: File;
+  image?: ImageFile;
+}
+
+
+
+export interface EmailDetail {
+  id: string | null | undefined;
+  snippet: string | null | undefined;
+  subject?: string | null | undefined;
+  from?: string | null | undefined;
+  date?: string | null | undefined;
+  body?: string | null | undefined;
 }
 
 export interface RoomWithAmenities extends Room {
@@ -45,4 +63,20 @@ export interface RoomCard {
 
 export interface UnknownError {
   message: string;
+}
+
+export interface UnknownError {
+  message: string;
+}
+
+export interface FacilityCard {
+  title: string;
+  description: string;
+  image: StaticImageData;
+}
+
+export interface StickyContent {
+  title: string;
+  description: string;
+  content?: React.ReactNode;
 }

@@ -4,7 +4,6 @@ import "./globals.css";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-activity/dist/Spinner.css";
 import "react-toastify/dist/ReactToastify.css";
-import Header from "@/components/LandingPage/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,8 +28,8 @@ export default async function RootLayout({
   return (
     // I SHOULD MAKE THE DEFAULT OPEN CLOSE WHEN ITS OUT OF MOBILE MODE
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastContainer
           position="top-right"
           autoClose={4000}
