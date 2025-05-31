@@ -89,9 +89,9 @@ export function Dashboard() {
       ) {
         ongoing.push(booking);
       } else if (
-        booking.status === "Reserved" &&
         checkInDate &&
-        isFuture(checkInDate)
+        isFuture(checkInDate) &&
+        booking.status !== "Cancelled"
       ) {
         expecting.push(booking);
       }
@@ -213,7 +213,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {}
         <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -273,7 +272,6 @@ export function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          {}
         </div>
 
         <Tabs
@@ -283,7 +281,7 @@ export function Dashboard() {
             <TabsTrigger
               value="ongoing"
               className="relative">
-              Ongoing
+              Checked In
               {!loading && (
                 <Badge
                   variant="secondary"
@@ -295,7 +293,7 @@ export function Dashboard() {
             <TabsTrigger
               value="expecting"
               className="relative">
-              Expecting
+              Arriving
               {!loading && (
                 <Badge
                   variant="secondary"
