@@ -14,7 +14,7 @@ import {
 import { Loader2, Inbox, Search } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
-import BookingCard from "./BookingCard";
+import BookingCard from "../BookingCard";
 import { Booking } from "@/types/types";
 import { toast } from "react-toastify";
 
@@ -25,7 +25,9 @@ type BookingFilterOptionValue =
   | "all"
   | "statusOngoing"
   | "statusReserved"
-  | "statusComplete";
+  | "statusComplete"
+  | "statusCancelled"
+  | "statusPending";
 
 const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
   [
@@ -34,6 +36,8 @@ const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
     { value: "statusOngoing", label: "Status: Ongoing" },
     { value: "statusReserved", label: "Status: Reserved" },
     { value: "statusComplete", label: "Status: Complete" },
+    { value: "statusCancelled", label: "Status: Cancelled" },
+    { value: "statusPending", label: "Status: Pending" },
   ];
 
 const BookingInbox = () => {
@@ -89,16 +93,20 @@ const BookingInbox = () => {
 
           switch (activeFilter) {
             case "upcoming":
-              if (!booking.checkIn) return false;
-              const checkInDate = new Date(booking.checkIn);
-              checkInDate.setHours(0, 0, 0, 0);
-              return checkInDate >= today;
+              if (!booking.checkOut) return false;
+              const checkOutDate = new Date(booking.checkOut);
+              checkOutDate.setHours(0, 0, 0, 0);
+              return checkOutDate >= today && booking.status !== "Cancelled";
             case "statusOngoing":
               return booking.status === "Ongoing";
             case "statusReserved":
               return booking.status === "Reserved";
             case "statusComplete":
               return booking.status === "Complete";
+            case "statusCancelled":
+              return booking.status === "Cancelled";
+            case "statusPending":
+              return booking.status === "Pending";
             case "all":
             default:
               return true;

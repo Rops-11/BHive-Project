@@ -14,9 +14,8 @@ import Link from "next/link";
 import RoomFormPopover from "./RoomFormPopover";
 import DeleteRoomPopover from "./DeleteRoomPopover";
 import NextImage from "next/image";
-import { Amenity, AMENITIES } from "@/constants/amenities"; // Ensure Amenity is imported
+import { Amenity, AMENITIES } from "@/constants/amenities";
 
-// Fallback Icon (remains the same)
 const FallbackAmenityIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -28,14 +27,12 @@ const FallbackAmenityIcon = () => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M5 13l4 4L19 7" // Generic checkmark
+      d="M5 13l4 4L19 7"
     />
   </svg>
 );
 
-// Updated Icon mapping
 const amenityIcons: { [key in Amenity]?: JSX.Element } = {
-  // Was "WiFi"
   "Free Wifi": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +44,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       <path d="M5 13a10 10 0 0114 0M8.5 16.5a6 6 0 017 0M12 20h.01" />
     </svg>
   ),
-  // Was "Air Conditioning"
   Airconditioned: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +59,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // Was "TV"
   Television: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +78,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       <path d="M8 21h8" />
     </svg>
   ),
-  // Was "Recieving Area"
   "Receiving Area": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -99,8 +93,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // New
-  // Placeholder: Toilet icon
   "Separated CR": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -114,8 +106,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // New
-  // Placeholder: Shower icon
   "Open CR": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -131,8 +121,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // New
-  // Placeholder: Bed icon
   "Single Bed": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -148,8 +136,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // New
-  // Placeholder: Two beds icon
   "Twin Single Bed": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -165,8 +151,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // New
-  // Placeholder: Larger bed icon
   "Queen Size Bed": (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +166,6 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  // Balcony and Safe were removed from the new AMENITIES list
 };
 
 const HotelRoomCard = ({
@@ -194,6 +177,7 @@ const HotelRoomCard = ({
   role?: "Guest" | "Admin";
   refetchRooms?: () => void;
 }) => {
+  console.log(room);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -202,47 +186,87 @@ const HotelRoomCard = ({
           className={
             "flex flex-col h-82 lg:flex-row p-0 w-full justify-between lg:h-60 overflow-hidden bg-[#D29D30] text-white relative"
           }>
-          <div className="flex flex-col lg:w-5/12 lg:h-full h-6/15  p-5 text-left relative z-20">
-            <h1 className="font-semibold md:text-2xl text-xl">
-              {room.roomType}: {room.roomNumber}
-            </h1>
-            <p className="lg:mt-2 text-md">
-              Rate: ₱ {room.roomRate?.toFixed(2)} / night
-            </p>
-            <p className="text-sm">Max Guests: {room.maxGuests || "N/A"}</p>
+          <div className="flex flex-col justify-between w-full lg:w-6/12 lg:h-full h-6/15 p-5 text-left relative z-20">
+            <div>
+              <h1 className="font-semibold md:text-2xl text-xl">
+                {room.roomType}: {room.roomNumber}
+              </h1>
 
-            <div className="mt-2 gap-x-4 lg:mt-auto flex flex-wrap lg:gap-3 text-sm items-center">
-              {room.amenities && room.amenities.length > 0 ? (
-                room.amenities.slice(0, 4).map((amenityName) => {
-                  // Ensure amenityName is a valid Amenity type
-                  const amenity = amenityName as Amenity;
-                  // Check if amenity is in our defined AMENITIES list to be safe
-                  if (!AMENITIES.includes(amenity)) return null;
+              <p className="mt-1 md:mt-2 text-md">
+                Rate: ₱ {room.roomRate?.toFixed(2)} / night
+              </p>
+              <p className="text-sm mt-1">
+                Max Guests: {room.maxGuests || "N/A"}
+              </p>
+            </div>
 
-                  const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
-                  return (
-                    <div
-                      key={amenity}
-                      className="flex items-center gap-1"
-                      title={amenity}>
-                      {icon}
-                      <span className="hidden sm:inline">{amenity}</span>
-                    </div>
-                  );
-                })
-              ) : (
-                <span className="text-xs text-gray-300 italic">
-                  No specific amenities listed.
-                </span>
-              )}
-              {room.amenities && room.amenities.length > 4 && (
-                <div className="flex items-center gap-1 text-xs text-gray-200">
-                  + {room.amenities.length - 4} more
-                </div>
-              )}
+            <div className="mt-2 text-sm">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 items-center lg:hidden">
+                {room.amenities && room.amenities.length > 0 ? (
+                  <>
+                    {room.amenities.slice(0, 2).map((amenityName) => {
+                      const amenity = amenityName as Amenity;
+                      if (!AMENITIES.includes(amenity)) return null;
+                      const icon = amenityIcons[amenity] || (
+                        <FallbackAmenityIcon />
+                      );
+                      return (
+                        <div
+                          key={`${amenity}-mobile`}
+                          className="flex items-center gap-1"
+                          title={amenity}>
+                          {icon}
+                          <span className="hidden sm:inline">{amenity}</span>
+                        </div>
+                      );
+                    })}
+                    {room.amenities.length > 2 && (
+                      <div className="flex items-center gap-1 text-xs text-gray-200">
+                        + {room.amenities.length - 2} more
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-300 italic">
+                    No specific amenities listed.
+                  </span>
+                )}
+              </div>
+
+              <div className="hidden lg:flex lg:flex-wrap lg:gap-3 gap-y-1 items-center">
+                {room.amenities && room.amenities.length > 0 ? (
+                  <>
+                    {room.amenities.slice(0, 4).map((amenityName) => {
+                      const amenity = amenityName as Amenity;
+                      if (!AMENITIES.includes(amenity)) return null;
+                      const icon = amenityIcons[amenity] || (
+                        <FallbackAmenityIcon />
+                      );
+                      return (
+                        <div
+                          key={`${amenity}-desktop`}
+                          className="flex items-center gap-1"
+                          title={amenity}>
+                          {icon}
+                          <span className="inline">{amenity}</span>
+                        </div>
+                      );
+                    })}
+                    {room.amenities.length > 4 && (
+                      <div className="flex items-center gap-1 text-xs text-gray-200">
+                        + {room.amenities.length - 4} more
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-300 italic">
+                    No specific amenities listed.
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="relative w-full lg:w-7/12 lg:h-full h-9/15 ">
+          <div className="relative w-full lg:w-6/12 lg:h-full h-9/15 ">
             {room.images?.length ? (
               <NextImage
                 key={room.images[0].name || room.id}
@@ -306,12 +330,12 @@ const HotelRoomCard = ({
           )}
         </div>
         <div className="px-8 max-h-30 border-t">
+          {" "}
           <h3 className="font-semibold text-md my-2">Amenities:</h3>
           {room.amenities && room.amenities.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {room.amenities.map((amenityName) => {
                 const amenity = amenityName as Amenity;
-                // Check if amenity is in our defined AMENITIES list to be safe
                 if (!AMENITIES.includes(amenity)) return null;
 
                 const icon = amenityIcons[amenity] || <FallbackAmenityIcon />;
