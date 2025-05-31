@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from "./server";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export const uploadImage = async (
   from: string,
@@ -64,9 +65,10 @@ export const deleteFile = async (
 
 export async function deleteAllFilesInFolder(
   bucketName: string,
-  folderPath: string
+  folderPath: string,
+  supabaseInstance?: SupabaseClient
 ) {
-  const supabase = await createClient();
+  const supabase = supabaseInstance || (await createClient(true));
   const { data: files, error: listError } = await supabase.storage
     .from(bucketName)
     .list(folderPath);
@@ -90,10 +92,10 @@ export async function deleteAllFilesInFolder(
         `Error deleting files from ${bucketName}/${folderPath}:`,
         deleteError
       );
-      return { deleteError };
+      return { listError, deleteError };
     }
     return { deleteData };
-  }
+  } 
   return { data: null };
 }
 
