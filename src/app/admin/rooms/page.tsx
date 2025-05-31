@@ -52,7 +52,7 @@ const Rooms = () => {
   });
 
   return (
-    <div className="flex flex-col w-full min-h-screen items-center space-y-8 pt-24 px-4 lg:px-16">
+    <div className="flex flex-col w-full min-h-screen items-center space-y-8 pt-24 px-4 lg:px-16 pb-5">
       <Card className="flex flex-col md:flex-row p-4 w-full max-w-7xl gap-4 items-stretch md:items-end">
         <div className="flex-grow w-full">
           <RoomFiltererByDate
@@ -71,7 +71,7 @@ const Rooms = () => {
         </div>
       </Card>
 
-      <div className="w-full h-auto mt-10 space-y-20 max-w-7xl">
+      <div className="w-full h-auto space-y-20 max-w-7xl">
         {roomsLoading ? (
           <>
             <Skeleton className="w-full h-60 rounded-lg" />
@@ -80,12 +80,12 @@ const Rooms = () => {
           </>
         ) : (
           Object.entries(groupedRooms).map(([roomType, rooms]) => (
-            <div key={roomType} className="px-4 lg:px-8">
-              <h2 className="text-3xl font-bold mb-8 text-[#D29D30]">{roomType} Rooms</h2>
+            <div key={roomType} className="px-4 lg:px-8 space-y-3">
+              <h2 className="text-3xl font-bold text-[#D29D30]">{roomType} Rooms</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {rooms.map((room) => (
                   <HotelRoomCard
-                    key={room.id}
+                    key={room.id} 
                     room={room}
                     role="Admin"
                     refetchRooms={refetchRooms}
