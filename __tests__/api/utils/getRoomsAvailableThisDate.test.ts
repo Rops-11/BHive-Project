@@ -1,9 +1,8 @@
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "utils/db";
 import { POST } from "@/app/api/utils/getRoomsAvailableThisDate/route";
 import { v4 as uuidv4 } from "uuid";
 
-const prisma = new PrismaClient();
 
 describe("GET Available Rooms", () => {
   const deluxeRoomId = uuidv4();
