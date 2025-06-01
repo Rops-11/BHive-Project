@@ -118,4 +118,131 @@ describe("POST /api/utils/sendEmail", () => {
     expect(res.status).toBe(400);
     expect(data.message).toMatch(/invalid input/i);
   });
+
+  it("returns 400 for invalid check-in date format", async () => {
+    const payload = {
+      email: "guest@example.com",
+      name: "Test User",
+      roomId: testRoomId,
+      verified: true,
+      checkIn: "not-a-date",
+    };
+
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(data.errors).toHaveProperty("checkIn");
+  });
+
+  it("returns 400 for non-JSON body", async () => {
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: "not-json",
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(data.message).toMatch(/invalid request format/i);
+  });
+
+  it("returns 500 if email fails to send", async () => {
+    // override the existing mock to simulate failure
+    (nodemailer.createTransport as jest.Mock).mockReturnValueOnce({
+      sendMail: jest.fn().mockRejectedValue(new Error("SMTP error")),
+    });
+
+    const payload = {
+      email: "guest@example.com",
+      name: "Test User",
+      roomId: testRoomId,
+      verified: true,
+      checkIn: "2025-06-10",
+    };
+
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(data.message).toMatch(/failed to send notification email/i);
+  });
+
+  it("returns 400 for invalid check-in date format", async () => {
+    const payload = {
+      email: "guest@example.com",
+      name: "Test User",
+      roomId: testRoomId,
+      verified: true,
+      checkIn: "not-a-date",
+    };
+
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(data.errors).toHaveProperty("checkIn");
+  });
+
+  it("returns 400 for non-JSON body", async () => {
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: "not-json",
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(data.message).toMatch(/invalid request format/i);
+  });
+
+  it("returns 500 if email fails to send", async () => {
+    // override the existing mock to simulate failure
+    (nodemailer.createTransport as jest.Mock).mockReturnValueOnce({
+      sendMail: jest.fn().mockRejectedValue(new Error("SMTP error")),
+    });
+
+    const payload = {
+      email: "guest@example.com",
+      name: "Test User",
+      roomId: testRoomId,
+      verified: true,
+      checkIn: "2025-06-10",
+    };
+
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }));
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(500);
+    expect(data.message).toMatch(/failed to send notification email/i);
+  });
+
 });

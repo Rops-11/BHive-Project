@@ -139,5 +139,169 @@ describe("GET Available Rooms", () => {
     expect(res.status).toBe(400);
     expect(data.message).toBe("Check-in and check-out date strings are required.");
   });
+
+  it("should include a room booked before the check-in date", async () => {
+    await prisma.booking.create({
+      data: {
+        id: uuidv4(),
+        roomId: standardRoomId,
+        checkIn: new Date("2025-05-01"),
+        checkOut: new Date("2025-05-10"),
+        mobileNumber: "09999999999",
+        email: "past@example.com",
+        name: "Past Guest",
+        numberOfAdults: 1,
+        numberOfChildren: 0,
+        totalPrice: 100,
+        status: "Complete",
+        paymentStatus: "Paid",
+        bookingType: "Online",
+      },
+    });
+  
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify({
+        checkIn: "2025-06-10",
+        checkOut: "2025-06-12",
+      }),
+      headers: { "Content-Type": "application/json" },
+    }));
+  
+    const res = await POST(req);
+    const data = await res.json();
+  
+    expect(res.status).toBe(200);
+    const ids = data.map((r: any) => r.id);
+    expect(ids).toContain(standardRoomId);
+  });
+
+  it("should include a room booked after the check-out date", async () => {
+    await prisma.booking.create({
+      data: {
+        id: uuidv4(),
+        roomId: standardRoomId,
+        checkIn: new Date("2025-06-15"),
+        checkOut: new Date("2025-06-18"),
+        mobileNumber: "09988888888",
+        email: "future@example.com",
+        name: "Future Guest",
+        numberOfAdults: 1,
+        numberOfChildren: 0,
+        totalPrice: 200,
+        status: "Pending",
+        paymentStatus: "Paid",
+        bookingType: "Online",
+      },
+    });
+  
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify({
+        checkIn: "2025-06-10",
+        checkOut: "2025-06-12",
+      }),
+      headers: { "Content-Type": "application/json" },
+    }));
+  
+    const res = await POST(req);
+    const data = await res.json();
+  
+    expect(res.status).toBe(200);
+    const ids = data.map((r: any) => r.id);
+    expect(ids).toContain(standardRoomId);
+  });
+
+  it("should exclude rooms that partially overlap the date range", async () => {
+    const roomId = uuidv4();
+    await prisma.room.create({
+      data: {
+        id: roomId,
+        roomType: "Suite",
+        roomNumber: "103",
+        isAvailable: true,
+        maxGuests: 4,
+        roomRate: 300,
+        amenities: [],
+      },
+    });
+  
+    await prisma.booking.create({
+      data: {
+        id: uuidv4(),
+        roomId,
+        checkIn: new Date("2025-06-11"),
+        checkOut: new Date("2025-06-14"),
+        mobileNumber: "09123456789",
+        email: "conflict@example.com",
+        name: "Conflict Guest",
+        numberOfAdults: 2,
+        numberOfChildren: 1,
+        totalPrice: 900,
+        status: "Reserved",
+        paymentStatus: "Paid",
+        bookingType: "Online",
+      },
+    });
+  
+    const req = new NextRequest(new Request("http://localhost", {
+      method: "POST",
+      body: JSON.stringify({
+        checkIn: "2025-06-10",
+        checkOut: "2025-06-12",
+      }),
+      headers: { "Content-Type": "application/json" },
+    }));
+  
+    const res = await POST(req);
+    const data = await res.json();
+  
+    const roomIds = data.map((r: any) => r.id);
+    expect(roomIds).not.toContain(roomId);
+  });
+
+//   it("should return 405 for non-POST requests", async () => {
+//     const req = new NextRequest(new Request("http://localhost", {
+//       method: "GET",
+//     }));
+  
+//     const res = await POST(req);
+//     expect(res.status).toBe(405);
+//   });
+  
+//   it("should return empty array if all rooms are booked", async () => {
+//     await prisma.booking.create({
+//       data: {
+//         id: uuidv4(),
+//         roomId: standardRoomId,
+//         checkIn: new Date("2025-06-10"),
+//         checkOut: new Date("2025-06-12"),
+//         mobileNumber: "0987654321",
+//         email: "booked@example.com",
+//         name: "Blocked",
+//         numberOfAdults: 2,
+//         numberOfChildren: 0,
+//         totalPrice: 150,
+//         status: "Reserved",
+//         paymentStatus: "Paid",
+//         bookingType: "Online",
+//       },
+//     });
+  
+//     const req = new NextRequest(new Request("http://localhost", {
+//       method: "POST",
+//       body: JSON.stringify({
+//         checkIn: "2025-06-10",
+//         checkOut: "2025-06-12",
+//       }),
+//       headers: { "Content-Type": "application/json" },
+//     }));
+  
+//     const res = await POST(req);
+//     const data = await res.json();
+  
+//     expect(Array.isArray(data)).toBe(true);
+//     expect(data.length).toBe(0);
+//   });  
   
 });
