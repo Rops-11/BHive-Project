@@ -55,7 +55,6 @@ export async function PUT(
 
     const roomType = formData.get("roomType") as string;
     const roomNumber = formData.get("roomNumber") as string;
-    const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
     const amenities = formData.getAll("amenities") as string[];
@@ -109,7 +108,7 @@ export async function PUT(
 
     const updatedRoom = await prisma.room.update({
       where: { id },
-      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate, amenities },
+      data: { roomType, roomNumber, maxGuests, roomRate, amenities },
     });
 
     if (files.length > 0)

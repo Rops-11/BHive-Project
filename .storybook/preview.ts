@@ -1,12 +1,13 @@
-import type { Preview } from '@storybook/react'
-import "@/app/globals.css"
-import 'dotenv/config';
+import type { Preview } from "@storybook/react";
+import "react-toastify/dist/ReactToastify.css";
+import "@/app/globals.css";
+
 const preview: Preview = {
   parameters: {
     controls: {
       matchers: {
-       color: /(background|color)$/i,
-       date: /Date$/i,
+        color: /(background|color)$/i,
+        date: /Date$/i,
       },
     },
   },
