@@ -9,7 +9,6 @@ export interface Room {
   id?: string;
   roomType?: string;
   roomNumber?: string;
-  isAvailable?: boolean;
   maxGuests?: number;
   roomRate?: number;
   images?: ImageFile[];
