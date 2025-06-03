@@ -127,7 +127,7 @@ describe("getUnavailableRoomIdsForPeriod", () => {
     expect(unavailable).not.toContain(roomId2);
   });
 
-  it("excludes booking ID if excludeBookingId is provided", async () => {
+  it("excludes booking ID if excludeBookingId is provided ", async () => {
     const unavailable = await getUnavailableRoomIdsForPeriod(
       prisma,
       "2025-06-03",
