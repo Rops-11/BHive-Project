@@ -48,7 +48,9 @@ export default function Header() {
       <nav className={navStyle}>
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/admin" className="flex items-center">
+          <Link
+            href="/admin"
+            className="flex items-center">
             <Image
               src={logo}
               alt="Bhive Hotel Logo"
@@ -68,13 +70,13 @@ export default function Header() {
                 {navigationLinks.map((item) => (
                   <NavigationMenuItem
                     key={item.title}
-                    className="flex w-full justify-center items-center"
-                  >
+                    className="flex w-full justify-center items-center">
                     <NavigationMenuLink asChild>
                       <Link
                         href={item.href}
-                        className={`${navLinkStyle} ${pathname === item.href ? "underline" : ""}`}
-                      >
+                        className={`${navLinkStyle} ${
+                          pathname === item.href ? "underline" : ""
+                        }`}>
                         {item.title}
                       </Link>
                     </NavigationMenuLink>
@@ -89,8 +91,7 @@ export default function Header() {
         <form action={logout}>
           <Button
             variant="ghost"
-            className="text-yellow-900 text-xl font-semibold hover:text-red-500 hover:underline flex items-center gap-2"
-          >
+            className="text-yellow-900 text-xl font-semibold hover:text-red-500 hover:underline flex items-center gap-2">
             <FiLogOut className="text-2xl" /> {/* ✅ Icon Added */}
             Logout
           </Button>
@@ -106,8 +107,7 @@ export default function Header() {
                   setSideBar(!sideBar);
                   setMobileMenuOpen(!mobileMenuOpen);
                 }}
-                className="text-black"
-              >
+                className="text-black">
                 <Bars3Icon className="h-6 w-6" />
               </button>
             )}
@@ -122,7 +122,6 @@ export default function Header() {
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
             navItems={navigationLinks}
-            role="Admin"
           />
         )}
       </nav>
