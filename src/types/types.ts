@@ -9,12 +9,13 @@ export interface Room {
   id?: string;
   roomType?: string;
   roomNumber?: string;
-  isAvailable?: boolean;
   maxGuests?: number;
   roomRate?: number;
   images?: ImageFile[];
   amenities?: string[];
 }
+
+
 
 export interface Booking {
   id?: string;
@@ -24,7 +25,7 @@ export interface Booking {
   checkOut?: Date;
   mobileNumber?: string;
   email?: string;
-  status?: "Reserved" | "Ongoing" | "Complete" | "Cancelled";
+  status?: "Pending" | "Reserved" | "Ongoing" | "Complete" | "Cancelled";
   paymentStatus?: "Paid" | "Partial";
   downPayment?: boolean;
   name?: string;
@@ -33,7 +34,11 @@ export interface Booking {
   bookingType?: "Online" | "OTC";
   totalPrice?: number;
   room?: Room;
+  file?: File;
+  image?: ImageFile;
 }
+
+
 
 export interface EmailDetail {
   id: string | null | undefined;

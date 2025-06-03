@@ -64,7 +64,6 @@ export async function POST(req: NextRequest) {
 
     const roomType = formData.get("roomType") as string;
     const roomNumber = formData.get("roomNumber") as string;
-    const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
     const amenities = formData.getAll("amenities") as string[];
@@ -81,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     const newRoom = await prisma.room.create({
-      data: { roomType, roomNumber, isAvailable, maxGuests, amenities, roomRate },
+      data: { roomType, roomNumber, maxGuests, amenities, roomRate },
     });
     tempRoomIdForCleanup = newRoom.id;
 

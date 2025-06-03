@@ -35,6 +35,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 w-full h-20 z-50 bg-gradient-to-t from-[#d4a017]/30 to-[#d4a017] shadow-md flex items-center p-10 backdrop-filter backdrop-blur-md transition">
       <nav className={navStyle}>
+        {/* Desktop navigation */}
         <div className="hidden md:flex flex-1 w-full text-red-600 font-bold justify-center items-center">
           <NavigationMenu className="flex w-full justify-between">
             <NavigationMenuList className="flex w-full justify-center items-center space-x-10 text-xl">
@@ -55,7 +56,7 @@ export default function Header() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
-              {/* Center logo */}
+              {/* Center logo (desktop only) */}
               <div className="flex justify-center items-center px-4">
                 <Link href="/">
                   <Image
@@ -88,8 +89,21 @@ export default function Header() {
           </NavigationMenu>
         </div>
 
-        {/* Mobile hamburger menu */}
-        <div className="flex md:hidden right-0">
+        {/* Mobile logo and hamburger menu */}
+        <div className="flex md:hidden items-center justify-between w-full">
+          {/* Mobile logo (mobile only) */}
+          <Link href="/" className="block md:hidden">
+            <Image
+              src={logo}
+              alt="Bhive Hotel Mobile Logo"
+              width={50}
+              height={50}
+              className="drop-shadow-md"
+              priority
+            />
+          </Link>
+
+          {/* Hamburger menu button */}
           {!mobileMenuOpen && (
             <button
               type="button"
@@ -112,7 +126,6 @@ export default function Header() {
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
             navItems={navItemsForSideBar}
-            role="Guest"
           />
         )}
       </nav>

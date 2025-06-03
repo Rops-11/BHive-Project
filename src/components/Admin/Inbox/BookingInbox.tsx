@@ -26,7 +26,8 @@ type BookingFilterOptionValue =
   | "statusOngoing"
   | "statusReserved"
   | "statusComplete"
-  | "statusCancelled";
+  | "statusCancelled"
+  | "statusPending";
 
 const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
   [
@@ -36,6 +37,7 @@ const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
     { value: "statusReserved", label: "Status: Reserved" },
     { value: "statusComplete", label: "Status: Complete" },
     { value: "statusCancelled", label: "Status: Cancelled" },
+    { value: "statusPending", label: "Status: Pending" },
   ];
 
 const BookingInbox = () => {
@@ -91,10 +93,10 @@ const BookingInbox = () => {
 
           switch (activeFilter) {
             case "upcoming":
-              if (!booking.checkIn) return false;
-              const checkInDate = new Date(booking.checkIn);
-              checkInDate.setHours(0, 0, 0, 0);
-              return checkInDate >= today && booking.status !== "Cancelled";
+              if (!booking.checkOut) return false;
+              const checkOutDate = new Date(booking.checkOut);
+              checkOutDate.setHours(0, 0, 0, 0);
+              return checkOutDate >= today && booking.status !== "Cancelled";
             case "statusOngoing":
               return booking.status === "Ongoing";
             case "statusReserved":
@@ -103,6 +105,8 @@ const BookingInbox = () => {
               return booking.status === "Complete";
             case "statusCancelled":
               return booking.status === "Cancelled";
+            case "statusPending":
+              return booking.status === "Pending";
             case "all":
             default:
               return true;
