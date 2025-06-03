@@ -1,4 +1,6 @@
 import { Booking } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { startOfDay } from "date-fns";
 
 export const checkDaysDifference = (checkIn: Date, checkOut: Date) => {
   const utc1 =
@@ -96,9 +98,6 @@ export const formatDate = (date: Date | string | undefined): string => {
     return "Invalid Date";
   }
 };
-
-import { Prisma, PrismaClient } from "@prisma/client";
-import { startOfDay } from "date-fns";
 
 export async function getUnavailableRoomIdsForPeriod(
   prisma: PrismaClient,
