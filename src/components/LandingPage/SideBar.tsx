@@ -18,10 +18,18 @@ interface NavItemData {
 }
 
 const iconMap: { [key: string]: React.ReactNode } = {
-  Home: <HomeIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />,
-  Facilities: <BuildingOffice2Icon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />,
-  Rooms: <KeyIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />,
-  Book: <BookOpenIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />,
+  Home: (
+    <HomeIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />
+  ),
+  Facilities: (
+    <BuildingOffice2Icon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />
+  ),
+  Rooms: (
+    <KeyIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />
+  ),
+  Book: (
+    <BookOpenIcon className="h-5 w-5 transition-all group-hover:scale-110 group-hover:opacity-80" />
+  ),
 };
 
 interface SideBarProps {
@@ -44,9 +52,7 @@ const SideBar: React.FC<SideBarProps> = ({
     <div
       className={`fixed top-0 right-0 w-64 h-screen bg-white shadow-lg z-50 
       transform transition-transform duration-300 ease-in-out 
-      ${sideBar ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}
-    >
-      {/* Header */}
+      ${sideBar ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}>
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <Image
@@ -64,8 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({
             setSideBar(false);
             setTimeout(() => setMobileMenuOpen(false), 300);
           }}
-          className="p-2 rounded-full hover:bg-amber-100 transition-all hover:rotate-90 text-amber-900"
-        >
+          className="p-2 rounded-full hover:bg-amber-100 transition-all hover:rotate-90 text-amber-900">
           <XMarkIcon className="h-6 w-6" />
         </button>
       </div>
@@ -88,12 +93,10 @@ const SideBar: React.FC<SideBarProps> = ({
                   isActive
                     ? "bg-amber-100 text-amber-900 font-semibold"
                     : "text-amber-900 hover:bg-amber-100"
-                }`}
-            >
+                }`}>
               {iconMap[item.title] || <span className="w-5" />}
               <span
-                className={`font-medium text-lg transition-transform group-hover:scale-105 group-hover:opacity-80`}
-              >
+                className={`font-medium text-lg transition-transform group-hover:scale-105 group-hover:opacity-80`}>
                 {item.title}
               </span>
             </Link>
