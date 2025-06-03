@@ -126,7 +126,6 @@ export default function Header() {
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
             navItems={navItemsForSideBar}
-            role="Guest"
           />
         )}
       </nav>
