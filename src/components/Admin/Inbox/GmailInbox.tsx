@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react"; // Added useCallback
+import { useEffect, useState, useRef, useCallback } from "react";
 import { fetchUserEmails } from "@/app/actions/gmailActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,55 +19,57 @@ interface EmailDetail {
 }
 
 const REFRESH_INTERVAL = 30000;
-const DEBOUNCE_DELAY = 500; // Delay in ms before fetching after user stops typing
+const DEBOUNCE_DELAY = 500;
 
 const GmailInbox = () => {
   const [emails, setEmails] = useState<EmailDetail[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [senderFilter, setSenderFilter] = useState<string>("");
-  const [debouncedSenderFilter, setDebouncedSenderFilter] = useState<string>(""); // For useEffect dependency
+  const [debouncedSenderFilter, setDebouncedSenderFilter] =
+    useState<string>("");
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null); // For debouncing input
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Stable handleFetchEmails using useCallback
-  const handleFetchEmails = useCallback(async (filter: string, isAutoRefresh = false) => {
-    if (!isAutoRefresh) {
-      setLoading(true);
-      // Consider clearing emails for manual/debounced fetch for better UX
-      setEmails(null);
-    } else {
-      // toast.info("Auto-refreshing emails..."); // Can be noisy for frequent refreshes
-      console.log("Auto-refreshing emails with filter:", filter);
-    }
-
-    const result = await fetchUserEmails(filter);
-
-    if (result.error) {
+  const handleFetchEmails = useCallback(
+    async (filter: string, isAutoRefresh = false) => {
       if (!isAutoRefresh) {
-        toast.error(`Error fetching emails: ${result.error}`);
-      } else {
-        console.error("Auto-refresh error:", result.error);
-      }
-    } else if (result.data) {
-      const fetchedEmails = result.data.messages as EmailDetail[];
-      setEmails(fetchedEmails);
-    }
+        setLoading(true);
 
-    if (!isAutoRefresh) {
-      setLoading(false);
-    }
-    if (isInitialLoad && !isAutoRefresh) {
-      setIsInitialLoad(false);
-    }
-  }, [isInitialLoad]); 
+        setEmails(null);
+      } else {
+        console.log("Auto-refreshing emails with filter:", filter);
+      }
+
+      const result = await fetchUserEmails(filter);
+
+      if (result.error) {
+        if (!isAutoRefresh) {
+          toast.error(`Error fetching emails: ${result.error}`);
+        } else {
+          console.error("Auto-refresh error:", result.error);
+        }
+      } else if (result.data) {
+        const fetchedEmails = result.data.messages as EmailDetail[];
+        setEmails(fetchedEmails);
+      }
+
+      if (!isAutoRefresh) {
+        setLoading(false);
+      }
+      if (isInitialLoad && !isAutoRefresh) {
+        setIsInitialLoad(false);
+      }
+    },
+    [isInitialLoad]
+  );
 
   useEffect(() => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
     debounceTimeoutRef.current = setTimeout(() => {
-      setDebouncedSenderFilter(senderFilter); 
+      setDebouncedSenderFilter(senderFilter);
     }, DEBOUNCE_DELAY);
 
     return () => {
@@ -75,12 +77,11 @@ const GmailInbox = () => {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [senderFilter]); 
-
+  }, [senderFilter]);
 
   useEffect(() => {
     setIsInitialLoad(true);
-    handleFetchEmails(debouncedSenderFilter, false); 
+    handleFetchEmails(debouncedSenderFilter, false);
 
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
@@ -97,7 +98,6 @@ const GmailInbox = () => {
       }
     };
   }, [debouncedSenderFilter]);
-
 
   const onManualFetchClick = () => {
     if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
@@ -124,14 +124,14 @@ const GmailInbox = () => {
                 type="email"
                 placeholder="Filter by sender (optional)"
                 value={senderFilter}
-                onChange={handleInputChange} 
+                onChange={handleInputChange}
                 className="pl-10 w-full"
                 disabled={loading && !isInitialLoad}
               />
             </div>
             <Button
               onClick={onManualFetchClick}
-              disabled={loading && !isInitialLoad} 
+              disabled={loading && !isInitialLoad}
               size="lg"
               className="w-full sm:w-auto shrink-0">
               {loading && !isInitialLoad ? (
@@ -157,12 +157,12 @@ const GmailInbox = () => {
       )}
 
       {isInitialLoad && emails === null && !loading && (
-         <div className="text-center py-10">
+        <div className="text-center py-10">
           <Inbox className="mx-auto h-12 w-12 text-gray-400" />
-           <p className="mt-2 text-sm text-gray-500">
-             Enter filter and click Refresh, or wait for initial load.
-           </p>
-         </div>
+          <p className="mt-2 text-sm text-gray-500">
+            Enter filter and click Refresh, or wait for initial load.
+          </p>
+        </div>
       )}
 
       {!isInitialLoad && emails && emails.length === 0 && (
@@ -170,8 +170,10 @@ const GmailInbox = () => {
           <Inbox className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-sm text-gray-500">
             No emails found{" "}
-            {debouncedSenderFilter ? `from ${debouncedSenderFilter}` : "in your inbox"} matching
-            your criteria.
+            {debouncedSenderFilter
+              ? `from ${debouncedSenderFilter}`
+              : "in your inbox"}{" "}
+            matching your criteria.
           </p>
         </div>
       )}

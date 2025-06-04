@@ -6,14 +6,14 @@ import { normalFetch } from "utils/fetch";
 const useGetAllRooms = () => {
   const [rooms, setRooms] = useState<Room[]>();
   const [loading, setLoading] = useState<boolean>(true);
-  const fetchAvailableRooms = async () => {
+  const fetchAllRooms = async () => {
     setLoading(true);
     try {
       const response = await normalFetch("/api/room", "get");
 
       if (!response.ok) {
         const error = await response.json();
-        toast.error(error);
+        toast.error(error.message);
         return;
       }
 
@@ -33,10 +33,10 @@ const useGetAllRooms = () => {
   };
 
   useEffect(() => {
-    fetchAvailableRooms();
+    fetchAllRooms();
   }, []);
 
-  return { rooms, loading };
+  return { rooms, loading, fetchAllRooms };
 };
 
 export default useGetAllRooms;

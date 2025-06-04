@@ -3,13 +3,42 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, Inbox, Search } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import useGetAllBookings from "@/hooks/bookingHooks/useGetAllBookings";
-import BookingCard from "./BookingCard";
+import BookingCard from "../BookingCard";
 import { Booking } from "@/types/types";
+import { toast } from "react-toastify";
 
-const REFRESH_INTERVAL = 30000;
+const REFRESH_INTERVAL = 300000; //! This is 5 mins.
+
+type BookingFilterOptionValue =
+  | "upcoming"
+  | "all"
+  | "statusOngoing"
+  | "statusReserved"
+  | "statusComplete"
+  | "statusCancelled"
+  | "statusPending";
+
+const filterOptions: Array<{ value: BookingFilterOptionValue; label: string }> =
+  [
+    { value: "upcoming", label: "Upcoming & Current" },
+    { value: "all", label: "All Bookings" },
+    { value: "statusOngoing", label: "Status: Ongoing" },
+    { value: "statusReserved", label: "Status: Reserved" },
+    { value: "statusComplete", label: "Status: Complete" },
+    { value: "statusCancelled", label: "Status: Cancelled" },
+    { value: "statusPending", label: "Status: Pending" },
+  ];
 
 const BookingInbox = () => {
   const {
@@ -18,27 +47,26 @@ const BookingInbox = () => {
     getAllBookings: refetchBookings,
   } = useGetAllBookings();
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] =
+    useState<BookingFilterOptionValue>("upcoming");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFetchBookings = async (isAutoRefresh = false) => {
     if (!isAutoRefresh) {
     } else {
-      console.log("Auto-refreshing bookings...");
+      toast.info("Auto-refreshing bookings...");
     }
-
     await refetchBookings();
-
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-    }
   };
 
   useEffect(() => {
-    if (!loading && bookings !== null) {
+    if (isInitialLoad && !loading) {
       setIsInitialLoad(false);
     }
+  }, [isInitialLoad, loading]);
 
+  useEffect(() => {
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
     }
@@ -53,12 +81,40 @@ const BookingInbox = () => {
         clearInterval(intervalIdRef.current);
       }
     };
-  }, []); 
+  }, []);
 
   const filteredBookings = bookings
-    ? bookings.filter((booking: Booking) =>
-        (booking.name ?? "").toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    ? bookings
+        .filter((booking: Booking) => {
+          if (!booking) return false;
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          switch (activeFilter) {
+            case "upcoming":
+              if (!booking.checkOut) return false;
+              const checkOutDate = new Date(booking.checkOut);
+              checkOutDate.setHours(0, 0, 0, 0);
+              return checkOutDate >= today && booking.status !== "Cancelled";
+            case "statusOngoing":
+              return booking.status === "Ongoing";
+            case "statusReserved":
+              return booking.status === "Reserved";
+            case "statusComplete":
+              return booking.status === "Complete";
+            case "statusCancelled":
+              return booking.status === "Cancelled";
+            case "statusPending":
+              return booking.status === "Pending";
+            case "all":
+            default:
+              return true;
+          }
+        })
+        .filter((booking: Booking) =>
+          (booking.name ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+        )
     : [];
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +122,7 @@ const BookingInbox = () => {
   };
 
   const onManualRefreshClick = () => {
-    setIsInitialLoad(false); 
+    if (isInitialLoad) setIsInitialLoad(false);
     handleFetchBookings(false);
   };
 
@@ -74,12 +130,22 @@ const BookingInbox = () => {
     if (loading && isInitialLoad) {
       return null;
     }
+
     if (bookings && bookings.length > 0 && filteredBookings.length === 0) {
-      return "No bookings found matching your search.";
+      const currentFilterLabel =
+        filterOptions
+          .find((opt) => opt.value === activeFilter)
+          ?.label.toLowerCase() || "current view";
+      if (searchTerm.trim() !== "") {
+        return `No bookings match "${searchTerm}" for ${currentFilterLabel}.`;
+      }
+      return `No bookings found for ${currentFilterLabel}.`;
     }
-    if (!loading && bookings && bookings.length === 0) {
+
+    if (!loading && (!bookings || bookings.length === 0)) {
       return "No bookings at the moment.";
     }
+
     return null;
   };
 
@@ -101,17 +167,27 @@ const BookingInbox = () => {
                 className="pl-10 w-full"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                disabled={loading && isInitialLoad} 
+                disabled={loading && isInitialLoad}
               />
             </div>
+
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto shrink-0"
+              onClick={() => setSearchTerm("")}
+              disabled={(loading && isInitialLoad) || searchTerm === ""}>
+              Clear Search
+            </Button>
+
             <Button
               type="button"
               size="lg"
               className="w-full sm:w-auto shrink-0"
               onClick={onManualRefreshClick}
-              disabled={loading}
-            >
-              {loading && !isInitialLoad ? ( 
+              disabled={loading}>
+              {loading && !isInitialLoad ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Refreshing...
@@ -120,15 +196,26 @@ const BookingInbox = () => {
                 "Refresh"
               )}
             </Button>
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto shrink-0"
-              onClick={() => setSearchTerm("")}
+
+            <Select
+              value={activeFilter}
+              onValueChange={(value) =>
+                setActiveFilter(value as BookingFilterOptionValue)
+              }
               disabled={loading && isInitialLoad}>
-              Clear Search
-            </Button>
+              <SelectTrigger className="w-full sm:w-auto sm:min-w-[200px] shrink-0">
+                <SelectValue placeholder="Filter by..." />
+              </SelectTrigger>
+              <SelectContent>
+                {filterOptions.map((option) => (
+                  <SelectItem
+                    key={option.value}
+                    value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
       </Card>
@@ -140,19 +227,20 @@ const BookingInbox = () => {
         </div>
       )}
 
-      {!loading && emptyStateMessage && (
+      {!isInitialLoad && emptyStateMessage && (
         <div className="text-center py-10">
           <Inbox className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-sm text-gray-500">{emptyStateMessage}</p>
         </div>
       )}
 
-      {!loading && filteredBookings.length > 0 && (
+      {!isInitialLoad && !emptyStateMessage && filteredBookings.length > 0 && (
         <div className="w-full flex-grow space-y-4 h-full overflow-y-scroll pb-10">
           {filteredBookings.map((booking) => (
             <BookingCard
               key={booking.id}
               booking={booking}
+              refetchBookings={refetchBookings}
             />
           ))}
         </div>

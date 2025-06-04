@@ -1,35 +1,71 @@
-import { Booking } from "@/types/types";
+"use client";
+
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { Booking } from "@/types/types";
 import { normalFetch } from "utils/fetch";
 
-const useCreateBooking = () => {
-  const [bookingDetails, setBookingDetails] = useState<Booking>();
-  const [loading, setLoading] = useState(false);
+type CreateBookingPayload = Omit<
+  Booking,
+  "id" | "dateBooked" | "room" | "paymentProofUrl"
+> & {
+  roomId: string;
+  file?: File | null;
+  paymentStatus?: string;
+};
 
-  const createBooking = async (bookingDetails: Booking) => {
+const useCreateBooking = () => {
+  const [bookingDetails, setBookingDetails] = useState<Booking | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const createBooking = async (payload: CreateBookingPayload) => {
     setLoading(true);
+
+    const formData = new FormData();
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (key === "file") {
+        if (value instanceof File) {
+          formData.append(key, value, value.name);
+        }
+      } else if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+
     try {
-      const response = await normalFetch("/api/book", "post", bookingDetails);
+      const response = await normalFetch("/api/book", "post", formData);
 
       if (!response.ok) {
-        const error = await response.json();
-        toast.error(error.message);
+        const errorData = await response.json();
+        let message = "Failed to create booking.";
+        if (errorData && errorData.message) {
+          message = errorData.message;
+          if (errorData.details) message += ` Details: ${errorData.details}`;
+          if (errorData.missing)
+            message += ` Missing fields: ${errorData.missing.join(", ")}`;
+        } else if (typeof errorData === "string") {
+          message = errorData;
+        } else if (response.statusText) {
+          message = response.statusText;
+        }
+        setError(message);
         return;
       }
 
-      const bookingData = await response.json();
-      setBookingDetails(bookingData);
-      toast.success("Booking Successful");
-    } catch (error) {
-      console.error(error);
-      toast.error("An Unknown Error Occurred");
+
+      const newBookingData: Booking = await response.json();
+      setBookingDetails(newBookingData);
+    } catch {
+      console.error("Unknown error in createBooking hook");
     } finally {
       setLoading(false);
     }
   };
 
-  return { createBooking, loading, bookingDetails };
+  return { createBooking, loading, bookingDetails, error, setError };
 };
 
 export default useCreateBooking;

@@ -28,7 +28,7 @@ export async function GET() {
 
     if (errorInImage) {
       return NextResponse.json(
-        { error: "Error in fetching images" },
+        { message: "Error in fetching images" },
         { status: 400 }
       );
     }
@@ -64,13 +64,13 @@ export async function POST(req: NextRequest) {
 
     const roomType = formData.get("roomType") as string;
     const roomNumber = formData.get("roomNumber") as string;
-    const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
+    const amenities = formData.getAll("amenities") as string[];
     const files = formData.getAll("files") as File[];
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: "No files provided" }, { status: 400 });
+      return NextResponse.json({ message: "No files provided" }, { status: 400 });
     }
     if (!roomType || !roomNumber || isNaN(maxGuests) || isNaN(roomRate)) {
       return NextResponse.json(
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     const newRoom = await prisma.room.create({
-      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
+      data: { roomType, roomNumber, maxGuests, amenities, roomRate },
     });
     tempRoomIdForCleanup = newRoom.id;
 

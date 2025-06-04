@@ -1,4 +1,6 @@
 import { Booking } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { startOfDay } from "date-fns";
 
 export const checkDaysDifference = (checkIn: Date, checkOut: Date) => {
   const utc1 =
@@ -21,7 +23,6 @@ export const doDateRangesOverlap = (
   rangeA: { checkIn: Date; checkOut: Date },
   rangeB: { checkIn: Date; checkOut: Date }
 ): boolean => {
-  // Range A starts before Range B ends AND Range A ends after Range B starts
   return rangeA.checkIn <= rangeB.checkOut && rangeA.checkOut >= rangeB.checkIn;
 };
 
@@ -39,7 +40,7 @@ export const isOverlappingWithAny = (
       checkIn: booking.checkIn,
       checkOut: booking.checkOut,
     };
-    return doDateRangesOverlap(targetRange, bookingStayRange); // Added return here
+    return doDateRangesOverlap(targetRange, bookingStayRange);
   });
 };
 
@@ -84,3 +85,72 @@ export const findOverlappingBookings = (
 
   return bookingsOverlapped;
 };
+
+export const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return "N/A";
+  try {
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "Invalid Date";
+  }
+};
+
+export async function getUnavailableRoomIdsForPeriod(
+  prisma: PrismaClient,
+  checkInStr: string,
+  checkOutStr: string,
+  excludeBookingId?: string
+): Promise<string[]> {
+  if (!checkInStr || !checkOutStr) {
+    throw new Error("Check-in and check-out date strings are required.");
+  }
+
+  const targetCheckInDate = startOfDay(new Date(checkInStr));
+  const targetCheckOutDate = startOfDay(new Date(checkOutStr));
+
+  if (
+    isNaN(targetCheckInDate.getTime()) ||
+    isNaN(targetCheckOutDate.getTime())
+  ) {
+    throw new Error("Invalid date format for check-in or check-out.");
+  }
+
+  if (targetCheckOutDate <= targetCheckInDate) {
+    throw new Error("Check-out date must be after check-in date.");
+  }
+
+  const today = startOfDay(new Date());
+  if (targetCheckInDate < today) {
+    throw new Error("Check-in date cannot be in the past.");
+  }
+
+  const whereClause: Prisma.BookingWhereInput = {
+    status: {
+      notIn: ["Cancelled", "Complete"],
+    },
+    checkIn: {
+      lt: targetCheckOutDate,
+    },
+    checkOut: {
+      gt: targetCheckInDate,
+    },
+  };
+
+  if (excludeBookingId && typeof excludeBookingId === "string") {
+    whereClause.NOT = { id: excludeBookingId };
+  }
+
+  const conflictingBookings = await prisma.booking.findMany({
+    where: whereClause,
+    select: {
+      roomId: true,
+    },
+    distinct: ["roomId"],
+  });
+
+  return conflictingBookings.map((b) => b.roomId);
+}

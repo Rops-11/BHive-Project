@@ -55,9 +55,9 @@ export async function PUT(
 
     const roomType = formData.get("roomType") as string;
     const roomNumber = formData.get("roomNumber") as string;
-    const isAvailable = formData.get("isAvailable") === "true";
     const maxGuests = parseInt(formData.get("maxGuests") as string);
     const roomRate = parseFloat(formData.get("roomRate") as string);
+    const amenities = formData.getAll("amenities") as string[];
     const files = formData.getAll("files") as File[];
 
     const { data: OldImages, error: OldImagesError } = await getMedia(
@@ -67,7 +67,7 @@ export async function PUT(
 
     if (OldImagesError) {
       return NextResponse.json(
-        { error: "Error in fetching the images" },
+        { message: "Error in fetching the images" },
         { status: 400 }
       );
     }
@@ -108,7 +108,7 @@ export async function PUT(
 
     const updatedRoom = await prisma.room.update({
       where: { id },
-      data: { roomType, roomNumber, isAvailable, maxGuests, roomRate },
+      data: { roomType, roomNumber, maxGuests, roomRate, amenities },
     });
 
     if (files.length > 0)

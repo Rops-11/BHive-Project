@@ -12,7 +12,6 @@ import { RoomIntroText } from "@/components/Room/RoomIntroText";
 const RoomsPage = () => {
   const { rooms, loading: roomsLoading } = useGetAllRooms();
 
-  // Group rooms by roomType safely
   const groupedRooms: Record<string, Room[]> = {};
 
   rooms?.forEach((room) => {
@@ -36,11 +35,18 @@ const RoomsPage = () => {
           </>
         ) : (
           Object.entries(groupedRooms).map(([roomType, rooms]) => (
-            <div key={roomType} className="px-16 lg:px-32">
-              <h2 className="text-3xl font-bold mb-8 text-[#D29D30]">{roomType} Rooms</h2>
-              <div className="grid grid-cols-2 gap-8 max-w-8xl mx-auto">
+            <div
+              key={roomType}
+              className="px-16 lg:px-32">
+              <h2 className="text-3xl font-bold mb-8 text-[#D29D30]">
+                {roomType} Rooms
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-8xl mx-auto">
                 {rooms.map((room) => (
-                  <HotelRoomCard key={room.id} room={room} />
+                  <HotelRoomCard
+                    key={room.id}
+                    room={room}
+                  />
                 ))}
               </div>
             </div>

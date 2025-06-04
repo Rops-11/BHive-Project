@@ -6,7 +6,7 @@ import { FacilityIntroText } from "@/components/Facilities/FacilityIntroText";
 import FacilityGallery from "@/components/Facilities/FacilityGallery";
 import Footer from "@/components/LandingPage/footer";
 
-const RoomsPage = () => {
+const FacilitiesPage = () => {
   return (
     <div>
       <FacilityBanner />
@@ -14,11 +14,9 @@ const RoomsPage = () => {
       <Amenities />
       <FacilityStickyScroll />
       <FacilityGallery />
-      <div className="bg-gray-200 py-4 md:py-4 items-center mt-5">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 };
 
-export default RoomsPage;
+export default FacilitiesPage;

@@ -3,6 +3,7 @@ import React from "react";
 import { HoverEffect } from "@/components/ui/card-hover-effect";
 
 
+
 const amenities = [
   {
     title: "Free High-Speed Wi-Fi",
@@ -12,7 +13,7 @@ const amenities = [
   {
     title: "24/7 Room Service",
     description:
-      "Order food, drinks, or essentials at any hour — we’re here whenever you need us.",
+      "Order food, drinks, or essentials at any hour — we're here whenever you need us.",
   },
   {
     title: "Complimentary Breakfast",
@@ -38,7 +39,7 @@ const amenities = [
 
 export default function Amenities() {
     return (
-      <div className="max-w-5xl mx-auto px-8 pt-12">
+      <div className="max-w-5xl mx-auto px-16 lg:px-8 pt-12">
         <HoverEffect items={amenities} />
       </div>
     );

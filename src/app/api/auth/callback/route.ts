@@ -10,13 +10,13 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const staffAuthUrl = new URL("/auth/staff-auth", origin);
-      staffAuthUrl.searchParams.set("redirectTo", next);
+      const adminUrl = new URL("/admin", origin);
+      adminUrl.searchParams.set("redirectTo", next);
 
       console.log(
-        `OAuth callback successful. Redirecting to staff auth: ${staffAuthUrl.toString()}`
+        `OAuth callback successful. Redirecting to staff auth: ${adminUrl.toString()}`
       );
-      return NextResponse.redirect(staffAuthUrl.toString());
+      return NextResponse.redirect(adminUrl.toString());
     }
     console.error("OAuth callback error exchanging code:", error.message);
   } else {

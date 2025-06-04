@@ -2,7 +2,6 @@
 import { google, gmail_v1 as gmailV1 } from "googleapis";
 import { createClient } from "utils/supabase/server";
 
-// --- Gmail API Type Interfaces ---
 interface GmailMessagePartBody {
   attachmentId?: string | null;
   size?: number | null;
@@ -18,7 +17,6 @@ interface GmailMessagePart {
   parts?: GmailMessagePart[] | null;
 }
 
-// This is our specific understanding of the payload for format: "full"
 interface GmailRichPayload {
   partId?: string | null;
   mimeType?: string | null;
@@ -28,12 +26,10 @@ interface GmailRichPayload {
   parts?: GmailMessagePart[] | null;
 }
 
-// Use an intersection type
 type GmailFullMessage = Omit<gmailV1.Schema$Message, "payload"> & {
   payload?: GmailRichPayload | null;
 };
 
-// --- Helper Functions ---
 function base64UrlDecode(str: string): string {
   if (typeof str !== "string") {
     console.warn("base64UrlDecode received non-string input:", str);
@@ -51,7 +47,6 @@ function base64UrlDecode(str: string): string {
   }
 }
 
-// Updated to use GmailRichPayload
 function getEmailBody(payload: GmailRichPayload | null | undefined): string {
   if (!payload) {
     return "";
@@ -100,7 +95,6 @@ function getEmailBody(payload: GmailRichPayload | null | undefined): string {
   return "";
 }
 
-// --- API Error Type Guard ---
 interface ApiError extends Error {
   code?: number;
   errors?: Array<{ message: string; domain?: string; reason?: string }>;
@@ -114,10 +108,9 @@ function isApiError(error: unknown): error is ApiError {
   );
 }
 
-// --- Main Function ---
 export async function fetchUserEmails(filterBySenderEmail?: string) {
   const supabase = await createClient();
-  
+
   const {
     data: { session },
     error: sessionError,
@@ -132,7 +125,9 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
     return { error: "User not authenticated." };
   }
 
+  //! This seems to be limited at the moment and should be fixed in the future
   const googleAccessToken = session.provider_token;
+  //! This seems to be null at the moment and is not being provided by google
   const googleRefreshToken = session.provider_refresh_token;
 
   if (!googleAccessToken) {
@@ -185,7 +180,7 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
 
     const messagesRes = await gmail.users.messages.list({
       userId: "me",
-      maxResults: 10, // should be changed to a good amount like 50 or so? Or as is.
+      maxResults: 10,
       q: queryString,
     });
 
@@ -204,14 +199,12 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
 
     const detailedMessagesPromises = messages.map(async (message) => {
       if (message.id && message.threadId) {
-        // Ensure id and threadId exist
         const msgRes = await gmail.users.messages.get({
           userId: "me",
           id: message.id,
           format: "full",
         });
 
-        // Cast the data to our GmailFullMessage type
         const msgData = msgRes.data as GmailFullMessage;
         if (!msgData) return null;
 
@@ -221,11 +214,11 @@ export async function fetchUserEmails(filterBySenderEmail?: string) {
         const from = headers.find((h) => h.name === "From")?.value || undefined;
         const date = headers.find((h) => h.name === "Date")?.value || undefined;
 
-        const body = getEmailBody(msgData.payload); // Pass our specific payload type
+        const body = getEmailBody(msgData.payload);
 
         return {
           id: msgData.id,
-          threadId: msgData.threadId, // Added threadId as it's usually useful
+          threadId: msgData.threadId,
           snippet: msgData.snippet,
           subject,
           from,
