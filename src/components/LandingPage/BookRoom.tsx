@@ -167,7 +167,7 @@ export default function BookRoom() {
   };
 
   return (
-    <div className="bg-white rounded-lg md:rounded-full shadow-lg max-w-6xl mx-auto mt-8 flex flex-wrap items-center justify-between px-4 py-3 md:py-2 space-y-4 md:space-y-0 md:flex-nowrap">
+    <div className="bg-white rounded-lg md:rounded-full shadow-lg max-w-6xl mx-auto mt-8 flex flex-wrap items-center justify-between px-4 py-3 md:py-2 space-y-4 md:space-y-0 md:flex-nowrap z-[9999]">
       <div className="flex-1 min-w-[150px] group relative flex flex-col px-1 md:px-2">
         <TooltipProvider>
           <Tooltip>

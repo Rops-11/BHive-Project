@@ -1,24 +1,13 @@
 import { prisma } from "utils/db";
 import { getUnavailableRoomIdsForPeriod } from "utils/utils";
-import { v4 as uuidv4 } from "uuid";
-import { addDays, formatISO } from "date-fns";
+
+const prisma = new PrismaClient();
 
 describe("getUnavailableRoomIdsForPeriod", () => {
-  const roomId1 = uuidv4();
-  const roomId2 = uuidv4();
-  const bookingId1 = uuidv4();
-  const bookingId2 = uuidv4();
-
-  // Use future dates relative to today
-  const today = new Date();
-  const booking1CheckIn = addDays(today, 2); // +2 days from now
-  const booking1CheckOut = addDays(today, 6); // +6 days from now
-
-  const booking2CheckIn = addDays(today, 10); // +10 days from now
-  const booking2CheckOut = addDays(today, 15); // +15 days from now
+  const roomId1 = "room-1";
+  const roomId2 = "room-2";
 
   beforeAll(async () => {
-    // Seed rooms
     await prisma.room.createMany({
       data: [
         {
@@ -40,11 +29,10 @@ describe("getUnavailableRoomIdsForPeriod", () => {
       ],
     });
 
-    // Seed bookings
     await prisma.booking.createMany({
       data: [
         {
-          id: bookingId1,
+          id: "booking-1",
           roomId: roomId1,
           checkIn: booking1CheckIn,
           checkOut: booking1CheckOut,
@@ -59,7 +47,7 @@ describe("getUnavailableRoomIdsForPeriod", () => {
           bookingType: "Online",
         },
         {
-          id: bookingId2,
+          id: "booking-2",
           roomId: roomId2,
           checkIn: booking2CheckIn,
           checkOut: booking2CheckOut,
@@ -84,70 +72,36 @@ describe("getUnavailableRoomIdsForPeriod", () => {
   });
 
   it("throws error if dates missing or invalid", async () => {
-    await expect(
-      getUnavailableRoomIdsForPeriod(prisma, "", formatISO(booking1CheckOut, { representation: "date" }))
-    ).rejects.toThrow(/required/);
-    await expect(
-      getUnavailableRoomIdsForPeriod(prisma, "invalid", formatISO(booking1CheckOut, { representation: "date" }))
-    ).rejects.toThrow(/Invalid date format/);
+    await expect(getUnavailableRoomIdsForPeriod(prisma, "", "2025-06-05")).rejects.toThrow(/required/);
+    await expect(getUnavailableRoomIdsForPeriod(prisma, "invalid", "2025-06-05")).rejects.toThrow(/Invalid date format/);
   });
 
   it("throws error if checkout is before or same as checkin", async () => {
-    const date = formatISO(addDays(today, 5), { representation: "date" });
-    await expect(
-      getUnavailableRoomIdsForPeriod(prisma, date, date)
-    ).rejects.toThrow(/must be after/);
-    await expect(
-      getUnavailableRoomIdsForPeriod(prisma, formatISO(addDays(today, 6), { representation: "date" }), date)
-    ).rejects.toThrow(/must be after/);
+    await expect(getUnavailableRoomIdsForPeriod(prisma, "2025-06-05", "2025-06-05")).rejects.toThrow(/must be after/);
+    await expect(getUnavailableRoomIdsForPeriod(prisma, "2025-06-06", "2025-06-05")).rejects.toThrow(/must be after/);
   });
 
   it("throws error if checkin date is in the past", async () => {
-    const pastDate = formatISO(addDays(today, -1), { representation: "date" });
-    await expect(
-      getUnavailableRoomIdsForPeriod(
-        prisma,
-        pastDate,
-        formatISO(addDays(today, 2), { representation: "date" })
-      )
-    ).rejects.toThrow(/cannot be in the past/);
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 1);
+    await expect(getUnavailableRoomIdsForPeriod(prisma, pastDate.toISOString(), "2025-06-05")).rejects.toThrow(/cannot be in the past/);
   });
 
   it("returns room IDs that are booked and overlap the target period", async () => {
-    const checkIn = formatISO(addDays(today, 3), { representation: "date" });
-    const checkOut = formatISO(addDays(today, 4), { representation: "date" });
-
-    const unavailable = await getUnavailableRoomIdsForPeriod(
-      prisma,
-      checkIn,
-      checkOut
-    );
+    // Overlapping booking for roomId1 only (booking-1 is pending)
+    const unavailable = await getUnavailableRoomIdsForPeriod(prisma, "2025-06-03", "2025-06-04");
     expect(unavailable).toContain(roomId1);
     expect(unavailable).not.toContain(roomId2);
   });
 
   it("ignores bookings with Cancelled or Complete status", async () => {
-    const checkIn = formatISO(addDays(today, 12), { representation: "date" });
-    const checkOut = formatISO(addDays(today, 14), { representation: "date" });
-
-    const unavailable = await getUnavailableRoomIdsForPeriod(
-      prisma,
-      checkIn,
-      checkOut
-    );
+    // booking-2 is Complete, so its roomId2 should not be returned
+    const unavailable = await getUnavailableRoomIdsForPeriod(prisma, "2025-06-12", "2025-06-14");
     expect(unavailable).not.toContain(roomId2);
   });
 
   it("excludes booking ID if excludeBookingId is provided", async () => {
-    const checkIn = formatISO(addDays(today, 3), { representation: "date" });
-    const checkOut = formatISO(addDays(today, 4), { representation: "date" });
-
-    const unavailable = await getUnavailableRoomIdsForPeriod(
-      prisma,
-      checkIn,
-      checkOut,
-      bookingId1
-    );
+    const unavailable = await getUnavailableRoomIdsForPeriod(prisma, "2025-06-03", "2025-06-04", "booking-1");
     expect(unavailable).not.toContain(roomId1);
   });
 });
