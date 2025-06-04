@@ -1,30 +1,26 @@
-import React, { JSX } from "react"; // Added JSX for amenityIcons type
+import React, { JSX } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useBooking } from "../providers/BookProvider";
 import { RoomImagesCarousel } from "../Room/RoomImagesCarousel";
 import { BedDouble, Users, DollarSign } from "lucide-react";
-import { Amenity, AMENITIES } from "@/constants/amenities"; // Import Amenity types and constants
+import { Amenity, AMENITIES } from "@/constants/amenities";
 
-// --- Copied from HotelRoomCard for amenity display ---
-// Fallback Icon
 const FallbackAmenityIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4" // Base size, will be overridden by cloneElement
+    className="w-4 h-4"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
-    strokeWidth={2}
-  >
+    strokeWidth={2}>
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M5 13l4 4L19 7" // Generic checkmark
+      d="M5 13l4 4L19 7"
     />
   </svg>
 );
 
-// Icon mapping
 const amenityIcons: { [key in Amenity]?: JSX.Element } = {
   "Free Wifi": (
     <svg
@@ -33,20 +29,18 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
+      strokeWidth={2}>
       <path d="M5 13a10 10 0 0114 0M8.5 16.5a6 6 0 017 0M12 20h.01" />
     </svg>
   ),
-  "Airconditioned": (
+  Airconditioned: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
+      strokeWidth={2}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -54,16 +48,22 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       />
     </svg>
   ),
-  "Television": (
+  Television: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth={2}
-    >
-      <rect x="3" y="5" width="18" height="12" rx="2" ry="2" />
+      strokeWidth={2}>
+      <rect
+        x="3"
+        y="5"
+        width="18"
+        height="12"
+        rx="2"
+        ry="2"
+      />
       <path d="M8 21h8" />
     </svg>
   ),
@@ -74,8 +74,7 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
-      strokeWidth="2"
-    >
+      strokeWidth="2">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -84,33 +83,79 @@ const amenityIcons: { [key in Amenity]?: JSX.Element } = {
     </svg>
   ),
   "Separated CR": (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M5 2a1 1 0 011-1h8a1 1 0 011 1v2H5V2zm0 3h10v1H5V5zm0 2h10v9H5V7zm2 2a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      viewBox="0 0 20 20"
+      fill="currentColor">
+      <path
+        fillRule="evenodd"
+        d="M5 2a1 1 0 011-1h8a1 1 0 011 1v2H5V2zm0 3h10v1H5V5zm0 2h10v9H5V7zm2 2a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"
+        clipRule="evenodd"
+      />
     </svg>
   ),
   "Open CR": (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7H21M3 7V3M3 7L6 10M21 7V3M21 7L18 10M6 10H18M6 10L9 13M18 10L15 13M9 13H15M9 13V21H15V13" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7H21M3 7V3M3 7L6 10M21 7V3M21 7L18 10M6 10H18M6 10L9 13M18 10L15 13M9 13H15M9 13V21H15V13"
+      />
     </svg>
   ),
   "Single Bed": (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h3" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h3"
+      />
     </svg>
   ),
   "Twin Single Bed": (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h5V7H3zM14 7v12h5a2 2 0 002-2V7h-7zM5 7V4a1 1 0 011-1h3a1 1 0 011 1v3M16 7V4a1 1 0 011-1h3a1 1 0 011 1v3" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h5V7H3zM14 7v12h5a2 2 0 002-2V7h-7zM5 7V4a1 1 0 011-1h3a1 1 0 011 1v3M16 7V4a1 1 0 011-1h3a1 1 0 011 1v3"
+      />
     </svg>
   ),
   "Queen Size Bed": (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h10" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M5 7V4a1 1 0 011-1h12a1 1 0 011 1v3M5 7h14M5 11h14M7 15h10"
+      />
     </svg>
   ),
 };
-// --- End of copied section ---
-
 
 const PreviewRoom = () => {
   const { selectedRoom } = useBooking();
@@ -151,28 +196,31 @@ const PreviewRoom = () => {
                 </div>
               )}
 
-              {/* Amenities Section */}
+              {}
               {selectedRoom.amenities && selectedRoom.amenities.length > 0 && (
-                <div className="pt-1"> {/* Reduced top padding slightly from pt-2 to pt-1 if space-y-3 is on parent */}
+                <div className="pt-1">
+                  {" "}
+                  {}
                   <h4 className="font-medium text-slate-600 mb-1">
                     Amenities:
                   </h4>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-slate-600">
                     {selectedRoom.amenities.map((amenityName) => {
                       const amenity = amenityName as Amenity;
-                      // Ensure amenity is in our defined AMENITIES list to be safe
+
                       if (!AMENITIES.includes(amenity)) return null;
 
-                      const iconElement = amenityIcons[amenity] || <FallbackAmenityIcon />;
+                      const iconElement = amenityIcons[amenity] || (
+                        <FallbackAmenityIcon />
+                      );
                       return (
                         <div
                           key={amenity}
                           className="flex items-center"
-                          title={amenity}
-                        >
+                          title={amenity}>
                           {React.cloneElement(iconElement, {
-                            // Apply consistent styling to icons
-                            className: "mr-1.5 h-4 w-4 md:h-5 md:w-5 text-amber-700 flex-shrink-0",
+                            className:
+                              "mr-1.5 h-4 w-4 md:h-5 md:w-5 text-amber-700 flex-shrink-0",
                           })}
                           <span>{amenity}</span>
                         </div>
@@ -186,7 +234,8 @@ const PreviewRoom = () => {
         </>
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-center p-4">
-          <BedDouble className="w-12 h-12 md:w-16 md:h-16 text-amber-500/80 mb-4" /> {/* Increased icon size */}
+          <BedDouble className="w-12 h-12 md:w-16 md:h-16 text-amber-500/80 mb-4" />{" "}
+          {}
           <p className="text-lg md:text-xl font-semibold text-slate-600 mb-1">
             Room Preview
           </p>
