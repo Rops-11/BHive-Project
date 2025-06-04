@@ -36,6 +36,6 @@
     "src/**/*.tsx",
     "__tests__/**/*.ts",
     "__tests__/**/*.tsx"
-  ],
+, "__tests__/api/auth/auth.cy.js"  ],
   "exclude": ["node_modules"]
 }
