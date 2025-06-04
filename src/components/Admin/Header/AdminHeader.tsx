@@ -16,7 +16,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth/logout";
 import { usePathname } from "next/navigation";
-import { FiLogOut } from "react-icons/fi"; // ✅ Added logout icon
+import { FiLogOut } from "react-icons/fi";
 
 const navigationLinks = [
   { title: "Dashboard", href: "/admin" },
