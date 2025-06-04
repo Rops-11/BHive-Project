@@ -31,4 +31,12 @@ describe('Login With Google Page', () => {
     const currentYear = new Date().getFullYear().toString();
     cy.get('footer').should('contain.text', currentYear);
   });
+
+  it ('should have a responsive design', () => {
+    cy.viewport('iphone-x'); 
+    cy.get('img[alt="BHive Logo"]').should('be.visible');
+    cy.contains('Welcome Back!').should('be.visible');
+    cy.contains('Sign in with your Google account to continue.').should('be.visible');
+    cy.contains('Sign In With Google').should('be.visible');
+  });
 });
