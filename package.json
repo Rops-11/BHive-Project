@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "cypress": "cypress open --config-file cypress.config.ts",
     "dev": "dotenv -e .env.development next dev --turbopack",
     "build": "dotenv -e .env.development next build",
     "start": "next start",
