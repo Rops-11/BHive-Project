@@ -188,20 +188,6 @@ describe("Booking API Routes (Integration with Real Supabase Storage)", () => {
       expect(b2Result).toBeDefined();
       expect(b2Result.image).toBeNull();
     });
-
-    it("should return 400 if Supabase getMedia encounters a critical error (hard to simulate without mocks)", async () => {
-      console.warn(
-        "Skipping: Test for GET 400 on Supabase getMedia error (hard to simulate without mocks)."
-      );
-      expect(true).toBe(true);
-    });
-
-    it("should handle unexpected database errors during fetch (hard to reliably trigger for integration test)", async () => {
-      console.warn(
-        "Skipping: Test for 500 on DB query fail is hard to reliably trigger in integration without external DB manipulation."
-      );
-      expect(true).toBe(true);
-    });
   });
 
   describe("POST /api/book", () => {
@@ -288,12 +274,6 @@ describe("Booking API Routes (Integration with Real Supabase Storage)", () => {
       expect(dbBooking?.paymentStatus).toBe(PaymentStatus.Paid);
     });
 
-    it("should rollback booking creation if Supabase uploadImage fails (hard to simulate without deeper mocks)", async () => {
-      console.warn(
-        "Skipping: Test for POST rollback on Supabase upload error (hard to simulate without deeper mocks)."
-      );
-      expect(true).toBe(true);
-    });
 
     it("should return 400 for missing required fields", async () => {
       const formData = createFormData({
