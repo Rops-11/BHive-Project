@@ -479,6 +479,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                           {field.value
                             ? `${field.value.roomNumber} - ${field.value.roomType}`
                             : "Choose Your Room"}
+                          <div id="selectRoom"></div>
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
@@ -587,6 +588,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                   <FormLabel>Adults</FormLabel>
                   <FormControl>
                     <Input
+                      id="adult"
                       type="number"
                       min="1"
                       className="border-black"
@@ -614,6 +616,7 @@ const BookingForm = ({ type = "Guest" }: { type?: "Admin" | "Guest" }) => {
                   <FormLabel>Children</FormLabel>
                   <FormControl>
                     <Input
+                      id="children"
                       type="number"
                       min="0"
                       className="border-black"
