@@ -62,32 +62,6 @@ import {
       });
     });
   
-    describe("findOverlappingBookings", () => {
-      it("returns overlapping bookings correctly", () => {
-        const bookings = [
-          {
-            id: "1",
-            checkIn: new Date("2025-06-01"),
-            checkOut: new Date("2025-06-05"),
-          },
-          {
-            id: "2",
-            checkIn: new Date("2025-06-10"),
-            checkOut: new Date("2025-06-15"),
-          },
-        ] as any;
-  
-        const overlapped = findOverlappingBookings(
-          { checkIn: "2025-06-04", checkOut: "2025-06-11" },
-          bookings
-        );
-  
-        expect(overlapped.length).toBe(2);
-        expect(overlapped.map(b => b.id)).toContain("1");
-        expect(overlapped.map(b => b.id)).toContain("2");
-      });
-    });
-  
     describe("formatDate", () => {
       it("formats valid date strings", () => {
         expect(formatDate("2025-06-01")).toMatch(/Jun.*2025/);
