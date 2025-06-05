@@ -1,4 +1,5 @@
 
+/// <reference types="cypress" />
 
 describe('Login With Google Page', () => {
   beforeEach(() => {
