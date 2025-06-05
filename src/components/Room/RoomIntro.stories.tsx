@@ -1,15 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within, } from "@storybook/test";
-import { FacilityIntroText } from "./FacilityIntroText";
+import { RoomIntroText } from "./RoomIntroText";
+import { string } from "zod";
 
 const meta = {
-  title: "RoomT/FacilityIntroText",
-  component: FacilityIntroText,
+  title: "RoomT/RoomIntroText",
+  component: RoomIntroText,
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
   },
-} satisfies Meta<typeof FacilityIntroText>;
+} satisfies Meta<typeof RoomIntroText>;
 
 export default meta;
 
@@ -18,13 +19,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Facilities and Amenities")).toBeInTheDocument();
+    await expect(canvas.getByText("Rooms")).toBeInTheDocument();
   },
 };
 
-export const CustomDescription: Story = {
+export const CustomBody: Story = {
   args: {
-    description: "Test test test test test test.",
+    body: "Enjoy your stay in our deluxe room with modern amenities.",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -48,9 +49,8 @@ export const CustomTitleColor: Story = {
   },
 };
 
-export const CustomDescriptionColor: Story = {
+export const CustomBodyColor: Story = {
   args: {
-    descriptionColor: "text-red-600"
+    bodyColor: "text-red-600"
   },
 };
-
