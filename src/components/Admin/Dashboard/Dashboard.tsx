@@ -280,6 +280,7 @@ export function Dashboard() {
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger
               value="ongoing"
+              data-testid="checked-in"
               className="relative">
               Checked In
               {!loading && (
@@ -292,6 +293,7 @@ export function Dashboard() {
             </TabsTrigger>
             <TabsTrigger
               value="expecting"
+              data-testid="arriving"
               className="relative">
               Arriving
               {!loading && (
@@ -304,6 +306,7 @@ export function Dashboard() {
             </TabsTrigger>
             <TabsTrigger
               value="new"
+              data-testid="new-bookings"
               className="relative">
               New (Booked Today)
               {!loading && (
